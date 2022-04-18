@@ -117,5 +117,5 @@ class DatabaseService():
     @staticmethod
     def countEachLabelDocumentByDate(date):
         documents = query_db(
-            "SELECT D.label, L.name, COUNT(D.id) as count FROM documents AS D LEFT JOIN labels AS L ON D.label = L.id WHERE D.created_at LIKE ? GROUP BY D.label", ['%'+date+'%'])
+            "SELECT D.label, L.name, COUNT(D.id) as count FROM documents AS D LEFT JOIN labels AS L ON D.label = L.id WHERE D.created_at LIKE ? GROUP BY D.label ORDER BY COUNT(D.id) DESC", ['%'+date+'%'])
         return documents
