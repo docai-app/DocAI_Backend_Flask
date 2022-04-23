@@ -21,7 +21,7 @@ app.register_blueprint(classification)
 app.register_blueprint(storage)
 app.register_blueprint(label)
 app.register_blueprint(search)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": ["*", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
 
 
 @app.teardown_appcontext
