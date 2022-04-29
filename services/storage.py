@@ -20,7 +20,6 @@ class StorageService:
             blob_client.upload_blob(file)
             content = OCRService.getText(blob_client.url)
             document = DatabaseService.addNewDocument(filename, blob_client.url, content)
-            print(document)
             return blob_client.url
         except Exception as e:
             return e

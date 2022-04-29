@@ -9,6 +9,7 @@ from routes.api.classification import classification
 from routes.api.label import label
 from routes.api.storage import storage
 from routes.api.search import search
+from routes.api.form import form
 from flask_cors import CORS
 
 os.environ['TZ'] = 'Asia/Taipei'
@@ -21,6 +22,7 @@ app.register_blueprint(classification)
 app.register_blueprint(storage)
 app.register_blueprint(label)
 app.register_blueprint(search)
+app.register_blueprint(form)
 CORS(app, resources={r"/*": {"origins": ["*", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
 
 
