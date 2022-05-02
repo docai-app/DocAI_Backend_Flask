@@ -2,7 +2,7 @@ import os
 import pickle
 from unittest import result
 import uuid
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, ContentSettings
 from services.database import DatabaseService
 from services.ocr import OCRService
 
@@ -17,7 +17,7 @@ class StorageService:
                 connect_str)
             blob_client = blob_service_client.get_blob_client(
                 container='document-storage', blob=filename)
-            blob_client.upload_blob(file)
+            blob_client.upload_blob(file, content_settings=ContentSettings(file.content_type))
             content = OCRService.getText(blob_client.url)
             document = DatabaseService.addNewDocument(filename, blob_client.url, content)
             return blob_client.url
