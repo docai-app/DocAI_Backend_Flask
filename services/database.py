@@ -105,13 +105,13 @@ class DatabaseService():
     @staticmethod
     def searchDocumentByContent(content):
         documents = query_db(
-            "SELECT * FROM documents WHERE content LIKE ?", ['%'+content+'%'])
+            "SELECT * FROM documents WHERE content LIKE ?", ['%' + content + '%'])
         return documents
 
     @staticmethod
     def searchDocumentByName(name):
         documents = query_db(
-            "SELECT * FROM documents WHERE name LIKE ?", ['%'+name+'%'])
+            "SELECT * FROM documents WHERE name LIKE ?", ['%' + name + '%'])
         return documents
 
     @staticmethod
@@ -119,3 +119,9 @@ class DatabaseService():
         documents = query_db(
             "SELECT D.label, L.name, COUNT(D.id) as count FROM documents AS D LEFT JOIN labels AS L ON D.label = L.id WHERE D.created_at LIKE ? GROUP BY D.label ORDER BY COUNT(D.id) DESC", ['%'+date+'%'])
         return documents
+
+    @staticmethod
+    def getFormSchemaByName(name):
+        formSchema = query_db(
+            "SELECT * FROM forms_schema WHERE name LIKE ?", ['%' + name + '%'], one=True)
+        return formSchema

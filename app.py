@@ -12,6 +12,7 @@ from routes.api.search import search
 from routes.api.form import form
 from flask_cors import CORS
 
+
 os.environ['TZ'] = 'Asia/Taipei'
 
 DATABASE = './database/database.db'

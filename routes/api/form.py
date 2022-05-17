@@ -4,6 +4,7 @@ import json
 from flask import Blueprint, jsonify, request, render_template, send_from_directory
 from services.AzureForm import AzureFormService
 from services.storage import StorageService
+from services.form import FormService
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 load_dotenv()
@@ -27,7 +28,9 @@ def labels():
         filename = secure_filename(file.filename)
         formUrl = StorageService.upload(file, filename)
     res = AzureFormService.analysisForm(model_id, formUrl)
-    return jsonify({'status': True, 'form_url': formUrl, 'result': res})
+    result = FormService.mapAbsenceForm(res)
+    print(result)
+    return jsonify({'status': True, 'form_url': formUrl, 'result': result})
 
 
 # @form.route('/labels/absence', methods=['POST'])
