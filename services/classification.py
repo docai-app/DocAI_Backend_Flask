@@ -18,7 +18,7 @@ class ClassificationService:
         X_train = []
         X_train_corpus = []
         for doc in documents:
-            X_train_corpus.append(doc[4])
+            X_train_corpus.append(doc['content'])
         X_train = embedder.encode(X_train_corpus)
         cluster = ClusterService(5)
         initialSample = cluster.cluster(X_train, documents)
@@ -31,7 +31,7 @@ class ClassificationService:
         X_train_corpus = []
         for document in documents:
             record = DatabaseService.getDoucmentByID(document['id'])
-            X_train_corpus.append(record[4])
+            X_train_corpus.append(record['content'])
             Y_train.append(document['label'])
         X_train = embedder.encode(X_train_corpus)
         learner = ActiveLearner(
@@ -47,7 +47,7 @@ class ClassificationService:
     def predict(id):
         corpus = []
         record = DatabaseService.getDoucmentByID(id)
-        corpus.append(record[4])
+        corpus.append(record['content'])
         embeddings = embedder.encode(corpus)
         with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'rb') as file:
             learner = pickle.load(file)
@@ -59,12 +59,13 @@ class ClassificationService:
     def confirm(id, label):
         corpus = []
         record = DatabaseService.getDoucmentByID(id)
-        corpus.append(record[4])
+        corpus.append(record['content'])
         embeddings = embedder.encode(corpus)
         with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'rb') as file:
             learner = pickle.load(file)
         learner.teach(embeddings.reshape(1, -1), [label])
         with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'wb') as file:
             pickle.dump(learner, file)
-        DatabaseService.updateDocumentStatusAndLabbel(id, status='confirmed', label=label)
+        DatabaseService.updateDocumentStatusAndLabbel(
+            id, status='confirmed', label=label)
         return "Confirmed"

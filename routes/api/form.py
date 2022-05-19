@@ -23,14 +23,15 @@ def allowed_file(filename):
 @form.route('/form/absence', methods=['POST'])
 def labels():
     file = request.files.getlist('document[]')[0]
-    print(file)
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         formUrl = StorageService.upload(file, filename)
     res = AzureFormService.analysisForm(model_id, formUrl)
-    result = FormService.mapAbsenceForm(res)
-    print(result)
-    return jsonify({'status': True, 'form_url': formUrl, 'result': result})
+    absenceFormData = FormService.mapAbsenceForm(res)
+    formData = FormService.addNewFormData(absenceFormData, '請假表')
+    print(absenceFormData)
+    print(formData)
+    return jsonify({'status': True, 'form_url': formUrl, 'form_id': formData['id'], 'result': absenceFormData})
 
 
 # @form.route('/labels/absence', methods=['POST'])

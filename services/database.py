@@ -1,9 +1,17 @@
+from math import e
 import sqlite3
 import uuid
 from datetime import datetime
 from flask import g
+import json
 
 DATABASE = 'database/database.db'
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
 
 
 def get_db():
@@ -11,6 +19,7 @@ def get_db():
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
         # Enable foreign key check
+        db.row_factory = dict_factory
         db.execute("PRAGMA foreign_keys = ON")
     return db
 
@@ -125,3 +134,30 @@ class DatabaseService():
         formSchema = query_db(
             "SELECT * FROM forms_schema WHERE name LIKE ?", ['%' + name + '%'], one=True)
         return formSchema
+
+    @staticmethod
+    def addNewFormData(result, name):
+        try:
+            formSchema = DatabaseService.getFormSchemaByName(name)
+            formDataID = str(uuid.uuid4())
+            db = get_db()
+            cursor = db.cursor()
+            cursor.execute("INSERT INTO forms_data (id,schema_id,data,updated_at,created_at) VALUES (?,?,?,?,?)", (
+                formDataID,
+                formSchema['id'],
+                json.dumps(result),
+                str(datetime.now()),
+                str(datetime.now())
+            ))
+            db.commit()
+            newFormData = DatabaseService.getFormDataByID(formDataID)
+            return newFormData
+        except Exception(e):
+            print(e)
+            pass
+
+    @staticmethod
+    def getFormDataByID(id):
+        formData = query_db(
+            "SELECT * FROM forms_data WHERE id==?", [id], True)
+        return formData

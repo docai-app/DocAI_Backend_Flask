@@ -54,7 +54,7 @@ def documents():
 def lastest():
     document = DatabaseService.getAndPredictLastestDoucment()
     if document:
-        prediction = ClassificationService.predict(document[0])
+        prediction = ClassificationService.predict(document['id'])
         return jsonify({'document': document, 'prediction': prediction})
     else:
         return jsonify({'status': 'null'})

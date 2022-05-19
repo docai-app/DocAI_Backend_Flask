@@ -15,15 +15,14 @@ document_analysis_client = DocumentAnalysisClient(
 class AzureFormService:
     @staticmethod
     def analysisForm(model_id, formUrl):
+        # print(model_id, formUrl)
         poller = document_analysis_client.begin_analyze_document_from_url(model_id, formUrl)
         result = poller.result()
         fields = {}
-        print(result.documents[0].fields)
+        # print(result.documents[0].fields)
         for key, field in result.documents[0].fields.items():
             print(key, field)
             fields[key] = field.content
         print(fields)
-        # res = json.dumps(fields)
-        # print(res)
         return fields
     
