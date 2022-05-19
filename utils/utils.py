@@ -20,3 +20,6 @@ def setRecursiveLookup(k, d, v):
                 return a
     return None
 
+
+def getExtension(filename):
+    return filename.split(".")[-1]

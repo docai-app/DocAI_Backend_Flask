@@ -19,7 +19,6 @@ def allowed_file(filename):
 @storage.route('/upload', methods=['POST'])
 def upload():
     files = request.files.getlist('document[]')
-    print(files);
     for file in files:
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)

@@ -17,7 +17,6 @@ class FormService():
                     value = False
 
                 if getRecursiveLookup(key, dataSchema) is not None:
-                    print(key, value)
                     setRecursiveLookup(key, dataSchema, value)
 
         except Exception as e:

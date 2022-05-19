@@ -29,8 +29,6 @@ def labels():
     res = AzureFormService.analysisForm(model_id, formUrl)
     absenceFormData = FormService.mapAbsenceForm(res)
     formData = FormService.addNewFormData(absenceFormData, '請假表')
-    print(absenceFormData)
-    print(formData)
     return jsonify({'status': True, 'form_url': formUrl, 'form_id': formData['id'], 'result': absenceFormData})
 
 

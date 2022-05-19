@@ -89,19 +89,11 @@ class DatabaseService():
         return cursor
 
     @staticmethod
-    def addNewDocument(name, storage, content):
-        print(
-            str(uuid.uuid4()),
-            name,
-            storage,
-            content,
-            'uploaded',
-            str(datetime.now())
-        )
+    def addNewDocument(id, name, storage, content):
         db = get_db()
         cursor = db.cursor()
         document = cursor.execute("INSERT INTO documents (id,name,storage,content,status,created_at) VALUES (?,?,?,?,?,?)", (
-            str(uuid.uuid4()),
+            str(id),
             name,
             storage,
             content,

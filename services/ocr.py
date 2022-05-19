@@ -43,7 +43,6 @@ class OCRService:
         if result.status == OperationStatusCodes.succeeded:
             for readResult in result.analyze_result.read_results:
                 for line in readResult.lines:
-                    print(line.text)
                     text += line.text
                 print()
         return text
