@@ -3,6 +3,7 @@ import os
 import json
 from flask import Blueprint, jsonify, request, render_template, send_from_directory
 from services.AzureForm import AzureFormService
+from services.database import DatabaseService
 from services.storage import StorageService
 from services.form import FormService
 from werkzeug.utils import secure_filename
@@ -32,9 +33,9 @@ def labels():
     return jsonify({'status': True, 'form_url': formUrl, 'form_id': formData['id'], 'result': absenceFormData})
 
 
-# @form.route('/labels/absence', methods=['POST'])
-# def new():
-#     requestData = request.get_json()
-#     name = requestData['name']
-#     DatabaseService.addNewLabel(name)
-#     return jsonify({'status': 'Added'})
+@form.route('/form/<id>', methods=['PUT'])
+def updateFormDataByID(id):
+    requestData = request.get_json()
+    form = requestData['form']
+    res = FormService.updateFormDataByID(id, form)
+    return jsonify({'status': 'success'})
