@@ -10,7 +10,7 @@ class FormService():
         dataSchema = json.loads(formSchema['data_schema'])
         try:
             for key, value in form.items():
-                
+
                 if value == 'selected':
                     value = True
                 elif value == 'unselected':
@@ -22,13 +22,22 @@ class FormService():
         except Exception as e:
             print(e)
             pass
-        
+
         return dataSchema
-    
+
     @staticmethod
     def addNewFormData(data, name):
         try:
             formData = DatabaseService.addNewFormData(data, name)
+            return formData
+        except Exception as e:
+            print(e)
+            pass
+
+    @staticmethod
+    def updateFormDataByID(id, data):
+        try:
+            formData = DatabaseService.updateFormDataByID(id, data)
             return formData
         except Exception as e:
             print(e)

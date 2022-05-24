@@ -78,7 +78,7 @@ class DatabaseService():
         return label
 
     @staticmethod
-    def updateDocumentStatusAndLabbel(id, status, label):
+    def updateDocumentStatusAndLabel(id, status, label):
         db = get_db()
         cursor = db.cursor()
         cursor.execute("UPDATE documents SET status = ? , label = ? WHERE id = ?", [
@@ -160,3 +160,15 @@ class DatabaseService():
         formData = query_db(
             "SELECT * FROM forms_data WHERE created_at LIKE ?", ['%'+date+'%'])
         return formData
+
+    @staticmethod
+    def updateFormDataByID(id, data):
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("UPDATE forms_data SET data = ? , updated_at = ? WHERE id = ?", [
+            json.dumps(data),
+            str(datetime.now()),
+            str(id)
+        ])
+        db.commit()
+        return cursor
