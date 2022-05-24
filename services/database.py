@@ -7,6 +7,7 @@ import json
 
 DATABASE = 'database/database.db'
 
+
 def dict_factory(cursor, row):
     d = {}
     for idx, col in enumerate(cursor.description):
@@ -152,4 +153,10 @@ class DatabaseService():
     def getFormDataByID(id):
         formData = query_db(
             "SELECT * FROM forms_data WHERE id==?", [id], True)
+        return formData
+
+    @staticmethod
+    def searchFormDataByDate(date):
+        formData = query_db(
+            "SELECT * FROM forms_data WHERE created_at LIKE ?", ['%'+date+'%'])
         return formData
