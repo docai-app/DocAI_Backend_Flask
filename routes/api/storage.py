@@ -22,5 +22,5 @@ def upload():
     for file in files:
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            res = StorageService.upload(file, filename)
+            document = StorageService.upload(file, filename)
     return jsonify({'status': 'uploaded'})

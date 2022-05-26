@@ -26,11 +26,11 @@ def labels():
     file = request.files.getlist('document[]')[0]
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        formUrl = StorageService.upload(file, filename)
-    res = AzureFormService.analysisForm(model_id, formUrl)
+        document = StorageService.upload(file, filename)
+    res = AzureFormService.analysisForm(model_id, document['storage'])
     absenceFormData = FormService.mapAbsenceForm(res)
-    formData = FormService.addNewFormData(absenceFormData, '請假表')
-    return jsonify({'status': True, 'form_url': formUrl, 'form_id': formData['id'], 'result': absenceFormData})
+    formData = FormService.addNewFormData(absenceFormData, '請假表', document['id'])
+    return jsonify({'status': True, 'form_url': document['storage'], 'form_id': formData['id'], 'result': absenceFormData})
 
 
 @form.route('/form/<id>', methods=['PUT'])

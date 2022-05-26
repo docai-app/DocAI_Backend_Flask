@@ -8,7 +8,6 @@ load_dotenv()
 
 key = os.getenv("AZURE_COMPUTER_VISION_KEY")
 endpoint = os.getenv("AZURE_COMPUTER_VISION_ENDPOINT")
-connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
 
 # Set credentials
 credentials = CognitiveServicesCredentials(key)

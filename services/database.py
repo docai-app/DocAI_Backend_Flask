@@ -41,7 +41,7 @@ class DatabaseService():
     @staticmethod
     def getDoucmentByID(id):
         documents = query_db(
-            "SELECT * FROM documents WHERE id==?", [id], True)
+            "SELECT * FROM documents WHERE id==?", [str(id)], True)
         return documents
 
     @staticmethod
@@ -93,7 +93,7 @@ class DatabaseService():
     def addNewDocument(id, name, storage, content):
         db = get_db()
         cursor = db.cursor()
-        document = cursor.execute("INSERT INTO documents (id,name,storage,content,status,created_at) VALUES (?,?,?,?,?,?)", (
+        cursor.execute("INSERT INTO documents (id,name,storage,content,status,created_at) VALUES (?,?,?,?,?,?)", (
             str(id),
             name,
             storage,
@@ -101,8 +101,9 @@ class DatabaseService():
             "uploaded",
             str(datetime.now())
         ))
+        newDocument = DatabaseService.getDoucmentByID(id)
         db.commit()
-        return document
+        return newDocument
 
     @staticmethod
     def searchDocumentByContent(content):
@@ -129,14 +130,15 @@ class DatabaseService():
         return formSchema
 
     @staticmethod
-    def addNewFormData(result, name):
+    def addNewFormData(result, name, documentID):
         try:
             formSchema = DatabaseService.getFormSchemaByName(name)
             formDataID = str(uuid.uuid4())
             db = get_db()
             cursor = db.cursor()
-            cursor.execute("INSERT INTO forms_data (id,schema_id,data,updated_at,created_at) VALUES (?,?,?,?,?)", (
+            cursor.execute("INSERT INTO forms_data (id,document_id,schema_id,data,updated_at,created_at) VALUES (?,?,?,?,?,?)", (
                 formDataID,
+                documentID,
                 formSchema['id'],
                 json.dumps(result),
                 str(datetime.now()),
@@ -156,10 +158,18 @@ class DatabaseService():
         return formData
 
     @staticmethod
-    def searchFormDataByDate(date):
+    def getFormDataByDate(date):
         formData = query_db(
             "SELECT * FROM forms_data WHERE created_at LIKE ?", ['%'+date+'%'])
         return formData
+
+    @staticmethod
+    def searchFormByLabelAndDate(label, date):
+        formSchema = query_db(
+            "SELECT * FROM forms_schema WHERE name LIKE ?", ['%' + label + '%'], one=True)
+        formData = query_db(
+            "SELECT *, D.storage FROM forms_data AS F JOIN documents AS D ON F.document_id = D.id WHERE F.schema_id==? AND F.created_at LIKE ?", [formSchema['id'], '%'+date+'%'])
+        return {'form_schema': formSchema, 'form_data': formData}
 
     @staticmethod
     def updateFormDataByID(id, data):

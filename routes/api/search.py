@@ -25,5 +25,10 @@ def countEachLabelDocumentByDate(date):
 
 @search.route('/search/form/<date>', methods=['GET'])
 def searchFormByDate(date):
-    res = DatabaseService.searchFormDataByDate(date)
+    res = DatabaseService.getFormDataByDate(date)
+    return jsonify({'forms': res})
+
+@search.route('/search/form/<label>/<date>', methods=['GET'])
+def searchFormByLabelAndDate(date, label):
+    res = DatabaseService.searchFormByLabelAndDate(label, date)
     return jsonify({'forms': res})

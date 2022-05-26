@@ -26,9 +26,9 @@ class FormService():
         return dataSchema
 
     @staticmethod
-    def addNewFormData(data, name):
+    def addNewFormData(data, name, documentID):
         try:
-            formData = DatabaseService.addNewFormData(data, name)
+            formData = DatabaseService.addNewFormData(data, name, documentID)
             return formData
         except Exception as e:
             print(e)
