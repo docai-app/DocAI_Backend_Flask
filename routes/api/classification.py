@@ -44,13 +44,13 @@ def labels():
     return jsonify({'prediction': res})
 
 
-@classification.route('/documents')
+@classification.route('/documents', methods=['GET'])
 def documents():
     res = DatabaseService.getAllDoucment()
     return jsonify({'prediction': res})
 
 
-@classification.route('/documents/lastest')
+@classification.route('/documents/lastest', methods=['GET'])
 def lastest():
     document = DatabaseService.getAndPredictLastestDoucment()
     if document:
@@ -64,3 +64,15 @@ def lastest():
 def uploadedDocuments():
     res = DatabaseService.getAllUploadedDocument()
     return jsonify({'documents': res})
+
+
+@classification.route('/documents/labels', methods=['GET'])
+def documentsLabel():
+    labels = DatabaseService.searchDocumentLabels()
+    return jsonify({'labels': labels})
+
+
+@classification.route('/documents/labels/<id>', methods=['GET'])
+def documentsByLabelID(id):
+    documents = DatabaseService.searchDocumentByLabelID(id)
+    return jsonify({'documents': documents})

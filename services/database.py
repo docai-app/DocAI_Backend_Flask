@@ -118,6 +118,22 @@ class DatabaseService():
         return documents
 
     @staticmethod
+    def searchDocumentByLabelID(id):
+        documents = query_db(
+            "SELECT * FROM documents WHERE label==?", [id])
+        return documents
+
+    @staticmethod
+    def searchDocumentLabels():
+        try:
+            labels = query_db(
+                "SELECT DISTINCT D.label as id, L.name FROM documents as D LEFT JOIN labels AS L ON D.label = L.id")
+            return labels
+        except Exception(e):
+            print(e)
+            pass
+
+    @staticmethod
     def countEachLabelDocumentByDate(date):
         documents = query_db(
             "SELECT D.label, L.name, COUNT(D.id) as count FROM documents AS D LEFT JOIN labels AS L ON D.label = L.id WHERE D.created_at LIKE ? GROUP BY D.label ORDER BY COUNT(D.id) DESC", ['%'+date+'%'])
