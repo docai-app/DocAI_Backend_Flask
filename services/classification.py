@@ -32,7 +32,7 @@ class ClassificationService:
         for document in documents:
             record = DatabaseService.getDoucmentByID(document['id'])
             X_train_corpus.append(record['content'])
-            Y_train.append(document['label'])
+            Y_train.append(document['label_id'])
         X_train = embedder.encode(X_train_corpus)
         learner = ActiveLearner(
             estimator=RandomForestClassifier(n_jobs=4),

@@ -5,3 +5,5 @@ database
 data
 .DS_Store
 .env
+database/database.db
+database/database_backup.db
