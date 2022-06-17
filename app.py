@@ -1,4 +1,12 @@
-from dataclasses import dataclass
+from database.models.Roles import Roles
+from database.models.DocumentsApproval import DocumentsApproval
+from database.models.DocumentFolder import DocumentFolder
+from database.models.Folders import Folders
+from database.models.FormsData import FormsData
+from database.models.FormsSchema import FormsSchema
+from database.models.Documents import Documents
+from database.models.Labels import Labels
+from database.models.Users import Users
 import os
 from flask import Flask, render_template, Response
 from flask_migrate import Migrate
@@ -24,22 +32,14 @@ def createApp(config="settings.py"):
     app.register_blueprint(form)
     CORS(app, resources={
          r"/*": {"origins": ["*", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
+
+    db.init_app(app)
+    migrate = Migrate(app, db)
+    migrate.init_app(app, db)
     return app
 
 
 app = createApp()
-db.init_app(app)
-migrate = Migrate(app, db)
-
-
-from database.models.Users import Users
-from database.models.Labels import Labels
-from database.models.Documents import Documents
-from database.models.FormsSchema import FormsSchema
-from database.models.FormsData import FormsData
-from database.models.Folders import Folders
-from database.models.DocumentFolder import DocumentFolder
-from database.models.DocumentsApproval import DocumentsApproval
 
 
 if __name__ == '__main__':

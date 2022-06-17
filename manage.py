@@ -8,7 +8,7 @@ app = createApp()
 manager = Manager(app)
 Migrate(app, db)
 
-manager.add_command('db', MigrateCommand)  # 添加迁移命令集 到脚本命令
+manager.add_command('db', MigrateCommand)
 
 if __name__ == '__main__':
     manager.run()
