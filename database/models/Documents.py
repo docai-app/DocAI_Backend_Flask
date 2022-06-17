@@ -23,6 +23,9 @@ class Documents(db.Model, Base):
     created_at = db.Column(DateTime, nullable=False, default=db.func.now())
     
     label_details = relationship("Labels", back_populates="documents")
+    folder_details = relationship("DocumentFolder", back_populates="documents")
+    approval_details = relationship("DocumentsApproval", back_populates="document_details")
+    form_details = relationship("FormsData", back_populates="document_details")
 
     def __init__(self, id, name, label_id, storage_url, content, status, updated_at, created_at):
         self.id = id

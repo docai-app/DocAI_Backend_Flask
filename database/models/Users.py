@@ -18,6 +18,8 @@ class Users(db.Model, Base):
     last_active_at = db.Column(DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(DateTime, nullable=False, default=db.func.now())
     created_at = db.Column(DateTime, nullable=False, default=db.func.now())
+    
+    approval_details = relationship("DocumentsApproval", back_populates="users")
 
     def __init__(self, id, username, password, role, description, last_active_at, updated_at, created_at):
         self.id = id

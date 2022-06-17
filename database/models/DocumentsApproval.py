@@ -16,6 +16,9 @@ class DocumentsApproval(db.Model, Base):
     status = db.Column(ENUM('awaiting', 'approved', 'rejected', name='document_approval_status_enum'), nullable=False, default='awaiting')
     updated_at = db.Column(DateTime, nullable=False, default=db.func.now())
     created_at = db.Column(DateTime, nullable=False, default=db.func.now())
+    
+    document_details = relationship("Documents", back_populates="approval_details")
+    users = relationship("Users", back_populates="approval_details")
 
     def __init__(self, id, document_id, approved_by, status, updated_at, created_at):
         self.id = id

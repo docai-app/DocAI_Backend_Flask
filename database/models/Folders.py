@@ -15,6 +15,8 @@ class Folders(db.Model, Base):
     description = db.Column(TEXT, nullable=True)
     updated_at = db.Column(DateTime, nullable=False, default=db.func.now())
     created_at = db.Column(DateTime, nullable=False, default=db.func.now())
+    
+    document_folder = relationship("DocumentFolder", back_populates="folder_details")
 
     def __init__(self, id, name, description, updated_at, created_at):
         self.id = id
