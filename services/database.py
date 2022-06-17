@@ -5,6 +5,9 @@ from datetime import datetime
 from flask import g
 import json
 from flask_sqlalchemy import SQLAlchemy
+from database.models.Documents import Documents
+from database.models.Labels import Labels
+from utils.model import rows2dict, row2dict
 
 db = SQLAlchemy()
 DATABASE = 'database/database.db'
@@ -37,14 +40,16 @@ def query_db(query, args=(), one=False):
 class DatabaseService():
     @staticmethod
     def getAllDoucment():
-        documents = query_db("SELECT * FROM documents")
-        return documents
+        # documents = query_db("SELECT * FROM documents")
+        data = Documents.query.all()
+        return rows2dict(data)
 
     @staticmethod
     def getDoucmentByID(id):
-        documents = query_db(
-            "SELECT * FROM documents WHERE id==?", [str(id)], True)
-        return documents
+        # documents = query_db(
+        #     "SELECT * FROM documents WHERE id==?", [str(id)], True)
+        data = Documents.query.filter_by(id=id).first()
+        return row2dict(data)
 
     @staticmethod
     def getAndPredictLastestDoucment():
@@ -54,19 +59,22 @@ class DatabaseService():
 
     @staticmethod
     def getAllUploadedDocument():
-        documents = query_db(
-            "SELECT * FROM documents WHERE status=='uploaded'")
-        return documents
+        # documents = query_db(
+        #     "SELECT * FROM documents WHERE status=='uploaded'")
+        data = Documents.query.filter_by(status='uploaded').all()
+        return rows2dict(data)
 
     @staticmethod
     def getAllLabel():
-        labels = query_db("SELECT * FROM labels")
-        return labels
+        # labels = query_db("SELECT * FROM labels")
+        data = Labels.query.all()
+        return rows2dict(data)
 
     @staticmethod
     def getLabelByID(id):
-        labels = query_db("SELECT * FROM labels WHERE id==?", [str(id)], True)
-        return labels
+        # labels = query_db("SELECT * FROM labels WHERE id==?", [str(id)], True)
+        data = Labels.query.filter_by(id=id).first()
+        return row2dict(data)
 
     @staticmethod
     def addNewLabel(name):

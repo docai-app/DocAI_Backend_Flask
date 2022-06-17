@@ -12,12 +12,9 @@ label = Blueprint('label', __name__)
 
 @label.route('/labels', methods=['GET'])
 def labels():
-    # data = Labels.query.all()
-    # res = rows2dict(data)
-    data = Labels.query.first()
-    # res = row2dict(data)
-    print(data)
-    return jsonify({'labels': data})
+    data = Labels.query.all()
+    res = rows2dict(data)
+    return jsonify({'labels': res})
 
 
 @label.route('/labels', methods=['POST'])
@@ -26,4 +23,5 @@ def new():
     label = Labels(str(uuid.uuid4()), name)
     db.session.add(label)
     db.session.commit()
-    return jsonify({'status': 'Added', 'label': row2dict(label)})
+    res = row2dict(label)
+    return jsonify({'status': True, 'label': res})
