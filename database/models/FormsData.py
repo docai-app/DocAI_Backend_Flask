@@ -1,9 +1,14 @@
-from app import db
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy import DateTime, ForeignKey
+from sqlalchemy.orm import declarative_base, relationship, backref
+from ext import db
 
 
-class FormsData(db.Model):
+Base = declarative_base()
+
+
+class FormsData(db.Model, Base):
     __tablename__ = 'forms_data'
     id = db.Column(UUID , primary_key=True, unique=True, nullable=False, index=True)
     document_id = db.Column(UUID, ForeignKey('documents.id'), nullable=False, index=True)

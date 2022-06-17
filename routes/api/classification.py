@@ -1,10 +1,11 @@
-from cProfile import label
 from crypt import methods
 import json
+from database.models.Labels import Labels
 from flask import Blueprint, jsonify, request, render_template, send_from_directory
 from services.classification import ClassificationService
 from services.ocr import OCRService
 from services.database import DatabaseService
+
 
 classification = Blueprint('classification', __name__)
 
@@ -38,12 +39,6 @@ def confirm():
     return jsonify({'status': res})
 
 
-@classification.route('/labels', methods=['GET'])
-def labels():
-    res = DatabaseService.getAllLabel()
-    return jsonify({'prediction': res})
-
-
 @classification.route('/documents', methods=['GET'])
 def documents():
     res = DatabaseService.getAllDoucment()
@@ -68,7 +63,9 @@ def uploadedDocuments():
 
 @classification.route('/documents/labels', methods=['GET'])
 def documentsLabel():
-    labels = DatabaseService.searchDocumentLabels()
+    # labels = DatabaseService.searchDocumentLabels()
+    labels = Labels.query.all()
+    print(labels)
     return jsonify({'labels': labels})
 
 

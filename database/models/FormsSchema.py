@@ -1,9 +1,13 @@
-from app import db
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID, TEXT, JSON, JSONB
 from sqlalchemy import DateTime
+from sqlalchemy.orm import declarative_base, relationship, backref
+from ext import db
+
+Base = declarative_base()
 
 
-class FormsSchema(db.Model):
+class FormsSchema(db.Model, Base):
     __tablename__ = 'forms_schema'
     id = db.Column(UUID , primary_key=True, unique=True, nullable=False, index=True)
     name = db.Column(TEXT, nullable=False)

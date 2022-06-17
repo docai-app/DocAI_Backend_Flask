@@ -4,7 +4,9 @@ import uuid
 from datetime import datetime
 from flask import g
 import json
+from flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy()
 DATABASE = 'database/database.db'
 
 
@@ -106,18 +108,6 @@ class DatabaseService():
         return newDocument
 
     @staticmethod
-    def searchDocumentByContent(content):
-        documents = query_db(
-            "SELECT * FROM documents WHERE content LIKE ?", ['%' + content + '%'])
-        return documents
-
-    @staticmethod
-    def searchDocumentByName(name):
-        documents = query_db(
-            "SELECT * FROM documents WHERE name LIKE ?", ['%' + name + '%'])
-        return documents
-
-    @staticmethod
     def searchDocumentByLabelID(id):
         documents = query_db(
             "SELECT * FROM documents WHERE label==?", [id])
@@ -135,9 +125,11 @@ class DatabaseService():
 
     @staticmethod
     def countEachLabelDocumentByDate(date):
-        documents = query_db(
-            "SELECT D.label_id, L.name, COUNT(D.id) as count FROM documents AS D LEFT JOIN labels AS L ON D.label_id = L.id WHERE D.created_at LIKE ? GROUP BY D.label_id ORDER BY COUNT(D.id) DESC", ['%'+date+'%'])
-        return documents
+        data = db.session.execute("SELECT D.label_id, L.name, COUNT(D.id) as count FROM documents AS D LEFT JOIN labels AS L ON D.label_id = L.id WHERE CAST(D.created_at AS DATE) = :date GROUP BY (D.label_id, L.name) ORDER BY COUNT(D.id) DESC", {
+                                  'date': date}).fetchall()
+        # data = query_db(
+        #     "SELECT D.label_id, L.name, COUNT(D.id) as count FROM documents AS D LEFT JOIN labels AS L ON D.label_id = L.id WHERE D.created_at LIKE ? GROUP BY D.label_id ORDER BY COUNT(D.id) DESC", ['%'+date+'%'])
+        return data
 
     @staticmethod
     def getFormSchemaByName(name):

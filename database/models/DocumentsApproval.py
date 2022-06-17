@@ -1,9 +1,14 @@
-from app import db
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy import DateTime, ForeignKey
+from sqlalchemy.orm import declarative_base, relationship, backref
+from ext import db
 
 
-class DocumentsApproval(db.Model):
+Base = declarative_base()
+
+
+class DocumentsApproval(db.Model, Base):
     __tablename__ = 'documents_approval'
     id = db.Column(UUID , primary_key=True, unique=True, nullable=False, index=True)
     document_id = db.Column(UUID, ForeignKey('documents.id'), nullable=False, index=True)
@@ -22,5 +27,3 @@ class DocumentsApproval(db.Model):
     
     def __repr__(self):
         return "<DocumentsApproval(id='%s', document_id='%s', approved_by='%s', status='%s', updated_at='%s', created_at='%s')>" % (self.id, self.document_id, self.approved_by, self.status, self.updated_at, self.created_at)
-
-

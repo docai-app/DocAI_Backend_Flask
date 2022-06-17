@@ -1,32 +1,47 @@
 from crypt import methods
 import json
+from database.models.Documents import Documents
 from flask import Blueprint, jsonify, request, render_template, send_from_directory
 from services.database import DatabaseService
+from utils.model import row2dict, rows2dict
 
 search = Blueprint('search', __name__)
 
 
 @search.route('/search/content', methods=['GET'])
 def searchDocumentByContent():
-    res = DatabaseService.searchDocumentByContent(request.args.get('content'))
+    content = request.args.get('content')
+    data = Documents.query.filter(
+        Documents.content.like('%' + content + '%')).all()
+    res = rows2dict(data)
     return jsonify({'documents': res})
 
 
 @search.route('/search/name', methods=['GET'])
 def searchDocumentByName():
-    res = DatabaseService.searchDocumentByName(request.args.get('name'))
+    name = request.args.get('name')
+    # data = Documents.query.filter(Documents.name.like('%' + name + '%')).all()
+    # res = rows2dict(data)
+    data = Documents.query.filter(Documents.name.like('%' + name + '%')).first()
+    print(data.labels)
+    res = row2dict(data)
     return jsonify({'documents': res})
 
 
 @search.route('/count/document/<date>', methods=['GET'])
 def countEachLabelDocumentByDate(date):
-    res = DatabaseService.countEachLabelDocumentByDate(date)
-    return jsonify({'documents': res})
+    data = DatabaseService.countEachLabelDocumentByDate(date)
+    print(data)
+    # res = rows2dict(data)
+    # print(res);
+    return jsonify({'documents': data})
+
 
 @search.route('/search/form/<date>', methods=['GET'])
 def searchFormByDate(date):
     res = DatabaseService.getFormDataByDate(date)
     return jsonify({'forms': res})
+
 
 @search.route('/search/form/<label>/<date>', methods=['GET'])
 def searchFormByLabelAndDate(date, label):

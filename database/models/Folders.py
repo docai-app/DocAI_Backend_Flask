@@ -1,9 +1,14 @@
-from app import db
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID, TEXT
 from sqlalchemy import DateTime
+from sqlalchemy.orm import declarative_base, relationship, backref
+from ext import db
 
 
-class Folders(db.Model):
+Base = declarative_base()
+
+
+class Folders(db.Model, Base):
     __tablename__ = 'folders'
     id = db.Column(UUID , primary_key=True, unique=True, nullable=False)
     name = db.Column(TEXT, nullable=False, default='New Folder')
