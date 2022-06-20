@@ -17,6 +17,8 @@ from routes.api.storage import storage
 from routes.api.search import search
 from routes.api.form import form
 from flask_cors import CORS
+from dotenv import load_dotenv
+load_dotenv()
 
 
 os.environ['TZ'] = 'Asia/Taipei'
@@ -25,6 +27,7 @@ os.environ['TZ'] = 'Asia/Taipei'
 def createApp(config="settings.py"):
     app = Flask(__name__)
     app.config.from_pyfile(config)
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.register_blueprint(classification)
     app.register_blueprint(storage)
     app.register_blueprint(label)
