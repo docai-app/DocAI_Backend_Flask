@@ -29,7 +29,8 @@ def labels():
         document = StorageService.upload(file, filename)
     res = AzureFormService.analysisForm(model_id, document['storage'])
     absenceFormData = FormService.mapAbsenceForm(res)
-    formData = FormService.addNewFormData(absenceFormData, '請假表', document['id'])
+    formData = FormService.addNewFormData(
+        absenceFormData, '請假表', document['id'])
     return jsonify({'status': True, 'form_url': document['storage'], 'form_id': formData['id'], 'result': absenceFormData})
 
 
@@ -39,3 +40,15 @@ def updateFormDataByID(id):
     form = requestData['form']
     res = FormService.updateFormDataByID(id, form)
     return jsonify({'status': 'success'})
+
+
+# Get Absence Form By Approval Status Parameters API
+# API example: localhost:8888/form/absence/approval?status=<status>
+# function: getAbsenceFormByApprovalStatus
+# input: status
+# output: list of Absence Form Data
+@form.route('/form/absence/approval', methods=['GET'])
+def getAbsenceFormByApprovalStatus():
+    status = request.args.get('status')
+    # Write the code here...
+    return jsonify({'status': True, 'forms': []})
