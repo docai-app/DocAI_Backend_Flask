@@ -15,7 +15,7 @@ def labels():
 
 @label.route('/labels', methods=['POST'])
 def new():
-    # requestData = request.form.get('name')
-    name = request.form.get('name')
+    requestData = request.get_json()
+    name = requestData['name']
     DatabaseService.addNewLabel(name)
     return jsonify({'status': 'Added'})
