@@ -4,5 +4,6 @@ model
 data
 .DS_Store
 .env
+database/*.db
 database/database.db
 database/database_backup.db
