@@ -1,4 +1,6 @@
 import pickle
+from database.services.Documents import DocumentsQueryService
+from database.services.Labels import LabelsQueryService
 from services.cluster import ClusterService
 from services.database import DatabaseService
 from sentence_transformers import SentenceTransformer
@@ -14,7 +16,7 @@ embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')
 class ClassificationService:
     @staticmethod
     def prepare():
-        documents = DatabaseService.getAllUploadedDocument()
+        documents = DocumentsQueryService.getAllUploaded()
         X_train = []
         X_train_corpus = []
         for doc in documents:
@@ -46,13 +48,13 @@ class ClassificationService:
     @staticmethod
     def predict(id):
         corpus = []
-        record = DatabaseService.getDoucmentByID(id)
+        record = DocumentsQueryService.getSpecific(id)
         corpus.append(record['content'])
         embeddings = embedder.encode(corpus)
         with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'rb') as file:
             learner = pickle.load(file)
         prediction = learner.predict(embeddings)[0]
-        label = DatabaseService.getLabelByID(prediction)
+        label = LabelsQueryService.getSpecific(prediction)
         return label
 
     @staticmethod

@@ -39,28 +39,6 @@ def confirm():
     return jsonify({'status': res})
 
 
-@classification.route('/documents', methods=['GET'])
-def documents():
-    res = DatabaseService.getAllDoucment()
-    return jsonify({'prediction': res})
-
-
-@classification.route('/documents/lastest', methods=['GET'])
-def lastest():
-    document = DatabaseService.getAndPredictLastestDoucment()
-    if document:
-        prediction = ClassificationService.predict(document['id'])
-        return jsonify({'document': document, 'prediction': prediction})
-    else:
-        return jsonify({'status': 'null'})
-
-
-@classification.route('/documents/uploaded')
-def uploadedDocuments():
-    res = DatabaseService.getAllUploadedDocument()
-    return jsonify({'documents': res})
-
-
 @classification.route('/documents/labels', methods=['GET'])
 def documentsLabel():
     # labels = DatabaseService.searchDocumentLabels()

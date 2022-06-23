@@ -16,6 +16,7 @@ from routes.api.label import label
 from routes.api.storage import storage
 from routes.api.search import search
 from routes.api.form import form
+from routes.api.document import document
 from flask_cors import CORS
 from dotenv import load_dotenv
 load_dotenv()
@@ -24,7 +25,7 @@ load_dotenv()
 os.environ['TZ'] = 'Asia/Taipei'
 
 
-def createApp(config="settings.py"):
+def createApp(config="database/settings.py"):
     app = Flask(__name__)
     app.config.from_pyfile(config)
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
@@ -33,6 +34,7 @@ def createApp(config="settings.py"):
     app.register_blueprint(label)
     app.register_blueprint(search)
     app.register_blueprint(form)
+    app.register_blueprint(document)
     CORS(app, resources={
          r"/*": {"origins": ["*", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
 

@@ -50,30 +50,14 @@ class DatabaseService():
 
     @staticmethod
     def getDoucmentByID(id):
-        # documents = query_db(
-        #     "SELECT * FROM documents WHERE id==?", [str(id)], True)
         data = Documents.query.filter_by(id=id).first()
         return row2dict(data)
-
-    @staticmethod
-    def getAndPredictLastestDoucment():
-        # documents = query_db(
-        #     "SELECT * FROM documents WHERE status=='uploaded' ORDER BY created_at DESC LIMIT 1", one=True)
-        documents = Documents.query.filter_by(status='uploaded').order_by(
-            Documents.created_at.desc()).limit(1).first()
-        return row2dict(documents)
 
     @staticmethod
     def getAllUploadedDocument():
         # documents = query_db(
         #     "SELECT * FROM documents WHERE status=='uploaded'")
         data = Documents.query.filter_by(status='uploaded').all()
-        return rows2dict(data)
-
-    @staticmethod
-    def getAllLabel():
-        # labels = query_db("SELECT * FROM labels")
-        data = Labels.query.all()
         return rows2dict(data)
 
     @staticmethod
