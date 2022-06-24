@@ -6,7 +6,8 @@ from math import e
 
 from flask import g
 from flask_sqlalchemy import SQLAlchemy
-from utils.model import row2dict, rows2dict
+from sqlalchemy.sql import func
+from utils.model import row2dict, rows2dict, countEachLabelDocumentByDate2dict
 
 from database.models.Documents import Documents
 from database.models.FormsData import FormsData
@@ -132,8 +133,6 @@ class DatabaseService():
 
     @staticmethod
     def searchDocumentByLabelID(id):
-        # documents = query_db(
-        #     "SELECT * FROM documents WHERE label==?", [id])
         documents = Documents.query.filter_by(label=id).all()
         return rows2dict(documents)
 
@@ -151,9 +150,7 @@ class DatabaseService():
     def countEachLabelDocumentByDate(date):
         data = db.session.execute("SELECT D.label_id, L.name, COUNT(D.id) as count FROM documents AS D LEFT JOIN labels AS L ON D.label_id = L.id WHERE CAST(D.created_at AS DATE) = :date GROUP BY (D.label_id, L.name) ORDER BY COUNT(D.id) DESC", {
                                   'date': date}).fetchall()
-        # data = query_db(
-        #     "SELECT D.label_id, L.name, COUNT(D.id) as count FROM documents AS D LEFT JOIN labels AS L ON D.label_id = L.id WHERE D.created_at LIKE ? GROUP BY D.label_id ORDER BY COUNT(D.id) DESC", ['%'+date+'%'])
-        return data
+        return countEachLabelDocumentByDate2dict(data)
 
     @staticmethod
     def getFormSchemaByName(name):
@@ -216,8 +213,12 @@ class DatabaseService():
         #     "SELECT * FROM forms_schema WHERE name LIKE ?", ['%' + label + '%'], one=True)
         formSchema = FormsSchema.query.filter(
             FormsSchema.name.like(f'%{label}%')).first()
-        formData = query_db(
-            "SELECT *, D.storage FROM forms_data AS F JOIN documents AS D ON F.document_id = D.id WHERE F.schema_id==? AND F.created_at LIKE ?", [formSchema['id'], '%'+date+'%'])
+        print(formSchema)
+        # formData = query_db(
+        #     "SELECT *, D.storage FROM forms_data AS F JOIN documents AS D ON F.document_id = D.id WHERE F.schema_id==? AND F.created_at LIKE ?", [formSchema['id'], '%'+date+'%'])
+        formData = db.session.execute(
+            "SELECT F, D.storage_url FROM forms_data AS F JOIN documents AS D ON F.document_id = D.id WHERE F.schema_id==:id AND CAST(F.created_at AS DATE) = :date", {"id": formSchema.id, "date": date}).all()
+        print(formData)
         return {'form_schema': row2dict(formSchema), 'form_data': formData}
 
     @staticmethod

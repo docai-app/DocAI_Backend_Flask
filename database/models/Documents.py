@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.dialects.postgresql import UUID, TEXT, ENUM
+from sqlalchemy.dialects.postgresql import UUID, TEXT, ENUM, INTEGER
 from sqlalchemy import DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship, backref
 from ext import db
@@ -13,7 +13,7 @@ class Documents(db.Model, Base):
     id = db.Column(UUID, primary_key=True, unique=True,
                    nullable=False, index=True)
     name = db.Column(TEXT, nullable=False)
-    label_id = db.Column(UUID, ForeignKey('labels.id'),
+    label_id = db.Column(INTEGER, ForeignKey('labels.id'),
                          nullable=True, index=True)
     storage_url = db.Column(TEXT, nullable=False)
     content = db.Column(TEXT, nullable=True)
