@@ -1,13 +1,17 @@
-from crypt import methods
-import os
 import json
-from flask import Blueprint, jsonify, request, render_template, send_from_directory
+import os
+from crypt import methods
+
+from database.models.DocumentsApproval import DocumentsApproval
+from dotenv import load_dotenv
+from flask import (Blueprint, jsonify, render_template, request,
+                   send_from_directory)
 from services.AzureForm import AzureFormService
 from services.database import DatabaseService
-from services.storage import StorageService
 from services.form import FormService
+from services.storage import StorageService
 from werkzeug.utils import secure_filename
-from dotenv import load_dotenv
+
 load_dotenv()
 
 form = Blueprint('form', __name__)
@@ -31,6 +35,8 @@ def labels():
     absenceFormData = FormService.mapAbsenceForm(res)
     formData = FormService.addNewFormData(
         absenceFormData, '請假表', document['id'])
+    documentsApproval = FormService.addNewDocumentsApproval(
+        document['id'], 'a305f520-2a36-4f3b-8bab-72113e04f355')
     return jsonify({'status': True, 'form_url': document['storage'], 'form_id': formData['id'], 'result': absenceFormData})
 
 
@@ -50,5 +56,5 @@ def updateFormDataByID(id):
 @form.route('/form/absence/approval', methods=['GET'])
 def getAbsenceFormByApprovalStatus():
     status = request.args.get('status')
-    # Write the code here...
-    return jsonify({'status': True, 'forms': []})
+    forms = DatabaseService.getFormsDataByApprovalStatus(status)
+    return jsonify({'status': True, 'forms': forms})

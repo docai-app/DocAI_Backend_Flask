@@ -1,6 +1,8 @@
-from utils.utils import getRecursiveLookup, setRecursiveLookup
-from services.database import DatabaseService
 import json
+
+from utils.utils import getRecursiveLookup, setRecursiveLookup
+
+from services.database import DatabaseService
 
 
 class FormService():
@@ -39,6 +41,14 @@ class FormService():
         try:
             formData = DatabaseService.updateFormDataByID(id, data)
             return formData
+        except Exception as e:
+            print(e)
+            pass
+
+    @staticmethod
+    def addNewDocumentsApproval(documentID, approvedBy):
+        try:
+            return DatabaseService.addNewDocumentsApproval(documentID, approvedBy)
         except Exception as e:
             print(e)
             pass
