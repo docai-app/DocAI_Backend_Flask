@@ -1,5 +1,3 @@
-from crypt import methods
-import uuid
 from flask import Blueprint, jsonify, request, render_template, send_from_directory
 from services.classification import ClassificationService
 from utils.model import row2dict, rows2dict
@@ -32,14 +30,14 @@ def getAllUploaded():
 @document.route('/documents/lastest', methods=['GET'])
 def getLastestUploaded():
     res = DocumentsQueryService.getLastestUploaded()
-    print(document)
-    if document:
+    print(res)
+    if res:
         prediction = ClassificationService.predict(document['id'])
-        return jsonify({'document': res, 'prediction': prediction})
+        return jsonify({'status': True, 'document': res, 'prediction': prediction})
     else:
-        return jsonify({'status': 'null'})
-    
-    
+        return jsonify({'status': True, 'document': None, 'prediction': None})
+
+
 @document.route('/documents/labels', methods=['GET'])
 def getDocumentsLabel():
     res = DocumentsQueryService.getDocumentsLabel()

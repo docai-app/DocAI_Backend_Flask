@@ -1,4 +1,3 @@
-from crypt import methods
 import json
 from database.models.Labels import Labels
 from flask import Blueprint, jsonify, request, render_template, send_from_directory

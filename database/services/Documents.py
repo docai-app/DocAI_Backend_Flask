@@ -50,7 +50,8 @@ class DocumentsQueryService():
     @staticmethod
     def getDocumentsLabel():
         try:
-            data = db.session.execute("SELECT DISTINCT D.label_id as id, L.name FROM documents as D LEFT JOIN labels AS L ON D.label_id = L.id").fetchall()
+            data = db.session.execute(
+                "SELECT DISTINCT D.label_id as id, L.name FROM documents as D LEFT JOIN labels AS L ON D.label_id = L.id").fetchall()
             print(data)
             return getDocumentsLabel2dict(data)
         except Exception as e:
