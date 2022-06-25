@@ -39,7 +39,7 @@ def createApp(config="database/settings.py"):
          r"/*": {"origins": ["*", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
 
     db.init_app(app)
-    migrate = Migrate(app, db)
+    migrate = Migrate(app, db, compare_type=True)
     migrate.init_app(app, db)
     return app
 

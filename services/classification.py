@@ -68,6 +68,6 @@ class ClassificationService:
         learner.teach(embeddings.reshape(1, -1), [label])
         with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'wb') as file:
             pickle.dump(learner, file)
-        DatabaseService.updateDocumentStatusAndLabel(
+        status = DatabaseService.updateDocumentStatusAndLabel(
             id, status='confirmed', label=label)
-        return "Confirmed"
+        return status

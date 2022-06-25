@@ -13,8 +13,9 @@ from database.models.Documents import Documents
 from database.models.FormsData import FormsData
 from database.models.FormsSchema import FormsSchema
 from database.models.Labels import Labels
+from ext import db
 
-db = SQLAlchemy()
+# db = SQLAlchemy()
 DATABASE = 'database/database.db'
 
 
@@ -86,50 +87,16 @@ class DatabaseService():
 
     @staticmethod
     def updateDocumentStatusAndLabel(id, status, label):
-        # db = get_db()
-        # cursor = db.cursor()
-        # cursor.execute("UPDATE documents SET status = ? , label = ? WHERE id = ?", [
-        #     status,
-        #     str(label),
-        #     str(id)
-        # ])
-        # db.commit()
-        # return cursor
-
         try:
             document = Documents.query.filter_by(id=id).first()
             document.status = status
-            document.label = str(label)
-            db.commit()
-            return {"status": True}
-        except:
-            return {"status": False}
-
-    @staticmethod
-    def addNewDocument(id, name, storage, content):
-        # db = get_db()
-        # cursor = db.cursor()
-        # cursor.execute("INSERT INTO documents (id,name,storage,content,status,created_at) VALUES (?,?,?,?,?,?)", (
-        #     str(id),
-        #     name,
-        #     storage,
-        #     content,
-        #     "uploaded",
-        #     str(datetime.now())
-        # ))
-        # db.commit()
-        document = Documents(
-            id=str(id),
-            name=name,
-            storage=storage,
-            content=content,
-            status="uploaded",
-            created_at=datetime.now()
-        )
-        db.add(document)
-        db.commit()
-        newDocument = DatabaseService.getDoucmentByID(id)
-        return newDocument
+            document.label_id = str(label)
+            db.session.add(document)
+            db.session.commit()
+            return "Confirmed"
+        except Exception as e:
+            print(e)
+            return "Failed"
 
     @staticmethod
     def searchDocumentByLabelID(id):

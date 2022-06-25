@@ -18,8 +18,7 @@ class Labels(db.Model, Base):
     
     documents = relationship("Documents", back_populates="label_details")
 
-    def __init__(self, id, name):
-        self.id = id
+    def __init__(self, name):
         self.name = name
 
     def __repr__(self):

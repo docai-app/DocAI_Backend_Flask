@@ -31,7 +31,7 @@ def getAllUploaded():
 
 @document.route('/documents/lastest', methods=['GET'])
 def lastest():
-    document = DocumentsQueryService.getAndPredictLastest()
+    document = DocumentsQueryService.getLastestUploaded()
     print(document)
     if document:
         prediction = ClassificationService.predict(document['id'])

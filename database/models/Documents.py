@@ -1,3 +1,4 @@
+from email.policy import default
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID, TEXT, ENUM, INTEGER
 from sqlalchemy import DateTime, ForeignKey
@@ -14,7 +15,7 @@ class Documents(db.Model, Base):
                    nullable=False, index=True)
     name = db.Column(TEXT, nullable=False)
     label_id = db.Column(INTEGER, ForeignKey('labels.id'),
-                         nullable=True, index=True)
+                         nullable=True, index=True, default=None)
     storage_url = db.Column(TEXT, nullable=False)
     content = db.Column(TEXT, nullable=True)
     status = db.Column(ENUM('pending', 'uploaded', 'confirmed',
