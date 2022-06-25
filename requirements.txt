@@ -7,3 +7,5 @@ flask==2.0.1
 flask_cors==3.0.10
 sentence_transformers==2.0.0
 azure-ai-formrecognizer==3.2.0b4
+flask_sqlalchemy==2.5.1
+flask_migrate==3.1.0
