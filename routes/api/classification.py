@@ -39,14 +39,6 @@ def confirm():
     return jsonify({'status': res})
 
 
-@classification.route('/documents/labels', methods=['GET'])
-def documentsLabel():
-    # labels = DatabaseService.searchDocumentLabels()
-    labels = Labels.query.all()
-    print(labels)
-    return jsonify({'labels': labels})
-
-
 @classification.route('/documents/labels/<id>', methods=['GET'])
 def documentsByLabelID(id):
     documents = DatabaseService.searchDocumentByLabelID(id)

@@ -20,3 +20,12 @@ def countEachLabelDocumentByDate2dict(rows):
         item['count'] = row[2]
         d.append(item)
     return d
+
+def getDocumentsLabel2dict(rows):
+    d = []
+    for row in rows:
+        item = {}
+        item['id'] = row[0]
+        item['name'] = row[1]
+        d.append(item)
+    return d

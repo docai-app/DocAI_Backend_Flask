@@ -1,5 +1,5 @@
 from database.models.Documents import Documents
-from utils.model import row2dict, rows2dict
+from utils.model import row2dict, rows2dict, getDocumentsLabel2dict
 from ext import db
 from datetime import datetime
 
@@ -46,3 +46,13 @@ class DocumentsQueryService():
             Documents.created_at.desc()).first()
         print(data)
         return row2dict(data)
+
+    @staticmethod
+    def getDocumentsLabel():
+        try:
+            data = db.session.execute("SELECT DISTINCT D.label_id as id, L.name FROM documents as D LEFT JOIN labels AS L ON D.label_id = L.id").fetchall()
+            print(data)
+            return getDocumentsLabel2dict(data)
+        except Exception as e:
+            print(e)
+            return False

@@ -30,11 +30,18 @@ def getAllUploaded():
 
 
 @document.route('/documents/lastest', methods=['GET'])
-def lastest():
-    document = DocumentsQueryService.getLastestUploaded()
+def getLastestUploaded():
+    res = DocumentsQueryService.getLastestUploaded()
     print(document)
     if document:
         prediction = ClassificationService.predict(document['id'])
-        return jsonify({'document': document, 'prediction': prediction})
+        return jsonify({'document': res, 'prediction': prediction})
     else:
         return jsonify({'status': 'null'})
+    
+    
+@document.route('/documents/labels', methods=['GET'])
+def getDocumentsLabel():
+    res = DocumentsQueryService.getDocumentsLabel()
+    print(res)
+    return jsonify({'labels': res})
