@@ -1,6 +1,7 @@
-from crypt import methods
-import os
-import json
+import os, json, uuid
+from database.models.FormsSchema import FormsSchema
+from database.services.FormsData import FormsDataQueryService
+from database.services.FormsSchema import FormsSchemaQueryService
 from flask import Blueprint, jsonify, request, render_template, send_from_directory
 from services.AzureForm import AzureFormService
 from services.database import DatabaseService
@@ -23,15 +24,21 @@ def allowed_file(filename):
 
 @form.route('/form/absence', methods=['POST'])
 def labels():
-    file = request.files.getlist('document[]')[0]
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        document = StorageService.upload(file, filename)
-    res = AzureFormService.analysisForm(model_id, document['storage'])
-    absenceFormData = FormService.mapAbsenceForm(res)
-    formData = FormService.addNewFormData(
-        absenceFormData, '請假表', document['id'])
-    return jsonify({'status': True, 'form_url': document['storage'], 'form_id': formData['id'], 'result': absenceFormData})
+    try:
+        file = request.files.getlist('document[]')[0]
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            document = StorageService.upload(file, filename)
+        res = AzureFormService.analysisForm(model_id, document['storage_url'])
+        absenceFormData = FormService.mapAbsenceForm(res)
+        formSchema = FormsSchemaQueryService.getFormsSchemaByName('請假表')
+        formData = FormsDataQueryService.insert(uuid.uuid4(), 
+            document['id'], formSchema['id'], absenceFormData)
+        print(formData)
+        return jsonify({'status': True, 'form_url': document['storage_url'], 'form_id': formData['id'], 'result': absenceFormData})
+    except Exception as e:
+        print(e)
+        return jsonify({'status': False, 'message': 'Error: ' + str(e)})
 
 
 @form.route('/form/<id>', methods=['PUT'])
@@ -40,6 +47,15 @@ def updateFormDataByID(id):
     form = requestData['form']
     res = FormService.updateFormDataByID(id, form)
     return jsonify({'status': 'success'})
+
+
+@form.route('/form/schema/<name>', methods=['GET'])
+def getFormsSchemaByName(name):
+    try:
+        res = FormsSchemaQueryService.getFormsSchemaByName(name)
+        return jsonify({'status': True, 'forms_schema': res})
+    except Exception as e:
+        return jsonify({'status': False, 'message': str(e)})
 
 
 # Get Absence Form By Approval Status Parameters API

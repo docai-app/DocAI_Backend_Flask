@@ -4,6 +4,7 @@ from datetime import datetime
 from math import e
 
 from sqlalchemy.sql import func
+from database.services.FormsSchema import FormsSchemaQueryService
 from utils.model import row2dict, rows2dict, countEachLabelDocumentByDate2dict
 
 from database.models.FormsData import FormsData
@@ -20,38 +21,6 @@ class DatabaseService():
         formSchema = FormsSchema.query.filter(
             FormsSchema.name.like(f'%{name}%')).first()
         return row2dict(formSchema)
-
-    @staticmethod
-    def addNewFormData(result, name, documentID):
-        try:
-            formSchema = DatabaseService.getFormSchemaByName(name)
-            formDataID = str(uuid.uuid4())
-            # db = get_db()
-            # cursor = db.cursor()
-            # cursor.execute("INSERT INTO forms_data (id,document_id,schema_id,data,updated_at,created_at) VALUES (?,?,?,?,?,?)", (
-            #     formDataID,
-            #     documentID,
-            #     formSchema['id'],
-            #     json.dumps(result),
-            #     str(datetime.now()),
-            #     str(datetime.now())
-            # ))
-            # db.commit()
-            formdata = FormsData(
-                id=formDataID,
-                document_id=documentID,
-                schema_id=formSchema['id'],
-                data=json.dumps(result),
-                updated_at=datetime.now(),
-                created_at=datetime.now()
-            )
-            db.add(formdata)
-            db.commit()
-            newFormData = DatabaseService.getFormDataByID(formDataID)
-            return newFormData
-        except Exception(e):
-            print(e)
-            pass
 
     @staticmethod
     def getFormDataByID(id):

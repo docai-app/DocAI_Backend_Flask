@@ -17,6 +17,7 @@ class DocumentsQueryService():
 
     @staticmethod
     def insert(id, name, storage_url, content):
+        print(id, name, storage_url, content, '\n')
         try:
             data = Documents(
                 id=str(id),
@@ -30,7 +31,7 @@ class DocumentsQueryService():
             )
             db.session.add(data)
             db.session.commit()
-            return data
+            return row2dict(data)
         except Exception as e:
             print(e)
             return False

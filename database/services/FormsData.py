@@ -4,6 +4,7 @@ from database.models.FormsSchema import FormsSchema
 from utils.model import row2dict, rows2dict, rowsWithRelationship2dict
 from ext import db
 from sqlalchemy import cast, DATE
+from datetime import datetime
 
 
 class FormsDataQueryService():
@@ -18,12 +19,13 @@ class FormsDataQueryService():
         return row2dict(data)
 
     @staticmethod
-    def insert(name):
+    def insert(id, document_id, schema_id, data):
         try:
-            data = FormsData(name=name)
+            data = FormsData(id=str(id), document_id=document_id, schema_id=schema_id,
+                             data=data, updated_at=datetime.now(), created_at=datetime.now())
             db.session.add(data)
             db.session.commit()
-            return True
+            return row2dict(data)
         except Exception as e:
             print(e)
             return False
