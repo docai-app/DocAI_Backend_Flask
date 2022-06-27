@@ -57,3 +57,15 @@ class DocumentsQueryService():
         except Exception as e:
             print(e)
             return False
+
+    @staticmethod
+    def getDocumentsByContent(content):
+        data = Documents.query.filter(
+            Documents.content.like('%' + content + '%')).all()
+        return rows2dict(data)
+
+    @staticmethod
+    def getDocumentByName(name):
+        data = Documents.query.filter(
+            Documents.name.like('%' + name + '%')).all()
+        return rows2dict(data)
