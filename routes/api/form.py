@@ -5,10 +5,10 @@ from database.services.FormsSchema import FormsSchemaQueryService
 from flask import Blueprint, jsonify, request, render_template, send_from_directory
 from services.AzureForm import AzureFormService
 from services.database import DatabaseService
-from services.storage import StorageService
 from services.form import FormService
+from services.storage import StorageService
 from werkzeug.utils import secure_filename
-from dotenv import load_dotenv
+
 load_dotenv()
 
 form = Blueprint('form', __name__)
@@ -70,5 +70,5 @@ def getFormsSchemaByName(name):
 @form.route('/form/absence/approval', methods=['GET'])
 def getAbsenceFormByApprovalStatus():
     status = request.args.get('status')
-    # Write the code here...
-    return jsonify({'status': True, 'forms': []})
+    forms = DatabaseService.getFormsDataByApprovalStatus(status)
+    return jsonify({'status': True, 'forms': forms})
