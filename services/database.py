@@ -45,75 +45,6 @@ def query_db(query, args=(), one=False):
 
 class DatabaseService():
     @staticmethod
-    def getAllDoucment():
-        # documents = query_db("SELECT * FROM documents")
-        data = Documents.query.all()
-        return rows2dict(data)
-
-    @staticmethod
-    def getDoucmentByID(id):
-        data = Documents.query.filter_by(id=id).first()
-        return row2dict(data)
-
-    @staticmethod
-    def getAllUploadedDocument():
-        # documents = query_db(
-        #     "SELECT * FROM documents WHERE status=='uploaded'")
-        data = Documents.query.filter_by(status='uploaded').all()
-        return rows2dict(data)
-
-    @staticmethod
-    def getLabelByID(id):
-        # labels = query_db("SELECT * FROM labels WHERE id==?", [str(id)], True)
-        data = Labels.query.filter_by(id=id).first()
-        return row2dict(data)
-
-    @staticmethod
-    def addNewLabel(name):
-        # db = get_db()
-        # cursor = db.cursor()
-        # label = cursor.execute("INSERT INTO labels (name,created_at) VALUES (?,?)", (
-        #     name,
-        #     str(datetime.now())
-        # ))
-        # db.commit()
-        label = Labels(
-            name=name,
-            created_at=datetime.now()
-        )
-        db.add(label)
-        db.commit()
-        return label
-
-    @staticmethod
-    def updateDocumentStatusAndLabel(id, status, label):
-        try:
-            document = Documents.query.filter_by(id=id).first()
-            document.status = status
-            document.label_id = str(label)
-            db.session.add(document)
-            db.session.commit()
-            return "Confirmed"
-        except Exception as e:
-            print(e)
-            return "Failed"
-
-    @staticmethod
-    def searchDocumentByLabelID(id):
-        documents = Documents.query.filter_by(label=id).all()
-        return rows2dict(documents)
-
-    @staticmethod
-    def searchDocumentLabels():
-        try:
-            labels = query_db(
-                "SELECT DISTINCT D.label_id as id, L.name FROM documents as D LEFT JOIN labels AS L ON D.label_id = L.id")
-            return labels
-        except Exception(e):
-            print(e)
-            pass
-
-    @staticmethod
     def countEachLabelDocumentByDate(date):
         data = db.session.execute("SELECT D.label_id, L.name, COUNT(D.id) as count FROM documents AS D LEFT JOIN labels AS L ON D.label_id = L.id WHERE CAST(D.created_at AS DATE) = :date GROUP BY (D.label_id, L.name) ORDER BY COUNT(D.id) DESC", {
                                   'date': date}).fetchall()
@@ -165,14 +96,6 @@ class DatabaseService():
         #     "SELECT * FROM forms_data WHERE id==?", [id], True)
         formData = FormsData.query.filter_by(id=id).first()
         return row2dict(formData)
-
-    @staticmethod
-    def getFormDataByDate(date):
-        # formData = query_db(
-        #     "SELECT * FROM forms_data WHERE created_at LIKE ?", ['%'+date+'%'])
-        formData = FormsData.query.filter(
-            FormsData.created_at.like(f'%{date}%')).all()
-        return rows2dict(formData)
 
     @staticmethod
     def searchFormByLabelAndDate(label, date):

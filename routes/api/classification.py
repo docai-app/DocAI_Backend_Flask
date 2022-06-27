@@ -1,5 +1,6 @@
 import json
 from database.models.Labels import Labels
+from database.services.Documents import DocumentsQueryService
 from flask import Blueprint, jsonify, request, render_template, send_from_directory
 from services.classification import ClassificationService
 from services.ocr import OCRService
@@ -43,5 +44,9 @@ def confirm():
 
 @classification.route('/documents/labels/<id>', methods=['GET'])
 def documentsByLabelID(id):
-    documents = DatabaseService.searchDocumentByLabelID(id)
-    return jsonify({'documents': documents})
+    try:
+        res = DocumentsQueryService.getDocumentByLabelID(id)
+        return jsonify({'status': True, 'documents': res})
+    except Exception as e:
+        print(e)
+        return jsonify({'status': False, 'message': 'Error: ' + str(e)})

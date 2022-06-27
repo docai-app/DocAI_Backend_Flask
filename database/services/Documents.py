@@ -86,3 +86,8 @@ class DocumentsQueryService():
         data = Documents.query.filter(
             Documents.name.like('%' + name + '%')).all()
         return rows2dict(data)
+
+    @staticmethod
+    def getDocumentByLabelID(label_id):
+        data = Documents.query.filter_by(label_id=label_id).all()
+        return rows2dict(data)
