@@ -29,6 +29,20 @@ class FormsDataQueryService():
         except Exception as e:
             print(e)
             return False
+        
+    @staticmethod
+    def update(id, items):
+        try:
+            data = FormsData.query.filter_by(id=id).first()
+            for key, value in items.items():
+                setattr(data, key, value)
+            data.updated_at = datetime.now()
+            db.session.add(data)
+            db.session.commit()
+            return row2dict(data)
+        except Exception as e:
+            print(e)
+            return False
 
     @staticmethod
     def getFormsByDate(date):

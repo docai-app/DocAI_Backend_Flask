@@ -25,12 +25,3 @@ class FormService():
             pass
 
         return dataSchema
-
-    @staticmethod
-    def updateFormDataByID(id, data):
-        try:
-            formData = DatabaseService.updateFormDataByID(id, data)
-            return formData
-        except Exception as e:
-            print(e)
-            pass

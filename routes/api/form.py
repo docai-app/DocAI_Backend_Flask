@@ -42,11 +42,15 @@ def labels():
 
 
 @form.route('/form/<id>', methods=['PUT'])
-def updateFormDataByID(id):
-    requestData = request.get_json()
-    form = requestData['form']
-    res = FormService.updateFormDataByID(id, form)
-    return jsonify({'status': 'success'})
+def update(id):
+    try:
+        requestData = request.get_json()
+        print(requestData)
+        res = FormsDataQueryService.update(id, requestData)
+        return jsonify({'status': True, 'forms_data': res})
+    except Exception as e:
+        return jsonify({'status': False, 'message': 'Error: ' + str(e)})
+
 
 
 @form.route('/form/schema/<name>', methods=['GET'])
