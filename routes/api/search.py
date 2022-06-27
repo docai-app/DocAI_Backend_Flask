@@ -24,13 +24,6 @@ def searchDocumentByName():
     return jsonify({'documents': res})
 
 
-@search.route('/count/document/<date>', methods=['GET'])
-def countEachLabelDocumentByDate(date):
-    data = DatabaseService.countEachLabelDocumentByDate(date)
-    print(data)
-    return jsonify({'documents': data})
-
-
 @search.route('/search/form/<date>', methods=['GET'])
 def searchFormByDate(date):
     res = FormsDataQueryService.getFormsByDate(date)

@@ -1,55 +1,18 @@
 import json
-import sqlite3
 import uuid
 from datetime import datetime
 from math import e
 
-from flask import g
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from utils.model import row2dict, rows2dict, countEachLabelDocumentByDate2dict
 
-from database.models.Documents import Documents
 from database.models.FormsData import FormsData
 from database.models.FormsSchema import FormsSchema
 from database.models.Labels import Labels
 from ext import db
 
-# db = SQLAlchemy()
-DATABASE = 'database/database.db'
-
-
-def dict_factory(cursor, row):
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
-
-
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-        # Enable foreign key check
-        db.row_factory = dict_factory
-        db.execute("PRAGMA foreign_keys = ON")
-    return db
-
-
-def query_db(query, args=(), one=False):
-    cur = get_db().execute(query, args)
-    rv = cur.fetchall()
-    cur.close()
-    return (rv[0] if rv else None) if one else rv
-
 
 class DatabaseService():
-    @staticmethod
-    def countEachLabelDocumentByDate(date):
-        data = db.session.execute("SELECT D.label_id, L.name, COUNT(D.id) as count FROM documents AS D LEFT JOIN labels AS L ON D.label_id = L.id WHERE CAST(D.created_at AS DATE) = :date GROUP BY (D.label_id, L.name) ORDER BY COUNT(D.id) DESC", {
-                                  'date': date}).fetchall()
-        return countEachLabelDocumentByDate2dict(data)
-
     @staticmethod
     def getFormSchemaByName(name):
         # formSchema = query_db(
