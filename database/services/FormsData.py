@@ -29,7 +29,7 @@ class FormsDataQueryService():
         except Exception as e:
             print(e)
             return False
-        
+
     @staticmethod
     def update(id, items):
         try:

@@ -9,21 +9,6 @@ from ext import db
 
 class DatabaseService():
     @staticmethod
-    def getFormSchemaByName(name):
-        # formSchema = query_db(
-        #     "SELECT * FROM forms_schema WHERE name LIKE ?", ['%' + name + '%'], one=True)
-        formSchema = FormsSchema.query.filter(
-            FormsSchema.name.like(f'%{name}%')).first()
-        return row2dict(formSchema)
-
-    @staticmethod
-    def getFormDataByID(id):
-        # formData = query_db(
-        #     "SELECT * FROM forms_data WHERE id==?", [id], True)
-        formData = FormsData.query.filter_by(id=id).first()
-        return row2dict(formData)
-
-    @staticmethod
     def searchFormByLabelAndDate(label, date):
         # formSchema = query_db(
         #     "SELECT * FROM forms_schema WHERE name LIKE ?", ['%' + label + '%'], one=True)
