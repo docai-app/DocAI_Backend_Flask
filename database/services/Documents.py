@@ -34,6 +34,23 @@ class DocumentsQueryService():
         except Exception as e:
             print(e)
             return False
+        
+    @staticmethod 
+    def update(id, items):
+        try:
+            data = Documents.query.filter_by(id=id).first()
+            for key, value in items.items():
+                setattr(data, key, value)
+            # data.name = name
+            # data.storage_url = storage_url
+            # data.content = content
+            data.updated_at = datetime.now()
+            db.session.add(data)
+            db.session.commit()
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
     @staticmethod
     def getAllUploaded():

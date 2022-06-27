@@ -11,8 +11,7 @@ label = Blueprint('label', __name__)
 
 @label.route('/labels', methods=['GET'])
 def labels():
-    data = Labels.query.all()
-    res = rows2dict(data)
+    res = LabelsQueryService.getAll()
     return jsonify({'labels': res})
 
 

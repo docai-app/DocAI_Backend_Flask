@@ -32,7 +32,7 @@ def getLastestUploaded():
     res = DocumentsQueryService.getLastestUploaded()
     print(res)
     if res:
-        prediction = ClassificationService.predict(document['id'])
+        prediction = ClassificationService.predict(res['id'])
         return jsonify({'status': True, 'document': res, 'prediction': prediction})
     else:
         return jsonify({'status': True, 'document': None, 'prediction': None})

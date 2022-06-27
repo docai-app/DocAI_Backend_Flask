@@ -32,7 +32,7 @@ class ClassificationService:
         Y_train = []
         X_train_corpus = []
         for document in documents:
-            record = DatabaseService.getDoucmentByID(document['id'])
+            record = DocumentsQueryService.getSpecific(document['id'])
             X_train_corpus.append(record['content'])
             Y_train.append(document['label_id'])
         X_train = embedder.encode(X_train_corpus)
@@ -60,7 +60,7 @@ class ClassificationService:
     @staticmethod
     def confirm(id, label):
         corpus = []
-        record = DatabaseService.getDoucmentByID(id)
+        record = DocumentsQueryService.getSpecific(id)
         corpus.append(record['content'])
         embeddings = embedder.encode(corpus)
         with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'rb') as file:
@@ -68,6 +68,6 @@ class ClassificationService:
         learner.teach(embeddings.reshape(1, -1), [label])
         with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'wb') as file:
             pickle.dump(learner, file)
-        status = DatabaseService.updateDocumentStatusAndLabel(
-            id, status='confirmed', label=label)
+        status = DocumentsQueryService.update(
+            id, {'status': 'confirmed', "label_id": label})
         return status

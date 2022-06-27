@@ -31,11 +31,14 @@ def predict():
 
 @classification.route('/classification/confirm', methods=['POST'])
 def confirm():
-    requestData = request.get_json()
-    id = requestData['id']
-    label = requestData['label']
-    res = ClassificationService.confirm(id, label)
-    return jsonify({'status': res})
+    try:
+        requestData = request.get_json()
+        id = requestData['id']
+        label = requestData['label']
+        res = ClassificationService.confirm(id, label)
+        return jsonify({'status': res, 'message': 'Document confirmed'})
+    except Exception as e:
+        return jsonify({'status': False, 'message': str(e)})
 
 
 @classification.route('/documents/labels/<id>', methods=['GET'])
