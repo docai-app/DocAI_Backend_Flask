@@ -17,7 +17,6 @@ class DocumentsQueryService():
 
     @staticmethod
     def insert(id, name, storage_url, content):
-        print(id, name, storage_url, content, '\n')
         try:
             data = Documents(
                 id=str(id),
