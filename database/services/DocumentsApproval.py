@@ -1,7 +1,8 @@
 from database.models.Documents import Documents
 from database.models.DocumentsApproval import DocumentsApproval
+from database.models.FormsData import FormsData
 from database.models.FormsSchema import FormsSchema
-from utils.model import row2dict, rows2dict
+from utils.model import row2dict, rows2dict, rowsWithRelationship2dict
 from ext import db
 from datetime import datetime
 
@@ -28,8 +29,8 @@ class DocumentsApprovalQueryService():
         except Exception as e:
             print(e)
             pass
-    
-    @staticmethod 
+
+    @staticmethod
     def update(id, items):
         try:
             data = DocumentsApproval.query.filter_by(id=id).first()
@@ -49,8 +50,13 @@ class DocumentsApprovalQueryService():
         return rows2dict(data)
 
     @staticmethod
+    def getDocumentsApprovalWithFormsByStatusAndFormsSchemaName(status, name):
+        data = Documents.query.filter(DocumentsApproval.document_id == Documents.id).filter(
+            DocumentsApproval.status == status).filter(FormsSchema.name == name).all()
+        return rowsWithRelationship2dict(data, ['approval_details', 'form_details'])
+
+    @staticmethod
     def getDocumentsApprovalByStatusAndFormsSchemaName(status, name):
         data = DocumentsApproval.query.filter_by(status=status).filter(
             Documents.id == DocumentsApproval.document_id).filter(FormsSchema.name == name).all()
-        print(data)
-        return rows2dict(data)
+        return rowsWithRelationship2dict(data, ['document_details, forms_schema_details'])

@@ -73,9 +73,9 @@ def getFormsSchemaByName(name):
 def getAbsenceFormByApprovalStatus():
     try:
         status = request.args.get('status')
-        res = DocumentsApprovalQueryService.getDocumentsApprovalByStatusAndFormsSchemaName(
+        res = DocumentsApprovalQueryService.getDocumentsApprovalWithFormsByStatusAndFormsSchemaName(
             status, '請假表')
-        return jsonify({'status': True, 'documents_approval': res})
+        return jsonify({'status': True, 'absences_form': res})
     except Exception as e:
         return jsonify({'status': False, 'message': str(e)})
 

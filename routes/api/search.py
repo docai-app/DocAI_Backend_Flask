@@ -4,7 +4,6 @@ from database.services.Documents import DocumentsQueryService
 from database.services.FormsData import FormsDataQueryService
 from flask import Blueprint, jsonify, request, render_template, send_from_directory
 from services.database import DatabaseService
-from utils.model import rowsKeyFromSingleQuotation2doubleQuotation
 from sqlalchemy import cast, DATE
 
 search = Blueprint('search', __name__)

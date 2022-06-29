@@ -32,19 +32,6 @@ def rowsWithRelationship2dict(rows, relationships):
     return d
 
 
-def rowsKeyFromSingleQuotation2doubleQuotation(rows, keys):
-    if isinstance(rows, list):
-        for row in rows:
-            for key in keys:
-                tempJSON = json.loads(row[key])
-                row[key] = json.dumps(tempJSON)
-    else:
-        for key in keys:
-            tempJSON = json.loads(rows[key])
-            rows[key] = json.dumps(tempJSON)
-    return rows
-
-
 def countEachLabelDocumentByDate2dict(rows):
     d = []
     for row in rows:
