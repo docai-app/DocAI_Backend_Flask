@@ -10,4 +10,4 @@ azure-ai-formrecognizer==3.2.0b4
 Flask-SQLAlchemy==2.5.1
 Flask-Migrate==2.7.0
 Flask-Script==2.0.6
-psycopg2-binary=2.9.3
+psycopg2-binary==2.9.3
