@@ -27,9 +27,9 @@ def getAllUploaded():
     return jsonify({'documents': res})
 
 
-@document.route('/documents/lastest', methods=['GET'])
-def getLastestUploaded():
-    res = DocumentsQueryService.getLastestUploaded()
+@document.route('/documents/latest', methods=['GET'])
+def getLatestUploaded():
+    res = DocumentsQueryService.getLatestUploaded()
     print(res)
     if res:
         prediction = ClassificationService.predict(res['id'])

@@ -55,7 +55,7 @@ class DocumentsQueryService():
         return rows2dict(data)
 
     @staticmethod
-    def getLastestUploaded():
+    def getLatestUploaded():
         data = Documents.query.filter_by(status='uploaded').order_by(
             Documents.created_at.desc()).first()
         print(data)
