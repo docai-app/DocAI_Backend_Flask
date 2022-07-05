@@ -8,7 +8,6 @@ statistics = Blueprint('statistics', __name__)
 def countEachLabelDocumentByDate(date):
     try:
         res = StatisticsQueryService.countEachLabelDocumentByDate(date)
-        print(res)
         return jsonify({'status': True, 'documents': res})
     except Exception as e:
         return jsonify({'status': False, 'message': 'No document found'})

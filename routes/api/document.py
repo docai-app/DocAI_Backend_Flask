@@ -23,14 +23,12 @@ def getSpecific(id):
 @document.route('/documents/uploaded')
 def getAllUploaded():
     res = DocumentsQueryService.getAllUploaded()
-    print(res)
     return jsonify({'documents': res})
 
 
 @document.route('/documents/latest', methods=['GET'])
 def getLatestUploaded():
     res = DocumentsQueryService.getLatestUploaded()
-    print(res)
     if res:
         prediction = ClassificationService.predict(res['id'])
         return jsonify({'status': True, 'document': res, 'prediction': prediction})
@@ -41,5 +39,4 @@ def getLatestUploaded():
 @document.route('/documents/labels', methods=['GET'])
 def getDocumentsLabel():
     res = DocumentsQueryService.getDocumentsLabel()
-    print(res)
     return jsonify({'labels': res})

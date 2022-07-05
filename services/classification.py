@@ -41,7 +41,7 @@ class ClassificationService:
             query_strategy=entropy_sampling,
             X_training=X_train, y_training=Y_train
         )
-        with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'wb') as file:
+        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'wb') as file:
             pickle.dump(learner, file)
         return "Success"
 
@@ -51,7 +51,7 @@ class ClassificationService:
         record = DocumentsQueryService.getSpecific(id)
         corpus.append(record['content'])
         embeddings = embedder.encode(corpus)
-        with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'rb') as file:
+        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'rb') as file:
             learner = pickle.load(file)
         prediction = learner.predict(embeddings)[0]
         label = LabelsQueryService.getSpecific(prediction)
@@ -63,10 +63,10 @@ class ClassificationService:
         record = DocumentsQueryService.getSpecific(id)
         corpus.append(record['content'])
         embeddings = embedder.encode(corpus)
-        with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'rb') as file:
+        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'rb') as file:
             learner = pickle.load(file)
         learner.teach(embeddings.reshape(1, -1), [label])
-        with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'wb') as file:
+        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'wb') as file:
             pickle.dump(learner, file)
         status = DocumentsQueryService.update(
             id, {'status': 'confirmed', "label_id": label})

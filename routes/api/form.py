@@ -47,7 +47,6 @@ def labels():
 def update(id):
     try:
         requestData = request.get_json()
-        print(requestData)
         res = FormsDataQueryService.update(id, requestData)
         return jsonify({'status': True, 'forms_data': res})
     except Exception as e:
@@ -72,7 +71,6 @@ def getFormsSchemaByName(name):
 def getAbsenceFormByApprovalStatus():
     try:
         status = request.args.get('status')
-        print(status)
         res = DocumentsApprovalQueryService.getDocumentsApprovalWithFormsByStatusAndFormsSchemaName(
             status, '請假表')
         return jsonify({'status': True, 'absences_form': res})
