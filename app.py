@@ -8,7 +8,7 @@ from database.models.Documents import Documents
 from database.models.Labels import Labels
 from database.models.Users import Users
 import os
-from flask import Flask, render_template, Response
+from flask import Flask
 from flask_migrate import Migrate
 from ext import db
 from routes.api.classification import classification
@@ -29,6 +29,7 @@ os.environ['TZ'] = 'Asia/Taipei'
 def createApp(config="database/settings.py"):
     app = Flask(__name__)
     app.config.from_pyfile(config)
+    app.config['TIMEZONE'] = 'Asia/Taipei'
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.register_blueprint(classification)
     app.register_blueprint(storage)

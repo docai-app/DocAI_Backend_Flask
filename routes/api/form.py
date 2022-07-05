@@ -35,7 +35,6 @@ def labels():
         formSchema = FormsSchemaQueryService.getFormsSchemaByName('請假表')
         formData = FormsDataQueryService.insert(uuid.uuid4(),
                                                 document['id'], formSchema['id'], absenceFormData)
-        print(formData)
         documentApproval = DocumentsApprovalQueryService.insert(
             uuid.uuid4(), document['id'], 'a305f520-2a36-4f3b-8bab-72113e04f355', 'awaiting')
         return jsonify({'status': True, 'form_url': document['storage_url'], 'form_id': formData['id'], 'result': absenceFormData, 'approval': documentApproval})

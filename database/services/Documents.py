@@ -16,15 +16,15 @@ class DocumentsQueryService():
         return row2dict(data)
 
     @staticmethod
-    def insert(id, name, storage_url, content):
+    def insert(id, name, storage_url, content, label_id=None, status="uploaded"):
         try:
             data = Documents(
                 id=str(id),
                 name=name,
-                label_id=None,
+                label_id=label_id,
                 storage_url=storage_url,
                 content=content,
-                status="uploaded",
+                status=status,
                 updated_at=datetime.now(),
                 created_at=datetime.now()
             )
