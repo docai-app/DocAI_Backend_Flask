@@ -53,7 +53,7 @@ class FormsDataQueryService():
     @staticmethod
     def getFormsByLabelAndDate(label, date):
         formsSchema = FormsSchema.query.filter(
-            FormsSchema.name.like(f'%{label}%')).first()
+            FormsSchema.name == label).first()
         data = FormsData.query.filter(cast(FormsData.created_at, DATE) == date).filter(
             FormsData.schema_id == formsSchema.id).all()
         return [row2dict(formsSchema), rowsWithRelationship2dict(data, ['document_details'])]

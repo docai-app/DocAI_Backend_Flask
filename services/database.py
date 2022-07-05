@@ -13,7 +13,7 @@ class DatabaseService():
         # formSchema = query_db(
         #     "SELECT * FROM forms_schema WHERE name LIKE ?", ['%' + label + '%'], one=True)
         formSchema = FormsSchema.query.filter(
-            FormsSchema.name.like(f'%{label}%')).first()
+            FormsSchema.name == label).first()
         print(formSchema)
         # formData = query_db(
         #     "SELECT *, D.storage FROM forms_data AS F JOIN documents AS D ON F.document_id = D.id WHERE F.schema_id==? AND F.created_at LIKE ?", [formSchema['id'], '%'+date+'%'])

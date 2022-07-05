@@ -26,5 +26,5 @@ class FormsSchemaQueryService():
     @staticmethod
     def getFormsSchemaByName(name):
         data = FormsSchema.query.filter(
-            FormsSchema.name.like(f'%{name}%')).first()
+            FormsSchema.name == name ).first()
         return row2dict(data)

@@ -32,6 +32,15 @@ def rowsWithRelationship2dict(rows, relationships):
     return d
 
 
+def rowWithRelationship2dict(row, relationships):
+    d = {}
+    if row:
+        d = row2dict(row)
+        for relationship in relationships:
+            d[relationship] = rows2dict(row.__getattribute__(relationship))
+    return d
+
+
 def countEachLabelDocumentByDate2dict(rows):
     d = []
     for row in rows:

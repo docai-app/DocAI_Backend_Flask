@@ -2,7 +2,7 @@ from database.models.Documents import Documents
 from database.models.DocumentsApproval import DocumentsApproval
 from database.models.FormsData import FormsData
 from database.models.FormsSchema import FormsSchema
-from utils.model import row2dict, rows2dict, rowsWithRelationship2dict
+from utils.model import row2dict, rows2dict, rowWithRelationship2dict, rowsWithRelationship2dict
 from ext import db
 from datetime import datetime
 
@@ -54,6 +54,12 @@ class DocumentsApprovalQueryService():
         data = Documents.query.filter(DocumentsApproval.document_id == Documents.id).filter(
             DocumentsApproval.status == status).filter(FormsSchema.name == name).all()
         return rowsWithRelationship2dict(data, ['approval_details', 'form_details'])
+
+    @staticmethod
+    def getDocumentsApprovalWithFormsByIDAndFormsSchemaName(id, name):
+        data = Documents.query.filter(DocumentsApproval.document_id == Documents.id).filter(
+            DocumentsApproval.id == id).filter(FormsSchema.name == name).first()
+        return rowWithRelationship2dict(data, ['approval_details', 'form_details'])
 
     @staticmethod
     def getDocumentsApprovalByStatusAndFormsSchemaName(status, name):
