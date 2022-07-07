@@ -1,6 +1,7 @@
+import os
 from database.models.Labels import Labels
 from database.services.Labels import LabelsQueryService
-from flask import Blueprint, jsonify, request, render_template, send_from_directory
+from flask import Blueprint, jsonify, request
 from services.database import DatabaseService
 from utils.model import row2dict, rows2dict
 from flask_sqlalchemy import SQLAlchemy

@@ -1,6 +1,9 @@
 azure-cognitiveservices-vision-computervision
 azure-storage-blob
 python-dotenv
+ddtrace
+rollbar
+blinker
 modAL==0.4.1
 scikit-learn==0.24.2
 flask==2.0.1

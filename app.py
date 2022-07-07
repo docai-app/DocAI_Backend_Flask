@@ -8,7 +8,9 @@ from database.models.Documents import Documents
 from database.models.Labels import Labels
 from database.models.Users import Users
 import os
-from flask import Flask
+import rollbar
+import rollbar.contrib.flask
+from flask import Flask, got_request_exception
 from flask_migrate import Migrate
 from ext import db
 from routes.api.classification import classification
@@ -19,11 +21,17 @@ from routes.api.form import form
 from routes.api.document import document
 from routes.api.statistics import statistics
 from flask_cors import CORS
+from ddtrace import tracer
 from dotenv import load_dotenv
 load_dotenv()
 
 
 os.environ['TZ'] = 'Asia/Taipei'
+
+tracer.configure(
+    hostname='datadog-agent-dev',
+    port=8126,
+)
 
 
 def createApp(config="database/settings.py"):
@@ -44,10 +52,36 @@ def createApp(config="database/settings.py"):
     db.init_app(app)
     migrate = Migrate(app, db, compare_type=True)
     migrate.init_app(app, db)
+
     return app
 
 
 app = createApp()
+
+
+@app.before_first_request
+def init_rollbar():
+    """init rollbar module"""
+    rollbar.init(
+        # access token
+        '13b77dd3e17c4951bd64cd3af672ca77',
+        # environment name
+        'production',
+        # server root directory, makes tracebacks prettier
+        root=os.path.dirname(os.path.realpath(__file__)),
+        # flask already sets up logging
+        allow_logging_basic_config=False)
+
+    # send exceptions from `app` to rollbar, using flask's signal system.
+    got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
+
+
+@app.route('/')
+def hello():
+    print("in hello")
+    x = None
+    x[5]
+    return "Hello World!"
 
 
 if __name__ == '__main__':
