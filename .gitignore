@@ -1,7 +1,10 @@
 __pycache__
 /**/__pycache__
 model
-database
 data
 .DS_Store
 .env
+.venv
+database/*.db
+database/database.db
+database/database_backup.db

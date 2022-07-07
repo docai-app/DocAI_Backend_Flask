@@ -1,10 +1,11 @@
-from cProfile import label
-from crypt import methods
 import json
+from database.models.Labels import Labels
+from database.services.Documents import DocumentsQueryService
 from flask import Blueprint, jsonify, request, render_template, send_from_directory
 from services.classification import ClassificationService
 from services.ocr import OCRService
 from services.database import DatabaseService
+
 
 classification = Blueprint('classification', __name__)
 
@@ -31,48 +32,21 @@ def predict():
 
 @classification.route('/classification/confirm', methods=['POST'])
 def confirm():
-    requestData = request.get_json()
-    id = requestData['id']
-    label = requestData['label']
-    res = ClassificationService.confirm(id, label)
-    return jsonify({'status': res})
-
-
-@classification.route('/labels', methods=['GET'])
-def labels():
-    res = DatabaseService.getAllLabel()
-    return jsonify({'prediction': res})
-
-
-@classification.route('/documents', methods=['GET'])
-def documents():
-    res = DatabaseService.getAllDoucment()
-    return jsonify({'prediction': res})
-
-
-@classification.route('/documents/lastest', methods=['GET'])
-def lastest():
-    document = DatabaseService.getAndPredictLastestDoucment()
-    if document:
-        prediction = ClassificationService.predict(document['id'])
-        return jsonify({'document': document, 'prediction': prediction})
-    else:
-        return jsonify({'status': 'null'})
-
-
-@classification.route('/documents/uploaded')
-def uploadedDocuments():
-    res = DatabaseService.getAllUploadedDocument()
-    return jsonify({'documents': res})
-
-
-@classification.route('/documents/labels', methods=['GET'])
-def documentsLabel():
-    labels = DatabaseService.searchDocumentLabels()
-    return jsonify({'labels': labels})
+    try:
+        requestData = request.get_json()
+        id = requestData['id']
+        label = requestData['label']
+        res = ClassificationService.confirm(id, label)
+        return jsonify({'status': res, 'message': 'Document confirmed'})
+    except Exception as e:
+        return jsonify({'status': False, 'message': str(e)})
 
 
 @classification.route('/documents/labels/<id>', methods=['GET'])
 def documentsByLabelID(id):
-    documents = DatabaseService.searchDocumentByLabelID(id)
-    return jsonify({'documents': documents})
+    try:
+        res = DocumentsQueryService.getDocumentByLabelID(id)
+        return jsonify({'status': True, 'documents': res})
+    except Exception as e:
+        print(e)
+        return jsonify({'status': False, 'message': 'Error: ' + str(e)})

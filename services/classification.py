@@ -1,4 +1,6 @@
 import pickle
+from database.services.Documents import DocumentsQueryService
+from database.services.Labels import LabelsQueryService
 from services.cluster import ClusterService
 from services.database import DatabaseService
 from sentence_transformers import SentenceTransformer
@@ -14,7 +16,7 @@ embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')
 class ClassificationService:
     @staticmethod
     def prepare():
-        documents = DatabaseService.getAllUploadedDocument()
+        documents = DocumentsQueryService.getAllUploaded()
         X_train = []
         X_train_corpus = []
         for doc in documents:
@@ -30,42 +32,42 @@ class ClassificationService:
         Y_train = []
         X_train_corpus = []
         for document in documents:
-            record = DatabaseService.getDoucmentByID(document['id'])
+            record = DocumentsQueryService.getSpecific(document['id'])
             X_train_corpus.append(record['content'])
-            Y_train.append(document['label'])
+            Y_train.append(document['label_id'])
         X_train = embedder.encode(X_train_corpus)
         learner = ActiveLearner(
             estimator=RandomForestClassifier(n_jobs=4),
             query_strategy=entropy_sampling,
             X_training=X_train, y_training=Y_train
         )
-        with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'wb') as file:
+        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'wb') as file:
             pickle.dump(learner, file)
         return "Success"
 
     @staticmethod
     def predict(id):
         corpus = []
-        record = DatabaseService.getDoucmentByID(id)
+        record = DocumentsQueryService.getSpecific(id)
         corpus.append(record['content'])
         embeddings = embedder.encode(corpus)
-        with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'rb') as file:
+        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'rb') as file:
             learner = pickle.load(file)
         prediction = learner.predict(embeddings)[0]
-        label = DatabaseService.getLabelByID(prediction)
+        label = LabelsQueryService.getSpecific(prediction)
         return label
 
     @staticmethod
     def confirm(id, label):
         corpus = []
-        record = DatabaseService.getDoucmentByID(id)
+        record = DocumentsQueryService.getSpecific(id)
         corpus.append(record['content'])
         embeddings = embedder.encode(corpus)
-        with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'rb') as file:
+        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'rb') as file:
             learner = pickle.load(file)
         learner.teach(embeddings.reshape(1, -1), [label])
-        with open('./model/{modelName}_{i}'.format(modelName='model_', i=0), 'wb') as file:
+        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'wb') as file:
             pickle.dump(learner, file)
-        DatabaseService.updateDocumentStatusAndLabel(
-            id, status='confirmed', label=label)
-        return "Confirmed"
+        status = DocumentsQueryService.update(
+            id, {'status': 'confirmed', "label_id": label})
+        return status
