@@ -48,7 +48,6 @@ def createApp(config="database/settings.py"):
     app.register_blueprint(statistics)
     CORS(app, resources={
          r"/*": {"origins": ["*", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
-
     db.init_app(app)
     migrate = Migrate(app, db, compare_type=True)
     migrate.init_app(app, db)
@@ -64,7 +63,7 @@ def init_rollbar():
     """init rollbar module"""
     rollbar.init(
         # access token
-        '13b77dd3e17c4951bd64cd3af672ca77',
+        os.getenv('ROLLBAR_ACCESS_TOKEN'),
         # environment name
         'production',
         # server root directory, makes tracebacks prettier
