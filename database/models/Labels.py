@@ -16,7 +16,7 @@ class Labels(db.Model, Base):
     updated_at = db.Column(DateTime, nullable=False, default=db.func.now())
     created_at = db.Column(DateTime, nullable=False, default=db.func.now())
     
-    documents = relationship("Documents", back_populates="label_details")
+    # documents = relationship("Documents", back_populates="label_details")
 
     def __init__(self, name):
         self.name = name

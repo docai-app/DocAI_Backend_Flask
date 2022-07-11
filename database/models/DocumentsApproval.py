@@ -18,8 +18,8 @@ class DocumentsApproval(db.Model, Base):
     updated_at = db.Column(DateTime, nullable=False, default=db.func.now())
     created_at = db.Column(DateTime, nullable=False, default=db.func.now())
     
-    document_details = relationship("Documents", back_populates="approval_details")
-    users = relationship("Users", back_populates="approval_details")
+    # document_details = relationship("Documents", back_populates="approval_details")
+    # users = relationship("Users", back_populates="approval_details")
 
     def __init__(self, id, document_id, approved_by, remark, status, updated_at, created_at):
         self.id = id

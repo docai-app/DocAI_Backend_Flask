@@ -4,7 +4,7 @@ from database.models.FormsSchema import FormsSchema
 from database.services.DocumentsApproval import DocumentsApprovalQueryService
 from database.services.FormsData import FormsDataQueryService
 from database.services.FormsSchema import FormsSchemaQueryService
-from flask import Blueprint, jsonify, request, render_template, send_from_directory
+from flask import Blueprint, jsonify, request, render_template, send_from_directory, Response
 from services.AzureForm import AzureFormService
 from services.database import DatabaseService
 from services.form import FormService
@@ -91,8 +91,8 @@ def getAbsenceFormByApprovalID(id):
 @form.route('/form/absence/<id>/approval', methods=['PUT'])
 def updateAbsenceFormApprovalStatus(id):
     try:
-        status = request.args.get('status')
-        res = DocumentsApprovalQueryService.update(id, {'status': status})
+        requestData = request.get_json()
+        res = DocumentsApprovalQueryService.update(id, requestData)
         return jsonify({'status': True, 'documents_approval': res})
     except Exception as e:
         return jsonify({'status': False, 'message': str(e)})

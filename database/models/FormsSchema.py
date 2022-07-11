@@ -18,7 +18,7 @@ class FormsSchema(db.Model, Base):
     updated_at = db.Column(DateTime, nullable=False, default=db.func.now())
     created_at = db.Column(DateTime, nullable=False, default=db.func.now())
     
-    forms_data = relationship("FormsData", back_populates="form_details")
+    # forms_data = relationship("FormsData", back_populates="form_details")
 
     def __init__(self, id, name, form_schema, ui_schema, data_schema, description, updated_at, created_at):
         self.id = id

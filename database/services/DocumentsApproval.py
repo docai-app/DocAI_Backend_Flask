@@ -42,7 +42,7 @@ class DocumentsApprovalQueryService():
             return row2dict(data)
         except Exception as e:
             print(e)
-            return False
+            return e
 
     @staticmethod
     def getDocumentsApprovalByStatus(status):
