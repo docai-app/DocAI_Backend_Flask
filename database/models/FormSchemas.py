@@ -7,8 +7,8 @@ from ext import db
 Base = declarative_base()
 
 
-class FormsSchema(db.Model, Base):
-    __tablename__ = 'forms_schema'
+class FormSchemas(db.Model, Base):
+    __tablename__ = 'form_schemas'
     id = db.Column(UUID , primary_key=True, unique=True, nullable=False, index=True)
     name = db.Column(TEXT, nullable=False)
     form_schema = db.Column(JSON, nullable=False, default=dict)
@@ -31,6 +31,6 @@ class FormsSchema(db.Model, Base):
         self.created_at = created_at
     
     def __repr__(self):
-        return "<FormsSchema(id='%s', name='%s', form_schema='%s', ui_schema='%s', data_schema='%s', description='%s', updated_at='%s', created_at='%s')>" % (self.id, self.name, self.form_schema, self.ui_schema, self.data_schema, self.description, self.updated_at, self.created_at)
+        return "<FormSchemas(id='%s', name='%s', form_schema='%s', ui_schema='%s', data_schema='%s', description='%s', updated_at='%s', created_at='%s')>" % (self.id, self.name, self.form_schema, self.ui_schema, self.data_schema, self.description, self.updated_at, self.created_at)
 
 

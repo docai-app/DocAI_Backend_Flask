@@ -1,30 +1,30 @@
 from database.models.Documents import Documents
 from database.models.FormsData import FormsData
-from database.models.FormsSchema import FormsSchema
+from database.models.FormSchemas import FormSchemas
 from utils.model import row2dict, rows2dict, rowsWithRelationship2dict
 from ext import db
 from sqlalchemy import cast, DATE
 
 
-class FormsSchemaQueryService():
+class FormSchemasQueryService():
     @staticmethod
     def getAll():
-        data = FormsSchema.query.all()
+        data = FormSchemas.query.all()
         return rows2dict(data)
 
     @staticmethod
     def getSpecific(id):
-        data = FormsSchema.query.filter_by(id=id).first()
+        data = FormSchemas.query.filter_by(id=id).first()
         return row2dict(data)
 
     @staticmethod
-    def getFormsSchemaByDate(date):
-        data = FormsSchema.query.filter(
-            cast(FormsSchema.created_at, DATE) == date).all()
+    def getFormSchemasByDate(date):
+        data = FormSchemas.query.filter(
+            cast(FormSchemas.created_at, DATE) == date).all()
         return rows2dict(data)
 
     @staticmethod
-    def getFormsSchemaByName(name):
-        data = FormsSchema.query.filter(
-            FormsSchema.name == name ).first()
+    def getFormSchemasByName(name):
+        data = FormSchemas.query.filter(
+            FormSchemas.name == name ).first()
         return row2dict(data)

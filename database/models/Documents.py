@@ -28,8 +28,8 @@ class Documents(db.Model, Base):
     approval_at = db.Column(DateTime, nullable=True, default=None)
     folder_id = db.Column(UUID, ForeignKey('folders.id'),
                           nullable=True, default=None)
-    upload_status = db.Column(INTEGER, nullable=False, default=0)
-    upload_local_path = db.Column(TEXT, nullable=True, default=None)
+    # upload_status = db.Column(INTEGER, nullable=False, default=0)
+    # upload_local_path = db.Column(TEXT, nullable=True, default=None)
 
     # label_details = relationship("Labels", back_populates="documents")
     # folder_details = relationship("DocumentFolder", back_populates="documents")

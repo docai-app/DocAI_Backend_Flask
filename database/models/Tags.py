@@ -8,12 +8,13 @@ from ext import db
 Base = declarative_base()
 
 
-class Labels(db.Model, Base):
-    __tablename__ = 'labels'
+class Tags(db.Model, Base):
+    __tablename__ = 'tags'
     id = db.Column(INTEGER, primary_key=True, unique=True, nullable=False, autoincrement=True)
-    name = db.Column(TEXT, nullable=False)
+    name = db.Column(TEXT, nullable=True)
     updated_at = db.Column(DateTime, nullable=False, default=db.func.now())
     created_at = db.Column(DateTime, nullable=False, default=db.func.now())
+    taggings_count = db.Column(INTEGER, nullable=True, default=0)
     
     # documents = relationship("Documents", back_populates="label_details")
 
@@ -21,4 +22,4 @@ class Labels(db.Model, Base):
         self.name = name
 
     def __repr__(self):
-        return "<Label (id='%s', name='%s', updated_at='%s', created_at='%s')>" % (self.id, self.name, self.updated_at, self.created_at)
+        return "<Tags (id='%s', name='%s', updated_at='%s', created_at='%s' taggings_count='%s')>" % (self.id, self.name, self.updated_at, self.created_at, self.taggings_count)

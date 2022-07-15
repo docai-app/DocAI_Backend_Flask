@@ -1,4 +1,3 @@
-from crypt import methods
 from flask import Blueprint, jsonify, request, render_template, send_from_directory
 from services.classification import ClassificationService
 from services.ocr import OCRService

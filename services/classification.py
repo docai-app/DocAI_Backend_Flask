@@ -1,6 +1,8 @@
+from dataclasses import dataclass
 import pickle
 from database.services.Documents import DocumentsQueryService
 from database.services.Labels import LabelsQueryService
+from database.services.Tags import TagsQueryService
 from services.cluster import ClusterService
 from services.database import DatabaseService
 from sentence_transformers import SentenceTransformer
@@ -54,7 +56,8 @@ class ClassificationService:
         with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'rb') as file:
             learner = pickle.load(file)
         prediction = learner.predict(embeddings)[0]
-        label = LabelsQueryService.getSpecific(prediction)
+        print(prediction)
+        label = TagsQueryService.getSpecific(prediction)
         return label
 
     @staticmethod
@@ -68,6 +71,4 @@ class ClassificationService:
         learner.teach(embeddings.reshape(1, -1), [label])
         with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'wb') as file:
             pickle.dump(learner, file)
-        status = DocumentsQueryService.update(
-            id, {'status': 'confirmed', "label_id": label})
-        return status
+        return True

@@ -20,6 +20,5 @@ class AzureFormService:
         fields = {}
         for key, field in result.documents[0].fields.items():
             fields[key] = field.content
-        # print(fields)
         return fields
     

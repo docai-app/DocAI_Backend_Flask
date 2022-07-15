@@ -1,7 +1,7 @@
 from database.models.Documents import Documents
 from database.models.DocumentsApproval import DocumentsApproval
 from database.models.FormsData import FormsData
-from database.models.FormsSchema import FormsSchema
+from database.models.FormSchemas import FormSchemas
 from utils.model import row2dict, rows2dict, rowWithRelationship2dict, rowsWithRelationship2dict
 from ext import db
 from datetime import datetime
@@ -50,19 +50,19 @@ class DocumentsApprovalQueryService():
         return rows2dict(data)
 
     @staticmethod
-    def getDocumentsApprovalWithFormsByStatusAndFormsSchemaName(status, name):
+    def getDocumentsApprovalWithFormsByStatusAndFormSchemasName(status, name):
         data = Documents.query.filter(DocumentsApproval.document_id == Documents.id).filter(
-            DocumentsApproval.status == status).filter(FormsSchema.name == name).all()
+            DocumentsApproval.status == status).filter(FormSchemas.name == name).all()
         return rowsWithRelationship2dict(data, ['approval_details', 'form_details'])
 
     @staticmethod
-    def getDocumentsApprovalWithFormsByIDAndFormsSchemaName(id, name):
+    def getDocumentsApprovalWithFormsByIDAndFormSchemasName(id, name):
         data = Documents.query.filter(DocumentsApproval.document_id == Documents.id).filter(
-            DocumentsApproval.id == id).filter(FormsSchema.name == name).first()
+            DocumentsApproval.id == id).filter(FormSchemas.name == name).first()
         return rowWithRelationship2dict(data, ['approval_details', 'form_details'])
 
     @staticmethod
-    def getDocumentsApprovalByStatusAndFormsSchemaName(status, name):
+    def getDocumentsApprovalByStatusAndFormSchemasName(status, name):
         data = DocumentsApproval.query.filter_by(status=status).filter(
-            Documents.id == DocumentsApproval.document_id).filter(FormsSchema.name == name).all()
+            Documents.id == DocumentsApproval.document_id).filter(FormSchemas.name == name).all()
         return rowsWithRelationship2dict(data, ['document_details, forms_schema_details'])
