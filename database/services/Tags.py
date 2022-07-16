@@ -12,5 +12,5 @@ class TagsQueryService():
 
     @staticmethod
     def getSpecific(id):
-        data = Tags.query.filter_by(id=int(id)).first()
+        data = Tags.query.filter_by(id=id).first()
         return row2dict(data)
