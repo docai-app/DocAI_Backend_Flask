@@ -26,7 +26,7 @@ class StorageService:
                 file, content_settings=ContentSettings(file.content_type))
             content = OCRService.getText(blob_client.url)
             document = DocumentsQueryService.insert(
-                documentID, filename, blob_client.url, content)
+                documentID, filename, blob_client.url, content, 0)
             return document
         except Exception as e:
             return e

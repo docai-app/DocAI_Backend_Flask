@@ -22,3 +22,15 @@ def new():
     name = requestData['name']
     res = LabelsQueryService.insert(name)
     return jsonify({'status': res})
+
+
+# Update specify label's name API
+@label.route('/labels/<id>', methods=['PUT'])
+def update(id):
+    try:
+        requestData = request.get_json()
+        name = requestData['name']
+        res = LabelsQueryService.update(id, name)
+        return jsonify({'status': res})
+    except Exception as e:
+        return jsonify({'status': res, 'message': 'No label found'})

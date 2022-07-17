@@ -3,7 +3,7 @@ from database.models.DocumentsApproval import DocumentsApproval
 from database.models.DocumentFolder import DocumentFolder
 from database.models.Folders import Folders
 from database.models.FormsData import FormsData
-from database.models.FormsSchema import FormsSchema
+from database.models.FormSchemas import FormSchemas
 from database.models.Documents import Documents
 from database.models.Labels import Labels
 from database.models.Users import Users
@@ -20,6 +20,8 @@ from routes.api.search import search
 from routes.api.form import form
 from routes.api.document import document
 from routes.api.statistics import statistics
+from routes.api.ocr import ocr
+from routes.api.form_recognize import form_recognize
 from flask_cors import CORS
 from ddtrace import tracer
 from dotenv import load_dotenv
@@ -46,6 +48,8 @@ def createApp(config="database/settings.py"):
     app.register_blueprint(form)
     app.register_blueprint(document)
     app.register_blueprint(statistics)
+    app.register_blueprint(ocr)
+    app.register_blueprint(form_recognize)
     CORS(app, resources={
          r"/*": {"origins": ["*", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
     db.init_app(app)

@@ -13,20 +13,18 @@ class DocumentsQueryService():
     @staticmethod
     def getSpecific(id):
         data = Documents.query.filter_by(id=id).first()
+        print(data)
         return row2dict(data)
 
     @staticmethod
-    def insert(id, name, storage_url, content, label_id=None, status="uploaded"):
+    def insert(id, name, storage_url, content, status=0):
         try:
             data = Documents(
                 id=str(id),
                 name=name,
-                label_id=label_id,
                 storage_url=storage_url,
                 content=content,
                 status=status,
-                updated_at=datetime.now(),
-                created_at=datetime.now()
             )
             db.session.add(data)
             db.session.commit()
@@ -34,8 +32,8 @@ class DocumentsQueryService():
         except Exception as e:
             print(e)
             return False
-        
-    @staticmethod 
+
+    @staticmethod
     def update(id, items):
         try:
             data = Documents.query.filter_by(id=id).first()

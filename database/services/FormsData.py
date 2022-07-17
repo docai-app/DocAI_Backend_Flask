@@ -1,6 +1,6 @@
 from database.models.Documents import Documents
 from database.models.FormsData import FormsData
-from database.models.FormsSchema import FormsSchema
+from database.models.FormSchemas import FormSchemas
 from utils.model import row2dict, rows2dict, rowsWithRelationship2dict
 from ext import db
 from sqlalchemy import cast, DATE
@@ -52,8 +52,8 @@ class FormsDataQueryService():
 
     @staticmethod
     def getFormsByLabelAndDate(label, date):
-        formsSchema = FormsSchema.query.filter(
-            FormsSchema.name == label).first()
+        FormSchemas = FormSchemas.query.filter(
+            FormSchemas.name == label).first()
         data = FormsData.query.filter(cast(FormsData.created_at, DATE) == date).filter(
-            FormsData.schema_id == formsSchema.id).all()
-        return [row2dict(formsSchema), rowsWithRelationship2dict(data, ['document_details'])]
+            FormsData.schema_id == FormSchemas.id).all()
+        return [row2dict(FormSchemas), rowsWithRelationship2dict(data, ['document_details'])]

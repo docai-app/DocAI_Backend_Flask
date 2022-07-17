@@ -1,4 +1,4 @@
-from database.services.FormsSchema import FormsSchemaQueryService
+from database.services.FormSchemas import FormSchemasQueryService
 from utils.utils import getRecursiveLookup, setRecursiveLookup
 from services.database import DatabaseService
 import json
@@ -7,7 +7,7 @@ import json
 class FormService():
     @staticmethod
     def mapAbsenceForm(form):
-        formSchema = FormsSchemaQueryService.getFormsSchemaByName('請假表')
+        formSchema = FormSchemasQueryService.getFormSchemasByName('請假表')
         dataSchema = json.loads(formSchema['data_schema'])
         try:
             for key, value in form.items():
