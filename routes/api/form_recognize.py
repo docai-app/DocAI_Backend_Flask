@@ -14,9 +14,7 @@ model_id = os.getenv("AZURE_ABSENCE_FORM_MODEL_ID")
 def form_recognize_absence():
     try:
         form_url = request.form.get('document_url')
-        print(form_url)
         res = AzureFormService.analysisForm(model_id, form_url)
-        print(res)
         absenceFormData = FormService.mapAbsenceForm(res)
         return jsonify({'status': True, 'form_url': form_url, 'absence_form_data': absenceFormData, 'form': res})
     except Exception as e:

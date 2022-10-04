@@ -13,7 +13,6 @@ class DocumentsQueryService():
     @staticmethod
     def getSpecific(id):
         data = Documents.query.filter_by(id=id).first()
-        print(data)
         return row2dict(data)
 
     @staticmethod
