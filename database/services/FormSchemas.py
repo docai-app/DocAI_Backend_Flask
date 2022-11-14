@@ -28,3 +28,9 @@ class FormSchemasQueryService():
         data = FormSchemas.query.filter(
             FormSchemas.name == name ).first()
         return row2dict(data)
+    
+    @staticmethod
+    def getFormSchemasByModelId(model_id):
+        data = FormSchemas.query.filter(
+            FormSchemas.azure_form_model_id == model_id ).first()
+        return row2dict(data)

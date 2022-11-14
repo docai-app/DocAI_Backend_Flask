@@ -1,4 +1,4 @@
-import os
+import os, json
 import time
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from msrest.authentication import CognitiveServicesCredentials
@@ -43,5 +43,5 @@ class OCRService:
             for readResult in result.analyze_result.read_results:
                 for line in readResult.lines:
                     text += line.text
-                print()
+                print(text)
         return text
