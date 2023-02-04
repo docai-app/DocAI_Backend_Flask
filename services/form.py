@@ -12,9 +12,9 @@ class FormService():
         try:
             for key, value in form.items():
 
-                if value == 'selected':
+                if value == ':selected:':
                     value = True
-                elif value == 'unselected':
+                elif value == ':unselected:':
                     value = False
 
                 if getRecursiveLookup(key, dataSchema) is not None:
@@ -33,9 +33,9 @@ class FormService():
         try:
             for key, value in form.items():
 
-                if value == 'selected':
+                if value == ':selected:':
                     value = True
-                elif value == 'unselected':
+                elif value == ':unselected:':
                     value = False
 
                 if getRecursiveLookup(key, dataSchema) is not None:
