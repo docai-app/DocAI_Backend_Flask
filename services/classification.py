@@ -48,12 +48,12 @@ class ClassificationService:
         return "Success"
 
     @staticmethod
-    def predict(id):
+    def predict(id, model='public'):
         corpus = []
         record = DocumentsQueryService.getSpecific(id)
         corpus.append(record['content'])
         embeddings = embedder.encode(corpus)
-        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'rb') as file:
+        with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'rb') as file:
             learner = pickle.load(file)
         prediction = learner.predict(embeddings)[0]
         print(prediction)
