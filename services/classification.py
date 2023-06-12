@@ -48,27 +48,24 @@ class ClassificationService:
         return "Success"
 
     @staticmethod
-    def predict(id):
+    def predict(content='', model='public'):
         corpus = []
-        record = DocumentsQueryService.getSpecific(id)
-        corpus.append(record['content'])
+        corpus.append(content)
         embeddings = embedder.encode(corpus)
-        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'rb') as file:
+        with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'rb') as file:
             learner = pickle.load(file)
         prediction = learner.predict(embeddings)[0]
         print(prediction)
-        label = TagsQueryService.getSpecific(prediction)
-        return label
+        return prediction
 
     @staticmethod
-    def confirm(id, label):
+    def confirm(content, label, model='public'):
         corpus = []
-        record = DocumentsQueryService.getSpecific(id)
-        corpus.append(record['content'])
+        corpus.append(content)
         embeddings = embedder.encode(corpus)
-        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'rb') as file:
+        with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'rb') as file:
             learner = pickle.load(file)
         learner.teach(embeddings.reshape(1, -1), [label])
-        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'wb') as file:
+        with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'wb') as file:
             pickle.dump(learner, file)
         return True

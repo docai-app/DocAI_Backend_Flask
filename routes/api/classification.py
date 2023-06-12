@@ -25,10 +25,11 @@ def initial():
 
 @classification.route('/classification/predict', methods=['GET'])
 def predict():
-    id = request.args.get('id')
-    print(id)
-    res = ClassificationService.predict(id)
-    return jsonify({'label': res})
+    print("Model name: ", request.args.get('model'))
+    content = request.args.get('content')
+    model = request.args.get('model') or 'public'
+    res = ClassificationService.predict(content, model)
+    return jsonify({'label_id': res})
 
 
 @classification.route('/classification/confirm', methods=['POST'])
