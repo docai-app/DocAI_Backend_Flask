@@ -27,8 +27,15 @@ def form_recognize_specific():
     try:
         form_url = request.form.get('document_url')
         model_id = request.form.get('model_id')
+        form_schema = request.form.get('form_schema')
+        data_schema = request.form.get('data_schema')
+        print("Form URL: ", form_url)
+        print("Model ID: ", model_id)
+        print("Form Schema: ", form_schema)
         res = AzureFormService.analysisForm(model_id, form_url)
-        recognizeFormData = FormService.mapForm(res, model_id)
+        print("Res: ", res)
+        recognizeFormData = FormService.mapForm(res, form_schema, data_schema)
+        print("Recognize form data: ", recognizeFormData)
         return jsonify({'status': True, 'form_url': form_url, 'recognized_form_data': recognizeFormData, 'form': res})
     except Exception as e:
         print(e)

@@ -27,9 +27,11 @@ class FormService():
         return dataSchema
 
     @staticmethod
-    def mapForm(form, model_id):
-        formSchema = FormSchemasQueryService.getFormSchemasByModelId(model_id)
-        dataSchema = json.loads(formSchema['data_schema'])
+    def mapForm(form, form_schema, data_schema):
+        formSchema = json.loads(form_schema)
+        print("Form Schema: ", formSchema)
+        dataSchema = json.loads(data_schema)
+        print("Data Schema: ", dataSchema)
         try:
             for key, value in form.items():
 
