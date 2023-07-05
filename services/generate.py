@@ -1,18 +1,7 @@
 import os
-import pickle
-from unittest import result
-import uuid
-from azure.storage.blob import BlobServiceClient, ContentSettings
-from database.services.Documents import DocumentsQueryService
-from services.database import DatabaseService
-from services.ocr import OCRService
-from utils.utils import getExtension
-from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
-from langchain.chains import SimpleSequentialChain
-from dotenv import load_dotenv
 
 connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
 container = os.getenv('AZURE_STORAGE_CONTAINER')
@@ -72,5 +61,5 @@ class GenerateService:
         chart = chain2.run(query=query, summarizedData=summarizedData)
         print(chart)
         print("----------------------")
-        
+
         return chart
