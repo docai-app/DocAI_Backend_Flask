@@ -30,7 +30,7 @@ generateChartPrompt = PromptTemplate(
     template="""
         Acts as a Data Engineer, could you help me to implement the data analysis task on \
         '''{query}''' The output result I want you to make a chart by using highcharts.js and \
-        give me an directly runnable HTML file!
+        give me an directly runnable HTML file! \
         Use the format \
         ```html \
         <html> \
@@ -38,7 +38,11 @@ generateChartPrompt = PromptTemplate(
                 <script src="https://code.highcharts.com/highcharts.js"></script> \
             </head> \
             <body> \
-                <div id="container" style="width:100%; height:500px;"></div> \
+                <div id="chart-container" style="width:100%; height:500px;"></div> \
+                <script> \
+                    var data = [...] \
+                    Highcharts.chart('chart-container', ...) \
+                </script> \
             </body> \
         </html> \
         ``` \
