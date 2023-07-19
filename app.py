@@ -22,6 +22,7 @@ from routes.api.document import document
 from routes.api.statistics import statistics
 from routes.api.ocr import ocr
 from routes.api.form_recognize import form_recognize
+from routes.api.generate import generate
 from flask_cors import CORS
 from ddtrace import tracer
 from dotenv import load_dotenv
@@ -50,6 +51,7 @@ def createApp(config="database/settings.py"):
     app.register_blueprint(statistics)
     app.register_blueprint(ocr)
     app.register_blueprint(form_recognize)
+    app.register_blueprint(generate)
     CORS(app, resources={
          r"/*": {"origins": ["*", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
     db.init_app(app)
