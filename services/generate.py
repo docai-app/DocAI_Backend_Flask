@@ -13,9 +13,9 @@ summaryFormDataPrompt = PromptTemplate(
     input_variables=["query", "content"],
     template="""
         Acts as a Data Engineer, could you help me to summarize the reference data to match \
-        the description about '''{query}'''. You only extract the necessary data and process \
-        them to match the demand description. The unnecessary data you have to remove them. \
-        You may have to do some calculation to summarize the data if you meet the statistics \
+        the description about '''{query}''' by highcharts. You can only extract the necessary \
+        data from the reference data and extract them to match the demand description. \
+        Maybe, you have to do some calculation to summarize the data if you meet the statistics \
         scenario. \
         Use the Markdown format such as table or anything to output the summarize result. \
         Summary Data: 'xxx' \
@@ -26,11 +26,11 @@ summaryFormDataPrompt = PromptTemplate(
 )
 
 generateChartPrompt = PromptTemplate(
-    input_variables=["query", "summarizedData"],
+    input_variables=["query", "data"],
     template="""
         Acts as a Data Engineer, could you help me to implement the data analysis task on \
-        '''{query}''' The output result I want you to make a chart by using highcharts.js and \
-        give me an directly runnable HTML file! \
+        '''{query}''' The output result I want you to make some charts by using highcharts.js \
+        and give me an directly runnable HTML file! \
         Use the format \
         ```html \
         <html> \
@@ -47,7 +47,7 @@ generateChartPrompt = PromptTemplate(
         </html> \
         ``` \
         Here is the reference data you have to use: \
-        {summarizedData}
+        {data}
         Output Result:
     """,
 )
@@ -62,7 +62,7 @@ class GenerateService:
         print("----------------------")
 
         chain2 = LLMChain(llm=llm, prompt=generateChartPrompt)
-        chart = chain2.run(query=query, summarizedData=summarizedData)
+        chart = chain2.run(query=query, data=summarizedData)
         print(chart)
         print("----------------------")
 
