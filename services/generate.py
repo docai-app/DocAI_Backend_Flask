@@ -27,29 +27,6 @@ summaryFormDataPrompt = PromptTemplate(
 
 generateChartPrompt = PromptTemplate(
     input_variables=["query", "data"],
-    # template="""
-    #     Acts as a Data Engineer, could you help me to implement the data analysis task on \
-    #     '''{query}''' The output result I want you to make some charts by using highcharts.js \
-    #     and give me an directly runnable HTML file! \
-    #     Use the format \
-    #     ```html \
-    #     <html> \
-    #         <head> \
-    #             <script src="https://code.highcharts.com/highcharts.js"></script> \
-    #         </head> \
-    #         <body> \
-    #             <div id="chart-container" style="width:100%; height:500px;"></div> \
-    #             <script> \
-    #                 var data = [...] \
-    #                 Highcharts.chart('chart-container', ...) \
-    #             </script> \
-    #         </body> \
-    #     </html> \
-    #     ``` \
-    #     Here is the reference data you have to use: \
-    #     {data}
-    #     Output Result:
-    # """,
     template="""
     #     Acts as a Data Engineer, could you help me to implement the data analysis task on \
     #     '''{query}''' The output result I want you to make some charts by using highcharts.js \
