@@ -28,12 +28,12 @@ summaryFormDataPrompt = PromptTemplate(
 generateChartPrompt = PromptTemplate(
     input_variables=["query", "data"],
     template="""
-    #     Acts as a Data Engineer, could you help me to implement the data analysis task on \
-    #     '''{query}''' The output result I want you to make some charts by using highcharts.js \
-    #     and give me an directly runnable HTML code. If the user have not provided specific \
-    #     details about the desired analysis or visualization requirements. Just make three charts \
-    #     such as the following example for the user ! \
-    #     Here is the example for your reference and please use this format \
+        Acts as a Data Engineer, could you help me to implement the data analysis task on \
+        '''{query}''' The output result I want you to make some charts by using highcharts.js \
+        and give me an directly runnable HTML code. If the user have not provided specific \
+        details about the desired analysis or visualization requirements. Just make three charts \
+        such as the following example for the user ! \
+        Here is the example for your reference and please use this format \
         ```html \
         <html> \
             <head> \
