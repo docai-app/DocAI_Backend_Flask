@@ -1,8 +1,11 @@
+# File Path: routes/api/document.py
+
 from flask import Blueprint, jsonify, request, render_template, send_from_directory
 from services.classification import ClassificationService
 from utils.model import row2dict, rows2dict
 from flask_sqlalchemy import SQLAlchemy
 from database.services.Documents import DocumentsQueryService
+from services.document import DocumentService
 
 db = SQLAlchemy()
 document = Blueprint('document', __name__)
@@ -40,3 +43,41 @@ def getLatestUploaded():
 def getDocumentsLabel():
     res = DocumentsQueryService.getDocumentsLabel()
     return jsonify({'labels': res})
+
+
+@document.route('/documents/embedding', methods=['POST'])
+def saveDocumentsEmbedding():
+    try:
+        requestData = request.get_json()
+        document = requestData['document']
+        schema = requestData['schema']
+        res = DocumentService.saveDocument(document, schema)
+        return jsonify({'status': res, 'message': 'Document saved'})
+    except Exception as e:
+        return jsonify({'status': False, 'message': str(e)})
+
+
+@document.route('/documents/embedding/search', methods=['GET'])
+def searchDocumentsEmbedding():
+    try:
+        requestData = request.get_json()
+        query = requestData['query']
+        schema = requestData['schema']
+        metadata = requestData['metadata'] or {}
+        res = DocumentService.similaritySearch(query, schema, metadata)
+        return jsonify({'status': True, 'documents': res})
+    except Exception as e:
+        return jsonify({'status': False, 'message': str(e)})
+
+
+@document.route('/documents/embedding/qa', methods=['GET'])
+def qaDocuments():
+    try:
+        requestData = request.get_json()
+        query = requestData['query']
+        schema = requestData['schema']
+        metadata = requestData['metadata'] or {}
+        res = DocumentService.qaDocuments(query, schema, metadata)
+        return jsonify({'status': True, 'content': res})
+    except Exception as e:
+        return jsonify({'status': False, 'message': str(e)})
