@@ -34,8 +34,7 @@ class ClassificationService:
         Y_train = []
         X_train_corpus = []
         for document in documents:
-            record = DocumentsQueryService.getSpecific(document['id'])
-            X_train_corpus.append(record['content'])
+            X_train_corpus.append(document['content'])
             Y_train.append(document['label_id'])
         X_train = embedder.encode(X_train_corpus)
         learner = ActiveLearner(
@@ -43,7 +42,7 @@ class ClassificationService:
             query_strategy=entropy_sampling,
             X_training=X_train, y_training=Y_train
         )
-        with open('./model/model_{user_id}.pkl'.format(user_id='a305f520-2a36-4f3b-8bab-72113e04f355'), 'wb') as file:
+        with open('./model/model_{user_id}.pkl'.format(user_id='00000001'), 'wb') as file:
             pickle.dump(learner, file)
         return "Success"
 
@@ -54,9 +53,11 @@ class ClassificationService:
         embeddings = embedder.encode(corpus)
         with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'rb') as file:
             learner = pickle.load(file)
+            print('model loaded')
+        print(embeddings)
         prediction = learner.predict(embeddings)[0]
         print(prediction)
-        return prediction
+        return prediction[0]
 
     @staticmethod
     def confirm(content, label, model='public'):
