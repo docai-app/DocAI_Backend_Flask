@@ -66,6 +66,7 @@ class ClassificationService:
         embeddings = embedder.encode(corpus)
         with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'rb') as file:
             learner = pickle.load(file)
+        print(label)
         learner.teach(embeddings.reshape(1, -1), [label])
         with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'wb') as file:
             pickle.dump(learner, file)

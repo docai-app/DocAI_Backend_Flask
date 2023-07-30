@@ -5,6 +5,7 @@ from flask import Blueprint, jsonify, request, render_template, send_from_direct
 from services.classification import ClassificationService
 from services.ocr import OCRService
 from services.database import DatabaseService
+import numpy
 
 
 classification = Blueprint('classification', __name__)
@@ -43,7 +44,9 @@ def confirm():
         print(type(label))
         # if label type is string, convert it to array. On the other hand, if label type is array, just keep it.
         if type(label) == str:
-            label = [label]
+            label = numpy.array([label])
+        elif type(label) == list:
+            label = numpy.array(label)
         res = ClassificationService.confirm(content, label, model)
         return jsonify({'status': res, 'message': 'Document confirmed'})
     except Exception as e:
