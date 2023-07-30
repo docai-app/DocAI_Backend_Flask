@@ -82,7 +82,7 @@ class ClassificationService:
         learner.teach(embeddings.reshape(1, -1), numpy.array([label]))
         try:
             with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'wb') as file:
-                pickle.dump(learner, file)
+                pickle.dump(learner, file, protocol=pickle.HIGHEST_PROTOCOL)
                 print('Model Saved!')
         except Exception as e:
             print(e)
