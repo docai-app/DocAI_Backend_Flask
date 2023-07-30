@@ -55,7 +55,7 @@ class ClassificationService:
             learner = pickle.load(file)
             print('model loaded')
         print(embeddings)
-        prediction = learner.predict(embeddings)[0]
+        prediction = learner.predict(embeddings)
         print(prediction)
         return prediction[0]
 
