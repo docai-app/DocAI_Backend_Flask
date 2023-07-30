@@ -7,6 +7,9 @@ from database.services.Tags import TagsQueryService
 from services.cluster import ClusterService
 from services.database import DatabaseService
 from sentence_transformers import SentenceTransformer
+import warnings
+from sklearn.exceptions import DataConversionWarning
+warnings.filterwarnings(action='ignore', category=DataConversionWarning)
 
 from modAL.models import ActiveLearner
 from modAL.uncertainty import entropy_sampling
@@ -37,13 +40,14 @@ class ClassificationService:
         for document in documents:
             X_train_corpus.append(document['content'])
             Y_train.append(document['label_id'])
+        print(Y_train)
         X_train = embedder.encode(X_train_corpus)
         learner = ActiveLearner(
             estimator=RandomForestClassifier(n_jobs=4),
             query_strategy=entropy_sampling,
             X_training=X_train, y_training=Y_train
         )
-        with open('./model/model_{user_id}.pkl'.format(user_id='00000002'), 'wb') as file:
+        with open('./model/model_{user_id}.pkl'.format(user_id='00000003'), 'wb') as file:
             pickle.dump(learner, file)
         return "Success"
 
@@ -68,15 +72,14 @@ class ClassificationService:
         with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'rb') as file:
             learner = pickle.load(file)
         if isinstance(label, str):
-            label = [label]
+            label = numpy.array([label])
         elif isinstance(label, list):
+            label = numpy.array(label)
             pass
         else:
             raise ValueError("label must be a string or a list")
-        if len(label) != embeddings.shape[0]:
-            raise ValueError(
-                "The length of label must match the number of embeddings")
-        learner.teach(embeddings, [label])
+        print(numpy.array([label]))
+        learner.teach(embeddings.reshape(1, -1), numpy.array([label]))
         with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'wb') as file:
             pickle.dump(learner, file)
             print('Model Saved!')
