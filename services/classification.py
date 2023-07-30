@@ -1,3 +1,7 @@
+from sklearn.ensemble import RandomForestClassifier
+from modAL.uncertainty import entropy_sampling
+from modAL.models import ActiveLearner
+import os
 from dataclasses import dataclass
 import pickle
 import numpy
@@ -11,12 +15,10 @@ import warnings
 from sklearn.exceptions import DataConversionWarning
 warnings.filterwarnings(action='ignore', category=DataConversionWarning)
 
-from modAL.models import ActiveLearner
-from modAL.uncertainty import entropy_sampling
-
-from sklearn.ensemble import RandomForestClassifier
 
 embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')
+
+PATH = os.getenv("VOLUMN_PATH")
 
 
 class ClassificationService:
@@ -47,7 +49,7 @@ class ClassificationService:
             query_strategy=entropy_sampling,
             X_training=X_train, y_training=Y_train
         )
-        with open('./model/model_{user_id}.pkl'.format(user_id='00000003'), 'wb') as file:
+        with open('{PATH}/model/model_{user_id}.pkl'.format(user_id='00000003', PATH=PATH), 'wb') as file:
             pickle.dump(learner, file)
         return "Success"
 
@@ -56,7 +58,7 @@ class ClassificationService:
         corpus = []
         corpus.append(content)
         embeddings = embedder.encode(corpus)
-        with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'rb') as file:
+        with open('{PATH}/model/model_{schema_name}.pkl'.format(schema_name=model, PATH=PATH), 'rb') as file:
             learner = pickle.load(file)
             print('model loaded')
         print(embeddings)
@@ -69,7 +71,7 @@ class ClassificationService:
         corpus = []
         corpus.append(content)
         embeddings = embedder.encode(corpus)
-        with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'rb') as file:
+        with open('{PATH}/model/model_{schema_name}.pkl'.format(schema_name=model, PATH=PATH), 'rb') as file:
             learner = pickle.load(file)
         if isinstance(label, str):
             label = numpy.array([label])
@@ -81,7 +83,7 @@ class ClassificationService:
         print(numpy.array([label]))
         learner.teach(embeddings.reshape(1, -1), numpy.array([label]))
         try:
-            with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'wb') as file:
+            with open('{PATH}/model/model_{schema_name}.pkl'.format(schema_name=model, PATH=PATH), 'wb') as file:
                 pickle.dump(learner, file, protocol=pickle.HIGHEST_PROTOCOL)
                 print('Model Saved!')
         except Exception as e:
