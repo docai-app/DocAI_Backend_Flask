@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import pickle
+import numpy
 from database.services.Documents import DocumentsQueryService
 from database.services.Labels import LabelsQueryService
 from database.services.Tags import TagsQueryService
@@ -42,7 +43,7 @@ class ClassificationService:
             query_strategy=entropy_sampling,
             X_training=X_train, y_training=Y_train
         )
-        with open('./model/model_{user_id}.pkl'.format(user_id='00000001'), 'wb') as file:
+        with open('./model/model_{user_id}.pkl'.format(user_id='00000002'), 'wb') as file:
             pickle.dump(learner, file)
         return "Success"
 
@@ -66,8 +67,17 @@ class ClassificationService:
         embeddings = embedder.encode(corpus)
         with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'rb') as file:
             learner = pickle.load(file)
-        print(label)
-        learner.teach(embeddings.reshape(1, -1), [label])
+        if isinstance(label, str):
+            label = [label]
+        elif isinstance(label, list):
+            pass
+        else:
+            raise ValueError("label must be a string or a list")
+        if len(label) != embeddings.shape[0]:
+            raise ValueError(
+                "The length of label must match the number of embeddings")
+        learner.teach(embeddings, [label])
         with open('./model/model_{schema_name}.pkl'.format(schema_name=model), 'wb') as file:
             pickle.dump(learner, file)
+            print('Model Saved!')
         return True
