@@ -36,9 +36,12 @@ def predict():
 def confirm():
     try:
         requestData = request.get_json()
-        id = requestData['id']
+        content = requestData['content']
         label = requestData['label']
-        res = ClassificationService.confirm(id, label)
+        model = requestData['model'] or 'public'
+        print(content, label, model)
+        print(type(label))
+        res = ClassificationService.confirm(content, label, model)
         return jsonify({'status': res, 'message': 'Document confirmed'})
     except Exception as e:
         return jsonify({'status': False, 'message': str(e)})
