@@ -38,7 +38,8 @@ class DocumentService():
 
             for doc in docs:
                 doc.metadata = {'document_id': document['id'], 'schema': schema,
-                                'document_created_at': document['created_at'], 'document_updated_at': document['updated_at']}
+                                'document_created_at': document['created_at'], 'document_updated_at': document['updated_at'],
+                                'folder_id': document['folder_id'], 'user_id': document['user_id']}
 
             PGVector.from_documents(
                 embedding=DocumentService.embeddings,
