@@ -70,14 +70,14 @@ def searchDocumentsEmbedding():
         return jsonify({'status': False, 'message': str(e)})
 
 
-@document.route('/documents/embedding/qa', methods=['GET'])
+@document.route('/documents/embedding/qa', methods=['POST'])
 def qaDocuments():
     try:
         requestData = request.get_json()
         query = requestData['query']
         schema = requestData['schema']
         metadata = requestData['metadata'] or {}
-        res = DocumentService.qaDocuments(query, schema, metadata)
-        return jsonify({'status': True, 'content': res})
+        answer = DocumentService.qaDocuments(query, schema, metadata)
+        return jsonify({'status': True, 'content': answer})
     except Exception as e:
         return jsonify({'status': False, 'message': str(e)})

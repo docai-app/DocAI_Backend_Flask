@@ -7,10 +7,14 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 from langchain.chains.question_answering import load_qa_chain
+from langchain.memory import ConversationBufferMemory, ChatMessageHistory
+from langchain.schema.messages import HumanMessage, AIMessage
+from langchain.chains import ConversationalRetrievalChain
 from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 from langchain.vectorstores import FAISS
 import os
+import json
 load_dotenv()
 
 
@@ -30,11 +34,7 @@ class DocumentService():
 
             content = text_splitter.split_text(document['content'])
 
-            print(content)
-
             docs = text_splitter.create_documents(content)
-
-            print(docs)
 
             for doc in docs:
                 doc.metadata = {'document_id': document['id'], 'schema': schema,
@@ -86,13 +86,40 @@ class DocumentService():
             embedding_function=DocumentService.embeddings,
         )
 
-        docs = store.similarity_search(query, filter=filter, k=10)
+        print(len(metadata['document_id']))
 
-        print(docs)
+        # docs = store.similarity_search(
+        #     query, filter=filter, k=len(metadata['document_id']) or 10)
 
-        chain = load_qa_chain(ChatOpenAI(model_name=os.getenv(
-            "OPENAI_MODEL_NAME"), temperature=0.7), chain_type="stuff")
-        res = chain({"input_documents": docs, "question": query},
-                    return_only_outputs=True)
+        # print(len(docs))
 
-        return res
+        # chain = load_qa_chain(ChatOpenAI(model_name=os.getenv(
+        #     "OPENAI_MODEL_NAME"), temperature=0.7), chain_type="stuff")
+        # res = chain({"input_documents": docs, "question": query},
+        #             return_only_outputs=True)
+
+        # print(res)
+
+        # messagesHistory = [HumanMessage(**message) if 'human' in message
+        #                    else AIMessage(**message) for message in chatHistory]
+
+        # print(messagesHistory)
+
+        memory = ConversationBufferMemory(
+            memory_key="chat_history", return_messages=True)
+
+        retriever = store.as_retriever()
+        chat = ConversationalRetrievalChain.from_llm(llm=ChatOpenAI(model_name=os.getenv(
+            "OPENAI_MODEL_NAME"), temperature=0.7), retriever=retriever, memory=memory)
+
+        res = chat({"question": query},
+                   return_only_outputs=False)
+
+        chat_history = []
+        for message in res['chat_history']:
+            if type(message) == HumanMessage:
+                chat_history.append({"human": message.content})
+            elif type(message) == AIMessage:
+                chat_history.append({"ai": message.content})
+
+        return res['answer']
