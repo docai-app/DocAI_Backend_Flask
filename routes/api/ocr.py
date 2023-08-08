@@ -15,6 +15,7 @@ def document_ocr():
         print(type(document_url))
         print("Document URL: ", str(document_url))
         content = OCRService.getText(document_url)
+        print("Document Content: ", str(content))
         return jsonify({'status': True, 'result': content})
     except Exception as e:
         print(e)
