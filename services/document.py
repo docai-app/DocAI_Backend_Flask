@@ -93,11 +93,10 @@ class DocumentService():
             embedding_function=DocumentService.embeddings,
         )
 
-        retriever = store.as_retriever()
-
-        print(len(metadata['document_id']))
-        
-        print(history)
+        retriever = store.as_retriever(
+            search_kwargs={'filter': filter, 'k': 8,
+                           'fetch_k': len(metadata['document_id'])}
+        )
 
         # docs = store.similarity_search(
         #     query, filter=filter, k=len(metadata['document_id']) or 10)
@@ -118,48 +117,34 @@ class DocumentService():
 
         # memory = ConversationSummaryMemory(llm=ChatOpenAI(model_name=os.getenv(
         #     "OPENAI_MODEL_NAME")), memory_key="chat_history", return_messages=True)
+
         memory = ConversationBufferWindowMemory(
-            memory_key="chat_history", k=5, return_messages=True)
+            memory_key="chat_history", k=len(metadata['document_id']) or 10, return_messages=True)
 
-        memory.chat_memory.add_user_message(
-            "這裏有人因為生病原因而請假嗎？這個人是誰？幫我整理一下他的個人資料，順便幫我寫一封200字的慰問信給這個人")
-        memory.chat_memory.add_ai_message(
-            "是的，有一位名叫李太白的員工因為孩子生病而請了病假。以下是他的個人資料：\n\n員工編號：456\n員工姓名：李太白\n職稱：員工\n\n關於慰問信，我很抱歉，根據提供的資料，我無法為您寫一封200字的慰問信。這份資料只提供了李太白請假的原因和相關細節，沒有提供其他個人資訊。如果您有其他需要，請提供更多資料，我將竭力協助您。")
-        # memory.chat_memory.add_user_message(
-        #     "你剛才生成的內容可以幫我翻譯成英文嗎？"
-        # )
-        # memory.chat_memory.add_ai_message(
-        #     "I'm sorry, but I'm not able to generate a condolence letter for you."
-        # )
-
-        tool = create_retriever_tool(
+        search_documents_tool = create_retriever_tool(
             retriever,
             "search_documents",
             "Searches and returns answer regarding the documents."
         )
-        tools = [tool]
+        summary_documents_tool = create_retriever_tool(
+            retriever,
+            "summary_documents_and_query",
+            "Summarizes the documents and the query. If the query is not related to the documents, just say I don't know or cannot find the answer."
+        )
+        tools = [search_documents_tool, summary_documents_tool]
 
         # agent_executor = create_conversational_retrieval_agent(
         #     llm=llm, tools=tools, verbose=True)
 
-        agent_memory = AgentTokenBufferMemory(memory_key=memory_key, llm=llm)
-        # agent_memory.chat_memory.add_user_message(
-        #     "這裏有人因為生病原因而請假嗎？這個人是誰？幫我整理一下他的個人資料，順便幫我寫一封200字的慰問信給這個人")
-        # agent_memory.chat_memory.add_ai_message(
-        #     "是的，有一位名叫李太白的員工因為孩子生病而請了病假。以下是他的個人資料：\n\n員工編號：456\n員工姓名：李太白\n職稱：員工\n\n關於慰問信，我很抱歉，根據提供的資料，我無法為您寫一封200字的慰問信。這份資料只提供了李太白請假的原因和相關細節，沒有提供其他個人資訊。如果您有其他需要，請提供更多資料，我將竭力協助您。")
-        # agent_memory.chat_memory.add_user_message(
-        #     "你剛才生成的一封200字慰問信可以幫我翻譯成英文嗎？"
-        # )
-        # agent_memory.chat_memory.add_ai_message(
-        #     "當然可以！以下是翻譯成英文的慰問信：\n\nDear Mr. Li Taibai,\n\nI hope this letter finds you well. I recently learned that you have taken sick leave due to your child's illness, and I wanted to extend my heartfelt sympathies and wishes for a speedy recovery.\n\nI understand that dealing with a sick child can be emotionally and physically challenging, and I want you to know that you are not alone during this difficult time. The well-being of your family is of utmost importance, and I hope that your child receives the necessary care and attention to regain good health.\n\nPlease take all the time you need to be with your child and prioritize their well-being. Your presence and support are invaluable during this period, and I encourage you to reach out if there is anything we can do to assist you or alleviate any additional stress.\n\nWishing you strength, resilience, and comfort during this challenging time. Please remember that your colleagues and I are here to support you.\n\nSincerely,\n[Your Name]\n\n請注意，這是一份自动生成的翻譯，可能會有一些語言或文化上的差異。如有需要，您可以對信件進行進一步的修改和調整，以確保表達出您想要傳達的意思。"
-        # )
-        
+        agent_memory = AgentTokenBufferMemory(
+            memory_key=memory_key, llm=llm, max_token_limit=10000)
+
         for message in history:
             if 'human' in message:
                 agent_memory.chat_memory.add_user_message(message['human'])
             elif 'ai' in message:
                 agent_memory.chat_memory.add_ai_message(message['ai'])
-                
+
         print(agent_memory.load_memory_variables({}))
 
         system_message = SystemMessage(
@@ -185,25 +170,7 @@ class DocumentService():
 
         print(agent_res["output"])
 
-        # chat_history = memory.load_memory_variables({})['chat_history']
-        # chat_history = agent_memory.load_memory_variables({})['agent_history']
-
-        # print(chat_history)
-
-        # print(chat_history)
-
-        # chat = ConversationalRetrievalChain.from_llm(llm=ChatOpenAI(model_name=os.getenv(
-        #     "OPENAI_MODEL_NAME"), temperature=0.7), retriever=retriever, memory=memory)
-
-        # res = chat({"question": query, "chat_history": chat_history})
-
-        # print(res)
-
-        # # print(memory.load_memory_variables({'input', 'output'}))
-
         print(agent_memory.dict())
-
-        # print(memory.dict())
 
         chat_history = []
         for message in agent_memory.load_memory_variables({})['agent_history']:
