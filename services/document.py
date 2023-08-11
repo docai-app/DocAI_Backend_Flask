@@ -93,30 +93,12 @@ class DocumentService():
             embedding_function=DocumentService.embeddings,
         )
 
+        print(len(metadata['document_id']))
+
         retriever = store.as_retriever(
-            search_kwargs={'filter': filter, 'k': 8,
+            search_kwargs={'filter': filter, 'k': 5,
                            'fetch_k': len(metadata['document_id'])}
         )
-
-        # docs = store.similarity_search(
-        #     query, filter=filter, k=len(metadata['document_id']) or 10)
-
-        # print(len(docs))
-
-        # chain = load_qa_chain(ChatOpenAI(model_name=os.getenv(
-        #     "OPENAI_MODEL_NAME"), temperature=0.7), chain_type="stuff")
-        # res = chain({"input_documents": docs, "question": query},
-        #             return_only_outputs=True)
-
-        # print(res)
-
-        # messagesHistory = [HumanMessage(**message) if 'human' in message
-        #                    else AIMessage(**message) for message in chatHistory]
-
-        # print(messagesHistory)
-
-        # memory = ConversationSummaryMemory(llm=ChatOpenAI(model_name=os.getenv(
-        #     "OPENAI_MODEL_NAME")), memory_key="chat_history", return_messages=True)
 
         memory = ConversationBufferWindowMemory(
             memory_key="chat_history", k=len(metadata['document_id']) or 10, return_messages=True)
@@ -132,9 +114,6 @@ class DocumentService():
             "Summarizes the documents and the query. If the query is not related to the documents, just say I don't know or cannot find the answer."
         )
         tools = [search_documents_tool, summary_documents_tool]
-
-        # agent_executor = create_conversational_retrieval_agent(
-        #     llm=llm, tools=tools, verbose=True)
 
         agent_memory = AgentTokenBufferMemory(
             memory_key=memory_key, llm=llm, max_token_limit=10000)
