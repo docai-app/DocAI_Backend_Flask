@@ -68,21 +68,21 @@ class ClassificationService:
 
     @staticmethod
     def confirm(content, label, model='public'):
-        corpus = []
-        corpus.append(content)
-        embeddings = embedder.encode(corpus)
-        with open('{PATH}/model/model_{schema_name}.pkl'.format(schema_name=model, PATH=PATH), 'rb') as file:
-            learner = pickle.load(file)
-        if isinstance(label, str):
-            label = numpy.array([label])
-        elif isinstance(label, list):
-            label = numpy.array(label)
-            pass
-        else:
-            raise ValueError("label must be a string or a list")
-        print(numpy.array([label]))
-        learner.teach(embeddings.reshape(1, -1), numpy.array([label]))
         try:
+            corpus = []
+            corpus.append(content)
+            embeddings = embedder.encode(corpus)
+            with open('{PATH}/model/model_{schema_name}.pkl'.format(schema_name=model, PATH=PATH), 'rb') as file:
+                learner = pickle.load(file)
+            if isinstance(label, str):
+                label = numpy.array([label])
+            elif isinstance(label, list):
+                label = numpy.array(label)
+                pass
+            else:
+                raise ValueError("label must be a string or a list")
+            print(numpy.array([label]))
+            learner.teach(embeddings.reshape(1, -1), numpy.array([label]))
             with open('{PATH}/model/model_{schema_name}.pkl'.format(schema_name=model, PATH=PATH), 'wb') as file:
                 pickle.dump(learner, file, protocol=pickle.HIGHEST_PROTOCOL)
                 print('Model Saved!')
