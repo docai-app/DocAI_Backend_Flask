@@ -97,14 +97,13 @@ class ClassificationService:
 
             model_path = '{PATH}/model/model_{schema_name}.pkl'.format(
                 schema_name=model, PATH=PATH)
-
-            # Check if the file exists
-            if not exists(model_path):
-                raise FileNotFoundError(f"File {model_path} not found!")
+            
+            print(model_path)
 
             # Read the pickle file
             with open(model_path, 'rb') as file:
                 learner = pickle.load(file)
+                print('model loaded')
 
             if isinstance(label, str):
                 label = numpy.array([label])
