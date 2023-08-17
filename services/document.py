@@ -86,6 +86,8 @@ class DocumentService():
 
         COLLECTION_NAME = 'DocAI_Documents_{schema}_Collection'.format(
             schema=schema)
+        
+        print(COLLECTION_NAME)
 
         store = PGVector(
             collection_name=COLLECTION_NAME,
@@ -172,6 +174,8 @@ class DocumentService():
 
         COLLECTION_NAME = 'DocAI_Documents_{schema}_Collection'.format(
             schema=schema)
+        
+        print(COLLECTION_NAME)
 
         store = PGVector(
             collection_name=COLLECTION_NAME,
