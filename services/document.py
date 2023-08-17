@@ -194,16 +194,16 @@ class DocumentService():
         question_suggestion_tool = create_retriever_tool(
             retriever,
             "question_suggestion",
-            "Based on the documents, generates a question for the beginner user to let them know what the document is about."
+            "Based on the user documents, generates a question for the beginner user to let them know what are the documents related to."
         )
         tools = [search_documents_tool, question_suggestion_tool]
 
         system_message = SystemMessage(
             content=(
-                "Do your best to suggest some questions related to the documents"
+                "Do your best to answer the questions. "
                 "Feel free to use any tools available to look up "
-                "Relevant information, only if neccessary"
-                "Returns 4 questions related to the documents"
+                "relevant information, only if neccessary"
+                "Returns 4 questions related to the user documents"
             )
         )
 
@@ -217,7 +217,7 @@ class DocumentService():
                                        return_intermediate_steps=True)
 
         agent_res = agent_executor(
-            {"input": 'Acts as a documents question suggestion tool. Could you please suggest some questions related to the documents? Since I am a beginner, I need some help. The response suggestion questions language should be same with the documents. Use the json array format to return the questions list: ["xxx", "xxx", "xxx", "xxx"]'})
+            {"input": "Acts as a documents question suggestion tool. Could you please suggest some questions related to the documents? Since I am a beginner, I need some help. Use this format: ```json['xxx', 'xxx', 'xxx', 'xxx']``` Output Result: "})
 
         print(agent_res["output"])
 
