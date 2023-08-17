@@ -159,3 +159,66 @@ class DocumentService():
                 chat_history.append({"ai": message.content})
 
         return agent_res['output'], chat_history
+
+    @staticmethod
+    def suggestionDocumentQA(schema, metadata):
+        filter = {}
+        llm = ChatOpenAI(model_name=os.getenv(
+            "OPENAI_MODEL_NAME"), temperature=0.7)
+
+        if 'document_id' in metadata:
+            filter['document_id'] = {
+                "in": [str(i) for i in metadata['document_id']]}
+
+        COLLECTION_NAME = 'DocAI_Documents_{schema}_Collection'.format(
+            schema=schema)
+
+        store = PGVector(
+            collection_name=COLLECTION_NAME,
+            connection_string=DocumentService.CONNECTION_STRING,
+            embedding_function=DocumentService.embeddings,
+        )
+
+        print(len(metadata['document_id']))
+
+        retriever = store.as_retriever(
+            search_kwargs={'filter': filter, 'k': 5,
+                           'fetch_k': len(metadata['document_id'])}
+        )
+
+        search_documents_tool = create_retriever_tool(
+            retriever,
+            "search_documents",
+            "Randomly selects some documents for the user initial search suggestion."
+        )
+        question_suggestion_tool = create_retriever_tool(
+            retriever,
+            "question_suggestion",
+            "Based on the documents, generates a question for the beginner user to let them know what the document is about."
+        )
+        tools = [search_documents_tool, question_suggestion_tool]
+
+        system_message = SystemMessage(
+            content=(
+                "Do your best to suggest some questions related to the documents"
+                "Feel free to use any tools available to look up "
+                "Relevant information, only if neccessary"
+                "Returns 4 questions related to the documents"
+            )
+        )
+
+        prompt = OpenAIFunctionsAgent.create_prompt(
+            system_message=system_message,
+        )
+
+        agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
+
+        agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True,
+                                       return_intermediate_steps=True)
+
+        agent_res = agent_executor(
+            {"input": 'Acts as a documents question suggestion tool. Could you please suggest some questions related to the documents? Since I am a beginner, I need some help. The response suggestion questions language should be same with the documents. Use the json array format to return the questions list: ["xxx", "xxx", "xxx", "xxx"]'})
+
+        print(agent_res["output"])
+
+        return agent_res['output']

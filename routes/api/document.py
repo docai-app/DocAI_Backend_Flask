@@ -78,7 +78,20 @@ def qaDocuments():
         schema = requestData['schema']
         metadata = requestData['metadata'] or {}
         history = requestData['chat_history'] or ''
-        answer, chat_history = DocumentService.qaDocuments(query, schema, metadata, history)
+        answer, chat_history = DocumentService.qaDocuments(
+            query, schema, metadata, history)
         return jsonify({'status': True, 'content': answer, 'chat_history': chat_history})
+    except Exception as e:
+        return jsonify({'status': False, 'message': str(e)})
+
+
+@document.route('/documents/embedding/qa/suggestion', methods=['POST'])
+def suggestion():
+    try:
+        requestData = request.get_json()
+        schema = requestData['schema']
+        metadata = requestData['metadata'] or {}
+        answer = DocumentService.suggestionDocumentQA(schema, metadata)
+        return jsonify({'status': True, 'suggestion': answer})
     except Exception as e:
         return jsonify({'status': False, 'message': str(e)})
