@@ -217,7 +217,7 @@ class DocumentService():
                                        return_intermediate_steps=True)
 
         agent_res = agent_executor(
-            {"input": "Acts as a documents question suggestion tool. Could you please suggest some questions related to the documents? Since I am a beginner, I need some help. Use this format: ```json['xxx', 'xxx', 'xxx', 'xxx']``` Output Result: "})
+            {"input": "Acts as a documents question suggestion tool. Could you please suggest some questions related to the documents? Since I am a beginner, I need some help."})
 
         print(agent_res["output"])
 
