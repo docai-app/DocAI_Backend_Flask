@@ -77,7 +77,7 @@ class DocumentService():
     def qaDocuments(query, schema, metadata, history):
         filter = {}
         llm = ChatOpenAI(model_name=os.getenv(
-            "OPENAI_MODEL_NAME"), temperature=0.7)
+            "OPENAI_MODEL_NAME"), temperature=0.3)
         memory_key = "agent_history"
 
         if 'document_id' in metadata:
@@ -86,7 +86,7 @@ class DocumentService():
 
         COLLECTION_NAME = 'DocAI_Documents_{schema}_Collection'.format(
             schema=schema)
-        
+
         print(COLLECTION_NAME)
 
         store = PGVector(
@@ -130,17 +130,21 @@ class DocumentService():
 
         system_message = SystemMessage(
             content=(
+                "Only use the English and Traditional Chinese(繁體中文) language to answer the questions! "
                 "Do your best to answer the questions. "
                 "Feel free to use any tools available to look up "
-                "relevant information, only if neccessary"
+                "Relevant information, only if neccessary"
             )
         )
 
         prompt = OpenAIFunctionsAgent.create_prompt(
             system_message=system_message,
             extra_prompt_messages=[
-                MessagesPlaceholder(variable_name=memory_key)]
+                MessagesPlaceholder(variable_name=memory_key)
+            ]
         )
+        
+        print(prompt)
 
         agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
 
@@ -166,7 +170,7 @@ class DocumentService():
     def suggestionDocumentQA(schema, metadata):
         filter = {}
         llm = ChatOpenAI(model_name=os.getenv(
-            "OPENAI_MODEL_NAME"), temperature=0.7)
+            "OPENAI_MODEL_NAME"), temperature=0.3)
 
         if 'document_id' in metadata:
             filter['document_id'] = {
@@ -174,7 +178,7 @@ class DocumentService():
 
         COLLECTION_NAME = 'DocAI_Documents_{schema}_Collection'.format(
             schema=schema)
-        
+
         print(COLLECTION_NAME)
 
         store = PGVector(
