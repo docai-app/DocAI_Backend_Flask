@@ -140,8 +140,6 @@ class DocumentService():
         res = chat({"question": query},
                    return_only_outputs=False)
 
-        print(res)
-
         # system_message = SystemMessage(
         #     content=(
         #         "Only use the English and Traditional Chinese(繁體中文) language to answer the questions! "
@@ -172,21 +170,18 @@ class DocumentService():
         # print(agent_memory.dict())
 
         chat_history = []
+        
         # for message in agent_memory.load_memory_variables({})['agent_history']:
         #     if type(message) == HumanMessage:
         #         chat_history.append({"human": message.content})
         #     elif type(message) == AIMessage and message.content != "":
         #         chat_history.append({"ai": message.content})
 
-        print(memory.load_memory_variables({})['chat_history'])
-
         for message in memory.load_memory_variables({})['chat_history']:
             if type(message) == HumanMessage:
                 chat_history.append({"human": message.content})
             elif type(message) == AIMessage and message.content != "":
                 chat_history.append({"ai": message.content})
-
-        print(chat_history)
 
         # return agent_res['output'], chat_history
         return res['answer'], chat_history
