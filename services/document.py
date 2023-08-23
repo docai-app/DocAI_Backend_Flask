@@ -105,66 +105,91 @@ class DocumentService():
         memory = ConversationBufferWindowMemory(
             memory_key="chat_history", k=len(metadata['document_id']) or 10, return_messages=True)
 
-        search_documents_tool = create_retriever_tool(
-            retriever,
-            "search_documents",
-            "Searches and returns answer regarding the documents."
-        )
-        summary_documents_tool = create_retriever_tool(
-            retriever,
-            "summary_documents_and_query",
-            "Summarizes the documents and the query. If the query is not related to the documents, just say I don't know or cannot find the answer."
-        )
-        tools = [search_documents_tool, summary_documents_tool]
+        chat = ConversationalRetrievalChain.from_llm(llm=ChatOpenAI(model_name=os.getenv(
+            "OPENAI_MODEL_NAME"), temperature=0.3), retriever=retriever, memory=memory)
 
-        agent_memory = AgentTokenBufferMemory(
-            memory_key=memory_key, llm=llm, max_token_limit=10000)
+        # search_documents_tool = create_retriever_tool(
+        #     retriever,
+        #     "search_documents",
+        #     "Searches and returns answer regarding the documents."
+        # )
+        # summary_documents_tool = create_retriever_tool(
+        #     retriever,
+        #     "summary_documents_and_query",
+        #     "Summarizes the documents and the query. If the query is not related to the documents, just say I don't know or cannot find the answer."
+        # )
+        # tools = [search_documents_tool, summary_documents_tool]
+
+        # agent_memory = AgentTokenBufferMemory(
+        #     memory_key=memory_key, llm=llm, max_token_limit=10000)
+
+        # for message in history:
+        #     if 'human' in message:
+        #         agent_memory.chat_memory.add_user_message(message['human'])
+        #     elif 'ai' in message:
+        #         agent_memory.chat_memory.add_ai_message(message['ai'])
 
         for message in history:
             if 'human' in message:
-                agent_memory.chat_memory.add_user_message(message['human'])
+                memory.chat_memory.add_user_message(message['human'])
             elif 'ai' in message:
-                agent_memory.chat_memory.add_ai_message(message['ai'])
+                memory.chat_memory.add_ai_message(message['ai'])
 
-        print(agent_memory.load_memory_variables({}))
+        # print(agent_memory.load_memory_variables({}))
 
-        system_message = SystemMessage(
-            content=(
-                "Only use the English and Traditional Chinese(繁體中文) language to answer the questions! "
-                "Do your best to answer the questions. "
-                "Feel free to use any tools available to look up "
-                "Relevant information, only if neccessary"
-            )
-        )
+        res = chat({"question": query},
+                   return_only_outputs=False)
 
-        prompt = OpenAIFunctionsAgent.create_prompt(
-            system_message=system_message,
-            extra_prompt_messages=[
-                MessagesPlaceholder(variable_name=memory_key)
-            ]
-        )
-        
-        print(prompt)
+        print(res)
 
-        agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
+        # system_message = SystemMessage(
+        #     content=(
+        #         "Only use the English and Traditional Chinese(繁體中文) language to answer the questions! "
+        #         "Do your best to answer the questions. "
+        #         "Feel free to use any tools available to look up "
+        #         "Relevant information, only if neccessary"
+        #     )
+        # )
 
-        agent_executor = AgentExecutor(agent=agent, tools=tools, memory=agent_memory, verbose=True,
-                                       return_intermediate_steps=True)
+        # prompt = OpenAIFunctionsAgent.create_prompt(
+        #     system_message=system_message,
+        #     extra_prompt_messages=[
+        #         MessagesPlaceholder(variable_name=memory_key)
+        #     ]
+        # )
 
-        agent_res = agent_executor({"input": query})
+        # print(prompt)
 
-        print(agent_res["output"])
+        # agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
 
-        print(agent_memory.dict())
+        # agent_executor = AgentExecutor(agent=agent, tools=tools, memory=agent_memory, verbose=True,
+        #                                return_intermediate_steps=True)
+
+        # agent_res = agent_executor({"input": query})
+
+        # print(agent_res["output"])
+
+        # print(agent_memory.dict())
 
         chat_history = []
-        for message in agent_memory.load_memory_variables({})['agent_history']:
+        # for message in agent_memory.load_memory_variables({})['agent_history']:
+        #     if type(message) == HumanMessage:
+        #         chat_history.append({"human": message.content})
+        #     elif type(message) == AIMessage and message.content != "":
+        #         chat_history.append({"ai": message.content})
+
+        print(memory.load_memory_variables({})['chat_history'])
+
+        for message in memory.load_memory_variables({})['chat_history']:
             if type(message) == HumanMessage:
                 chat_history.append({"human": message.content})
             elif type(message) == AIMessage and message.content != "":
                 chat_history.append({"ai": message.content})
 
-        return agent_res['output'], chat_history
+        print(chat_history)
+
+        # return agent_res['output'], chat_history
+        return res['answer'], chat_history
 
     @staticmethod
     def suggestionDocumentQA(schema, metadata):
