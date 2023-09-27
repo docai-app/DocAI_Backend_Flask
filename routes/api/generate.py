@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-from services.ocr import OCRService
 from services.generate import GenerateService
 
 generate = Blueprint('generate', __name__)
@@ -10,7 +9,6 @@ def generate_chart():
     try:
         query = request.form.get('query')
         content = request.form.get('content')
-        # Print type of the document_url
         result = GenerateService.generateChart(query, content)
         return jsonify({'status': True, 'result': result})
     except Exception as e:
@@ -21,7 +19,6 @@ def generate_chart():
 def generate_analysis():
     try:
         requestData = request.get_json()
-        print(requestData)
         query = requestData['query']
         viewsName = requestData['views_name']
         tenant = requestData['tenant']
