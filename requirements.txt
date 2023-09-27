@@ -20,3 +20,4 @@ openai
 google-search-results
 pgvector
 tiktoken
+langchain_experimental
