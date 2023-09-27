@@ -33,7 +33,7 @@ class DocumentService():
 
         try:
             text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=3000, chunk_overlap=400)
+                chunk_size=2000, chunk_overlap=300)
 
             content = text_splitter.split_text(document['content'])
 

@@ -15,4 +15,3 @@ class DatabaseService():
         formData = db.session.execute(
             "SELECT F, D.storage_url FROM forms_data AS F JOIN documents AS D ON F.document_id = D.id WHERE F.schema_id==:id AND CAST(F.created_at AS DATE) = :date", {"id": formSchema.id, "date": date}).all()
         return {'form_schema': row2dict(formSchema), 'form_data': formData}
-
