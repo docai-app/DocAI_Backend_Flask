@@ -2,14 +2,10 @@ from sklearn.ensemble import RandomForestClassifier
 from modAL.uncertainty import entropy_sampling
 from modAL.models import ActiveLearner
 import os
-from dataclasses import dataclass
 import pickle
 import numpy
 from database.services.Documents import DocumentsQueryService
-from database.services.Labels import LabelsQueryService
-from database.services.Tags import TagsQueryService
 from services.cluster import ClusterService
-from services.database import DatabaseService
 from sentence_transformers import SentenceTransformer
 import warnings
 from sklearn.exceptions import DataConversionWarning

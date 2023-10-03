@@ -1,9 +1,6 @@
 from database.services.FormSchemas import FormSchemasQueryService
 from utils.model import row2dict
-import os, json, uuid
-from database.models.FormsData import FormsData
 from database.models.FormSchemas import FormSchemas
-from database.models.Labels import Labels
 from ext import db
 
 

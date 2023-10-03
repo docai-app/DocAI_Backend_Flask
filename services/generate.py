@@ -1,5 +1,4 @@
 import os
-import json
 from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI

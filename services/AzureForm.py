@@ -1,5 +1,4 @@
 import os
-import json
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.formrecognizer import DocumentAnalysisClient
 from dotenv import load_dotenv
