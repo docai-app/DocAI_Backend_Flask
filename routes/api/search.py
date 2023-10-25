@@ -2,9 +2,7 @@ from database.models.Documents import Documents
 from database.models.FormsData import FormsData
 from database.services.Documents import DocumentsQueryService
 from database.services.FormsData import FormsDataQueryService
-from flask import Blueprint, jsonify, request, render_template, send_from_directory
-from services.database import DatabaseService
-from sqlalchemy import cast, DATE
+from flask import Blueprint, jsonify, request
 
 search = Blueprint('search', __name__)
 

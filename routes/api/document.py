@@ -1,8 +1,7 @@
 # File Path: routes/api/document.py
 
-from flask import Blueprint, jsonify, request, render_template, send_from_directory
+from flask import Blueprint, jsonify, request
 from services.classification import ClassificationService
-from utils.model import row2dict, rows2dict
 from flask_sqlalchemy import SQLAlchemy
 from database.services.Documents import DocumentsQueryService
 from services.document import DocumentService

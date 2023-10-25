@@ -1,14 +1,12 @@
 from database.pgvector import PGVectorDB
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores.pgvector import PGVector
-from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 from langchain.chains.question_answering import load_qa_chain
 from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory, ConversationSummaryMemory
 from langchain.schema.messages import HumanMessage, AIMessage
 from langchain.chains import ConversationalRetrievalChain
-from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 from langchain.agents.agent_toolkits import create_retriever_tool
 from langchain.agents.openai_functions_agent.agent_token_buffer_memory import AgentTokenBufferMemory

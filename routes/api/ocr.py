@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-from services.AzureForm import AzureFormService
 from services.ocr import OCRService
 
 ocr = Blueprint('ocr', __name__)
