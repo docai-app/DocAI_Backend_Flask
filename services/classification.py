@@ -67,6 +67,7 @@ class ClassificationService:
         try:
             corpus = []
             corpus.append(content)
+            print(corpus)
             embeddings = embedder.encode(corpus)
             with open('{PATH}/model/model_{schema_name}.pkl'.format(schema_name=model, PATH=PATH), 'rb') as file:
                 learner = pickle.load(file)
@@ -78,6 +79,8 @@ class ClassificationService:
             else:
                 raise ValueError("label must be a string or a list")
             print(numpy.array([label]))
+            print(embeddings.shape)
+            print(label.shape)
             learner.teach(embeddings.reshape(1, -1), numpy.array([label]))
             with open('{PATH}/model/model_{schema_name}.pkl'.format(schema_name=model, PATH=PATH), 'wb') as file:
                 pickle.dump(learner, file)

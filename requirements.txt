@@ -22,3 +22,4 @@ pgvector
 tiktoken
 langchain_experimental
 werkzeug==2.0.3
+pypdf

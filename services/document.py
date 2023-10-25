@@ -16,6 +16,8 @@ from langchain.agents.openai_functions_agent.base import OpenAIFunctionsAgent
 from langchain.schema.messages import SystemMessage
 from langchain.prompts import MessagesPlaceholder
 from langchain.agents import AgentExecutor
+from langchain.document_loaders import PyPDFLoader
+from utils.utils import getExtension
 import os
 import json
 load_dotenv()
@@ -32,12 +34,17 @@ class DocumentService():
             schema=schema)
 
         try:
-            text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=2000, chunk_overlap=300)
-
-            content = text_splitter.split_text(document['content'])
-
-            docs = text_splitter.create_documents(content)
+            docs = []
+            if getExtension(document['name']) == 'pdf':
+                print("Extension: ", getExtension(document['name']))
+                loader = PyPDFLoader(document['storage_url'])
+                pages = loader.load()
+                docs = pages
+            else:
+                text_splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=2000, chunk_overlap=300)
+                content = text_splitter.split_text(document['content'])
+                docs = text_splitter.create_documents(content)
 
             for doc in docs:
                 doc.metadata = {'document_id': document['id'], 'schema': schema,
