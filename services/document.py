@@ -15,6 +15,9 @@ from langchain.schema.messages import SystemMessage
 from langchain.prompts import MessagesPlaceholder
 from langchain.agents import AgentExecutor
 from langchain.document_loaders import PyPDFLoader
+from langchain.docstore.document import Document
+from langchain.storage import InMemoryStore
+from langchain.retrievers.multi_vector import MultiVectorRetriever
 from utils.utils import getExtension
 import os
 import json
@@ -43,6 +46,8 @@ class DocumentService():
                     chunk_size=2000, chunk_overlap=300)
                 content = text_splitter.split_text(document['content'])
                 docs = text_splitter.create_documents(content)
+
+            print(docs)
 
             for doc in docs:
                 doc.metadata = {'document_id': document['id'], 'schema': schema,
@@ -81,7 +86,7 @@ class DocumentService():
     def qaDocuments(query, schema, metadata, history):
         filter = {}
         llm = ChatOpenAI(model_name=os.getenv(
-            "OPENAI_MODEL_NAME"), temperature=0.3)
+            "OPENAI_MODEL_NAME"), temperature=0.2)
         memory_key = "agent_history"
 
         if 'document_id' in metadata:
@@ -150,7 +155,8 @@ class DocumentService():
                 "Only use the English and Traditional Chinese(繁體中文) language to answer the questions! "
                 "Do your best to answer the questions. "
                 "Feel free to use any tools available to look up "
-                "Relevant information, only if neccessary"
+                "Relevant information, only if neccessary "
+                "If you cannot answer the question, just say I don't know or cannot find the answer. You cannot generate some fake content and anything which cannot find from the retrived data. "
             )
         )
 
@@ -182,20 +188,14 @@ class DocumentService():
             elif type(message) == AIMessage and message.content != "":
                 chat_history.append({"ai": message.content})
 
-        # for message in memory.load_memory_variables({})['chat_history']:
-        #     if type(message) == HumanMessage:
-        #         chat_history.append({"human": message.content})
-        #     elif type(message) == AIMessage and message.content != "":
-        #         chat_history.append({"ai": message.content})
-
         return agent_res['output'], chat_history
-        # return res['answer'], chat_history
 
     @staticmethod
     def suggestionDocumentQA(schema, metadata):
         filter = {}
+        result_coult = 10
         llm = ChatOpenAI(model_name=os.getenv(
-            "OPENAI_MODEL_NAME"), temperature=0.3)
+            "OPENAI_MODEL_NAME"), temperature=0.2)
 
         if 'document_id' in metadata:
             filter['document_id'] = {
@@ -213,31 +213,29 @@ class DocumentService():
         )
 
         print(len(metadata['document_id']))
-
+        
         retriever = store.as_retriever(
-            search_kwargs={'filter': filter, 'k': 5,
-                           'fetch_k': len(metadata['document_id'])}
+            # search_type="similarity_score_threshold",
+            search_kwargs={'filter': filter, 'k': result_coult}
         )
+
+        print(retriever.vectorstore)
 
         search_documents_tool = create_retriever_tool(
             retriever,
-            "search_documents",
-            "Randomly selects some documents for the user initial search suggestion."
+            "random_retrieval",
+            # "Search and return some non-repeated documents from the retrieved data."
+            "Randomly search and select some documents from the retrieved data."
         )
-        question_suggestion_tool = create_retriever_tool(
-            retriever,
-            "question_suggestion",
-            "Based on the user documents, generates a question for the beginner user to let them know what are the documents related to."
-        )
-        tools = [search_documents_tool, question_suggestion_tool]
+        tools = [search_documents_tool]
 
         system_message = SystemMessage(
             content=(
-                "Only use the Traditional Chinese(繁體中文) language to answer the questions! "
-                "Do your best to answer the questions. "
-                "Feel free to use any tools available to look up "
-                "relevant information, only if neccessary"
-                "Returns 4 questions related to the user documents"
+                "Generate results using the language of retrieval data. "
+                "Feel free to use any tools available to look up. "
+                "The generated 10 questions must ask the key point of the each retrieved data. "
+                "The output result is a JSON object string and the format must be like this: ```json {\"assistant_question\": [\"question_1\", \"question_2\", \"question_3\"]}``` "
+                "Try your best to generate 10 questions! "
             )
         )
 
@@ -251,8 +249,41 @@ class DocumentService():
                                        return_intermediate_steps=True)
 
         agent_res = agent_executor(
-            {"input": "Acts as a documents question suggestion tool. Could you please suggest some questions related to the documents? Since I am a beginner, I need some help."})
+            {"input": "Could you please generate some summary questions related to the retrieved documents to help the readers understand the content easily?"})
+                
+        print("Agent Res: ", agent_res["output"])
+        
+        data = agent_res["output"].split("\n")[0]
 
-        print(agent_res["output"])
+        return json.loads(data)
 
-        return agent_res['output']
+    # @staticmethod
+    # def generateQuestionsFromChunks(chunks):
+    #     question = []
+    #     for chunk in chunks:
+    #         prompt = """generate one question and the corresponding answer from the chunk,
+    #                     the question must satisfy the following rules:
+    #                     1. The question should ask the key point of the chunk
+    #                     2. A person must have a thorough understanding of the content of the chunk to answer correctly,
+    #                     3. The question should only ask about the content of the chunk,
+    #                     4. format is Q:.... A:....,
+    #                     5. do not use the word "chunk",
+    #                     6. no \n between Q and A
+    #                     The chunk : {}""".format(str(chunk.page_content))
+    #         response = call_gpt(prompt)
+    #         question.append(response["choices"][0]["message"]["content"])
+    #     for i in range(len(question)):
+    #         doc_mid = Document(
+    #             page_content=chunks[i].page_content,
+    #             metadata={"chunk_id": i,
+    #                       "assist_question": question[i]}
+    #         )
+    #         question[i] = doc_mid
+    #     qdb = PGVector.from_documents(
+    #         documents=question,
+    #         embedding=embeddings_model,
+    #         collection_name=COLLECTION_NAME,
+    #         distance_strategy=DistanceStrategy.COSINE,
+    #         connection_string="postgresql+psycopg2://postgres:akl123123@103.20.60.31:5435/postgres")
+
+    #     return qdb
