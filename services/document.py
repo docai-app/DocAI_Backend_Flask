@@ -211,21 +211,15 @@ class DocumentService():
             connection_string=DocumentService.CONNECTION_STRING,
             embedding_function=DocumentService.embeddings,
         )
-
-        print(len(metadata['document_id']))
         
         retriever = store.as_retriever(
-            # search_type="similarity_score_threshold",
             search_kwargs={'filter': filter, 'k': result_coult}
         )
-
-        print(retriever.vectorstore)
 
         search_documents_tool = create_retriever_tool(
             retriever,
             "random_retrieval",
-            # "Search and return some non-repeated documents from the retrieved data."
-            "Randomly search and select some documents from the retrieved data."
+            "Randomly retrieve and select some documents from the retrieved data."
         )
         tools = [search_documents_tool]
 
@@ -234,7 +228,7 @@ class DocumentService():
                 "Generate results using the language of retrieval data. "
                 "Feel free to use any tools available to look up. "
                 "The generated 10 questions must ask the key point of the each retrieved data. "
-                "The output result is a JSON object string and the format must be like this: ```json {\"assistant_question\": [\"question_1\", \"question_2\", \"question_3\"]}``` "
+                "The output result is a JSON object string and the format must be like this: ```json {\"assistant_questions\": [\"question_1\", \"question_2\", \"question_3\"]}``` "
                 "Try your best to generate 10 questions! "
             )
         )
