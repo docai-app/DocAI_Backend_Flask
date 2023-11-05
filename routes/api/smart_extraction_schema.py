@@ -1,6 +1,7 @@
 # File Path: routes/api/smart_extraction_schema.py
 
 from database.services.SmartExtractionSchemas import SmartExtractionSchemasQueryService
+from services.smart_extraction import SmartExtractionService
 from flask import Blueprint, jsonify, request
 
 smart_extraction_schema = Blueprint('smart_extraction_schema', __name__)
@@ -31,3 +32,17 @@ def getSmartExtractionSchemasViews(id):
         return jsonify({'status': True, 'views': res})
     except Exception as e:
         return jsonify({'status': False, 'message': 'Smart Extraction Schema Views not found'})
+    
+@smart_extraction_schema.route('/smart_extraction_schema/map_reduce', methods=['POST'])
+def smartExtractionSchemaMapReduce():
+    storage_url = request.json['storage_url']
+    schema = request.json['schema']
+    data_schema = request.json['data_schema']
+    print("Storage URL: ", storage_url)
+    print("Schema: ", schema)
+    print("Data Schema: ", data_schema)
+    try:
+        res = SmartExtractionService.mapReduce(storage_url, schema, data_schema)
+        return jsonify({'status': True, 'data': res})
+    except Exception as e:
+        return jsonify({'status': False, 'message': str(e)})

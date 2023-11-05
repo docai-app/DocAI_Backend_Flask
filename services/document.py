@@ -3,6 +3,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores.pgvector import PGVector
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
+from functools import partial
 from langchain.chains.question_answering import load_qa_chain
 from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory, ConversationSummaryMemory
 from langchain.schema.messages import HumanMessage, AIMessage
@@ -18,6 +19,12 @@ from langchain.document_loaders import PyPDFLoader
 from langchain.docstore.document import Document
 from langchain.storage import InMemoryStore
 from langchain.retrievers.multi_vector import MultiVectorRetriever
+from langchain.prompts import PromptTemplate
+from langchain.schema import StrOutputParser
+from langchain.schema.prompt_template import format_document
+from langchain.schema.runnable import RunnableParallel, RunnablePassthrough
+from langchain.chains.combine_documents import collapse_docs, split_list_of_docs
+from langchain.docstore.document import Document
 from utils.utils import getExtension
 import os
 import json
@@ -250,7 +257,7 @@ class DocumentService():
         data = agent_res["output"].split("\n")[0]
 
         return json.loads(data)
-
+    
     # @staticmethod
     # def generateQuestionsFromChunks(chunks):
     #     question = []
