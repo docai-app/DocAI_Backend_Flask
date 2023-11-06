@@ -45,7 +45,7 @@ class DocumentService():
             docs = []
             if getExtension(document['name']) == 'pdf':
                 print("Extension: ", getExtension(document['name']))
-                loader = PyPDFLoader(document['storage_url'])
+                loader = PyPDFLoader(document['storage_url'], extract_images=True)
                 pages = loader.load()
                 docs = pages
             else:
@@ -200,7 +200,7 @@ class DocumentService():
     @staticmethod
     def suggestionDocumentQA(schema, metadata):
         filter = {}
-        result_coult = 10
+        result_coult = 8
         llm = ChatOpenAI(model_name=os.getenv(
             "OPENAI_MODEL_NAME"), temperature=0.2)
 
