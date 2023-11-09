@@ -29,3 +29,18 @@ def generate_analysis():
     except Exception as e:
         print(e)
         return jsonify({'status': False, 'message': 'Error: ' + str(e)})
+    
+@generate.route('/generate/smart_extraction/statistics', methods=['POST'])
+def generate_statistics():
+    try:
+        requestData = request.get_json()
+        query = requestData['query']
+        viewsName = requestData['views_name']
+        tenant = requestData['tenant']
+        dataSchema = requestData['data_schema']
+        print(query, viewsName, tenant, dataSchema)
+        result = GenerateService.generateStatisticsFromDBData(viewsName, tenant, query, dataSchema)
+        return jsonify({'status': True, 'result': result})
+    except Exception as e:
+        print(e)
+        return jsonify({'status': False, 'message': 'Error: ' + str(e)})
