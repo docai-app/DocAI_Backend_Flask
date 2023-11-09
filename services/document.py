@@ -59,7 +59,7 @@ class DocumentService():
             for doc in docs:
                 doc.metadata = {'document_id': document['id'], 'schema': schema,
                                 'document_created_at': document['created_at'], 'document_updated_at': document['updated_at'],
-                                'folder_id': document['folder_id'], 'user_id': document['user_id']}
+                                'folder_id': document['folder_id'], 'user_id': document['user_id'], 'page': doc.metadata['page'] if 'page' in doc.metadata else 0}
 
             PGVector.from_documents(
                 embedding=DocumentService.embeddings,

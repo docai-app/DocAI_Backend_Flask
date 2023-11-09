@@ -113,10 +113,13 @@ class SmartExtractionService():
         pages = loader.load()
         docs = pages
         res_data_schema = data_schema
+        print("Schema: ", schema)
+        print("Res Data Schema: ", res_data_schema)
         for s in schema:
             res_map_reduce = SmartExtractionService.createMapReduceChain(docs, s['query'][0] + "\n\n{context}", s['query'][1] + "\n\n{context}", {})
             res = res_map_reduce.invoke(docs, config={"max_concurrency": 5})
             res_data_schema[s['key']] = res
+        print("After Res Data Schema: ", res_data_schema)
         return res_data_schema
     
         
