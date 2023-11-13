@@ -14,7 +14,6 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None):
     dataSchemaString = ", ".join(dataSchema.keys())
     llm2 = OpenAI(
         temperature=0,
-        openai_api_key=os.getenv("OPENAI_API_KEY"),
         model_name=os.getenv("OPENAI_MODEL_NAME"),
     )
 
