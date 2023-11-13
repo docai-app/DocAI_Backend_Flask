@@ -6,11 +6,18 @@ from langchain.chains import LLMChain
 from langchain import SQLDatabase
 from langchain_experimental.sql import SQLDatabaseChain
 from ext import db
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 def generateSQLByViews(viewsName, tenant, query, dataSchema=None):
-    dataSchemaString = ', '.join(dataSchema.keys())
-    llm2 = OpenAI(temperature=0, openai_api_key=os.getenv(
-        "OPENAI_API_ACCESS_TOKEN"), model_name=os.getenv("OPENAI_MODEL_NAME"))
+    dataSchemaString = ", ".join(dataSchema.keys())
+    llm2 = OpenAI(
+        temperature=0,
+        openai_api_key=os.getenv("OPENAI_API_ACCESS_TOKEN"),
+        model_name=os.getenv("OPENAI_MODEL_NAME"),
+    )
 
     QUERY = """
             Given an input question, first create a syntactically correct postgresql query to run, 
@@ -25,17 +32,21 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None):
             Answer: Final answer here 
 
             {query}
-            """.format(query=query, viewsName=viewsName, tenant=tenant, dataSchemaString=dataSchemaString)
+            """.format(
+        query=query,
+        viewsName=viewsName,
+        tenant=tenant,
+        dataSchemaString=dataSchemaString,
+    )
 
     print("Query: ", QUERY)
 
     pgdb = SQLDatabase.from_uri(os.getenv("DATABASE_URL"))
 
-    db_chain = SQLDatabaseChain(
-        llm=llm2, database=pgdb, verbose=True, return_sql=True)
+    db_chain = SQLDatabaseChain(llm=llm2, database=pgdb, verbose=True, return_sql=True)
 
     print("DB Chain: ", db_chain)
 
     sql = db_chain.run(QUERY)
-    
+
     return sql
