@@ -16,7 +16,7 @@ Flask-Script==2.0.6
 psycopg2-binary==2.9.3
 sqlalchemy==1.4.37
 langchain==0.0.254
-openai
+openai==0.28.1
 google-search-results
 pgvector
 tiktoken
