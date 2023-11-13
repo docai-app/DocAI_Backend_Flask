@@ -13,8 +13,14 @@ container = os.getenv("AZURE_STORAGE_CONTAINER")
 
 llm = ChatOpenAI(
     temperature=0.3,
-    openai_api_key=os.getenv("OPENAI_API_ACCESS_TOKEN"),
+    openai_api_key=os.getenv("OPENAI_API_KEY"),
     model_name=os.getenv("OPENAI_MODEL_NAME"),
+)
+
+llm_gpt4_turbo = ChatOpenAI(
+    temperature=0.3,
+    openai_api_key=os.getenv("OPENAI_API_KEY"),
+    model_name=os.getenv("OPENAI_GPT4_MODEL_NAME"),
 )
 
 summaryFormDataPrompt = PromptTemplate(
@@ -81,12 +87,12 @@ generateStatisticsPrompt = PromptTemplate(
 class GenerateService:
     @staticmethod
     def generateChart(query, content):
-        chain1 = LLMChain(llm=llm, prompt=summaryFormDataPrompt)
+        chain1 = LLMChain(llm=llm_gpt4_turbo, prompt=summaryFormDataPrompt)
         summarizedData = chain1.run(query=query, content=content)
         print(summarizedData)
         print("----------------------")
 
-        chain2 = LLMChain(llm=llm, prompt=generateChartPrompt)
+        chain2 = LLMChain(llm=llm_gpt4_turbo, prompt=generateChartPrompt)
         chart = chain2.run(query=query, data=summarizedData)
         print(chart)
         print("----------------------")
@@ -112,7 +118,7 @@ class GenerateService:
 
         print(extractedData)
 
-        chain = LLMChain(llm=llm, prompt=generateChartPrompt)
+        chain = LLMChain(llm=llm_gpt4_turbo, prompt=generateChartPrompt)
         chart = chain.run(query=query, data=extractedData)
         print(chart)
         print("----------------------")
@@ -140,7 +146,7 @@ class GenerateService:
 
         print(extractedData)
 
-        chain = LLMChain(llm=llm, prompt=generateStatisticsPrompt)
+        chain = LLMChain(llm=llm_gpt4_turbo, prompt=generateStatisticsPrompt)
         report = chain.run(query=query, data=extractedData)
         print(report)
 
