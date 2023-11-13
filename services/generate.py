@@ -7,19 +7,20 @@ from langchain import SQLDatabase
 from langchain_experimental.sql import SQLDatabaseChain
 from ext import db
 from utils.generate import generateSQLByViews
+from dotenv import load_dotenv
+
+load_dotenv()
 
 connect_str = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
 container = os.getenv("AZURE_STORAGE_CONTAINER")
 
 llm = ChatOpenAI(
     temperature=0.3,
-    openai_api_key=os.getenv("OPENAI_API_KEY"),
     model_name=os.getenv("OPENAI_MODEL_NAME"),
 )
 
 llm_gpt4_turbo = ChatOpenAI(
     temperature=0.3,
-    openai_api_key=os.getenv("OPENAI_API_KEY"),
     model_name=os.getenv("OPENAI_GPT4_MODEL_NAME"),
 )
 
