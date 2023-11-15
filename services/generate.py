@@ -84,6 +84,19 @@ generateStatisticsPrompt = PromptTemplate(
     """,
 )
 
+generateSimpleStatisticsPrompt = PromptTemplate(
+    input_variables=["query", "data"],
+    template="""
+        Acts as a Statistics Engineer, could you help me to generate the statistics simple report \
+        by using the user's query: '''{query}'''? The output result I just want you to write the \
+        simple text listed format report. You have better to make it very simple list and clear. \
+        Here is the reference data you have to use: \
+        ```{data}``` \
+        Use the user's query language (繁體中文) to generate the statistics detailed report. \
+        Output Result: \
+    """,
+)
+
 
 class GenerateService:
     @staticmethod
@@ -133,22 +146,10 @@ class GenerateService:
             "data": [],
         }
 
-        sql = generateSQLByViews(viewsName, tenant, query, dataSchema)
+        sql = generateSQLByViews(viewsName, tenant, query, dataSchema, False)
 
-        print(sql)
-
-        rows = db.session.execute(sql)
-
-        extractedData["dataSchema"] = list(rows.keys())
-
-        for row in rows:
-            extractedData["data"].append(dict(row))
-            print(row)
-
-        print(extractedData)
-
-        chain = LLMChain(llm=llm_gpt4_turbo, prompt=generateStatisticsPrompt)
-        report = chain.run(query=query, data=extractedData)
+        chain = LLMChain(llm=llm_gpt4_turbo, prompt=generateSimpleStatisticsPrompt)
+        report = chain.run(query=query, data=sql)
         print(report)
 
         return report

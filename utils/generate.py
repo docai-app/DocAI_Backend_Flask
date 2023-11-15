@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def generateSQLByViews(viewsName, tenant, query, dataSchema=None):
+def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True):
     dataSchemaString = ", ".join(dataSchema.keys())
     llm2 = OpenAI(
         temperature=0,
@@ -41,7 +41,7 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None):
 
     pgdb = SQLDatabase.from_uri(os.getenv("DATABASE_URL"))
 
-    db_chain = SQLDatabaseChain(llm=llm2, database=pgdb, verbose=True, return_sql=True)
+    db_chain = SQLDatabaseChain(llm=llm2, database=pgdb, verbose=True, return_sql=returnSQL)
 
     print("DB Chain: ", db_chain)
 
