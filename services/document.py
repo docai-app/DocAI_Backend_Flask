@@ -45,7 +45,7 @@ class DocumentService():
             docs = []
             if getExtension(document['name']) == 'pdf':
                 print("Extension: ", getExtension(document['name']))
-                loader = PyPDFLoader(document['storage_url'], extract_images=True)
+                loader = PyPDFLoader(document['storage_url'], extract_images=False)
                 pages = loader.load()
                 docs = pages
             else:
