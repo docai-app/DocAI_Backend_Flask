@@ -5,12 +5,18 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 from functools import partial
 from langchain.chains.question_answering import load_qa_chain
-from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory, ConversationSummaryMemory
+from langchain.memory import (
+    ConversationBufferMemory,
+    ConversationBufferWindowMemory,
+    ConversationSummaryMemory,
+)
 from langchain.schema.messages import HumanMessage, AIMessage
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.agents.agent_toolkits import create_retriever_tool
-from langchain.agents.openai_functions_agent.agent_token_buffer_memory import AgentTokenBufferMemory
+from langchain.agents.openai_functions_agent.agent_token_buffer_memory import (
+    AgentTokenBufferMemory,
+)
 from langchain.agents.openai_functions_agent.base import OpenAIFunctionsAgent
 from langchain.schema.messages import SystemMessage
 from langchain.prompts import MessagesPlaceholder
@@ -28,44 +34,52 @@ from langchain.docstore.document import Document
 from utils.utils import getExtension
 import os
 import json
+
 load_dotenv()
 
 
-class DocumentService():
+class DocumentService:
     embeddings = OpenAIEmbeddings()
     CONNECTION_STRING = os.getenv("PGVECTOR_DB_CONNECTION_STRING")
     pgvector_db = PGVectorDB("PGVECTOR_DB")
 
     @staticmethod
     def saveDocument(document, schema):
-        COLLECTION_NAME = 'DocAI_Documents_{schema}_Collection'.format(
-            schema=schema)
+        COLLECTION_NAME = "DocAI_Documents_{schema}_Collection".format(schema=schema)
 
         try:
             docs = []
-            if getExtension(document['name']) == 'pdf':
-                print("Extension: ", getExtension(document['name']))
-                loader = PyPDFLoader(document['storage_url'], extract_images=False)
+            if getExtension(document["name"]) == "pdf":
+                print("Extension: ", getExtension(document["name"]))
+                loader = PyPDFLoader(document["storage_url"], extract_images=False)
                 pages = loader.load()
                 docs = pages
             else:
                 text_splitter = RecursiveCharacterTextSplitter(
-                    chunk_size=2000, chunk_overlap=300)
-                content = text_splitter.split_text(document['content'])
+                    chunk_size=2000, chunk_overlap=300
+                )
+                content = text_splitter.split_text(document["content"])
                 docs = text_splitter.create_documents(content)
 
-            print(docs)
+            print("Docs: ", docs)
 
             for doc in docs:
-                doc.metadata = {'document_id': document['id'], 'schema': schema,
-                                'document_created_at': document['created_at'], 'document_updated_at': document['updated_at'],
-                                'folder_id': document['folder_id'], 'user_id': document['user_id'], 'page': doc.metadata['page'] if 'page' in doc.metadata else 0}
+                doc.page_content = doc.page_content.replace("\x00", "\uFFFD")
+                doc.metadata = {
+                    "document_id": document["id"],
+                    "schema": schema,
+                    "document_created_at": document["created_at"],
+                    "document_updated_at": document["updated_at"],
+                    "folder_id": document["folder_id"],
+                    "user_id": document["user_id"],
+                    "page": doc.metadata["page"] if "page" in doc.metadata else 0,
+                }
 
             PGVector.from_documents(
                 embedding=DocumentService.embeddings,
                 documents=docs,
                 collection_name=COLLECTION_NAME,
-                connection_string=DocumentService.CONNECTION_STRING
+                connection_string=DocumentService.CONNECTION_STRING,
             )
         except Exception as e:
             print(e)
@@ -77,8 +91,7 @@ class DocumentService():
     def similaritySearch(query, schema, metadata):
         filter = {}
 
-        COLLECTION_NAME = 'DocAI_Documents_{schema}_Collection'.format(
-            schema=schema)
+        COLLECTION_NAME = "DocAI_Documents_{schema}_Collection".format(schema=schema)
 
         store = PGVector(
             collection_name=COLLECTION_NAME,
@@ -92,16 +105,13 @@ class DocumentService():
     @staticmethod
     def qaDocuments(query, schema, metadata, history):
         filter = {}
-        llm = ChatOpenAI(model_name=os.getenv(
-            "OPENAI_MODEL_NAME"), temperature=0.2)
+        llm = ChatOpenAI(model_name=os.getenv("OPENAI_MODEL_NAME"), temperature=0.2)
         memory_key = "agent_history"
 
-        if 'document_id' in metadata:
-            filter['document_id'] = {
-                "in": [str(i) for i in metadata['document_id']]}
+        if "document_id" in metadata:
+            filter["document_id"] = {"in": [str(i) for i in metadata["document_id"]]}
 
-        COLLECTION_NAME = 'DocAI_Documents_{schema}_Collection'.format(
-            schema=schema)
+        COLLECTION_NAME = "DocAI_Documents_{schema}_Collection".format(schema=schema)
 
         print(COLLECTION_NAME)
 
@@ -111,11 +121,14 @@ class DocumentService():
             embedding_function=DocumentService.embeddings,
         )
 
-        print(len(metadata['document_id']))
+        print(len(metadata["document_id"]))
 
         retriever = store.as_retriever(
-            search_kwargs={'filter': filter, 'k': 5,
-                           'fetch_k': len(metadata['document_id'])}
+            search_kwargs={
+                "filter": filter,
+                "k": 5,
+                "fetch_k": len(metadata["document_id"]),
+            }
         )
 
         # Normal QA
@@ -137,23 +150,24 @@ class DocumentService():
         search_documents_tool = create_retriever_tool(
             retriever,
             "search_documents",
-            "Searches and returns answer regarding the documents."
+            "Searches and returns answer regarding the documents.",
         )
         summary_documents_tool = create_retriever_tool(
             retriever,
             "summary_documents_and_query",
-            "Summarizes the documents and the query. If the query is not related to the documents, just say I don't know or cannot find the answer."
+            "Summarizes the documents and the query. If the query is not related to the documents, just say I don't know or cannot find the answer.",
         )
         tools = [search_documents_tool, summary_documents_tool]
 
         agent_memory = AgentTokenBufferMemory(
-            memory_key=memory_key, llm=llm, max_token_limit=10000)
+            memory_key=memory_key, llm=llm, max_token_limit=10000
+        )
 
         for message in history:
-            if 'human' in message:
-                agent_memory.chat_memory.add_user_message(message['human'])
-            elif 'ai' in message:
-                agent_memory.chat_memory.add_ai_message(message['ai'])
+            if "human" in message:
+                agent_memory.chat_memory.add_user_message(message["human"])
+            elif "ai" in message:
+                agent_memory.chat_memory.add_ai_message(message["ai"])
 
         print(agent_memory.load_memory_variables({}))
 
@@ -169,17 +183,20 @@ class DocumentService():
 
         prompt = OpenAIFunctionsAgent.create_prompt(
             system_message=system_message,
-            extra_prompt_messages=[
-                MessagesPlaceholder(variable_name=memory_key)
-            ]
+            extra_prompt_messages=[MessagesPlaceholder(variable_name=memory_key)],
         )
 
         print(prompt)
 
         agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
 
-        agent_executor = AgentExecutor(agent=agent, tools=tools, memory=agent_memory, verbose=True,
-                                       return_intermediate_steps=True)
+        agent_executor = AgentExecutor(
+            agent=agent,
+            tools=tools,
+            memory=agent_memory,
+            verbose=True,
+            return_intermediate_steps=True,
+        )
 
         agent_res = agent_executor({"input": query})
 
@@ -189,27 +206,24 @@ class DocumentService():
 
         chat_history = []
 
-        for message in agent_memory.load_memory_variables({})['agent_history']:
+        for message in agent_memory.load_memory_variables({})["agent_history"]:
             if type(message) == HumanMessage:
                 chat_history.append({"human": message.content})
             elif type(message) == AIMessage and message.content != "":
                 chat_history.append({"ai": message.content})
 
-        return agent_res['output'], chat_history
+        return agent_res["output"], chat_history
 
     @staticmethod
     def suggestionDocumentQA(schema, metadata):
         filter = {}
         result_coult = 8
-        llm = ChatOpenAI(model_name=os.getenv(
-            "OPENAI_MODEL_NAME"), temperature=0.2)
+        llm = ChatOpenAI(model_name=os.getenv("OPENAI_MODEL_NAME"), temperature=0.2)
 
-        if 'document_id' in metadata:
-            filter['document_id'] = {
-                "in": [str(i) for i in metadata['document_id']]}
+        if "document_id" in metadata:
+            filter["document_id"] = {"in": [str(i) for i in metadata["document_id"]]}
 
-        COLLECTION_NAME = 'DocAI_Documents_{schema}_Collection'.format(
-            schema=schema)
+        COLLECTION_NAME = "DocAI_Documents_{schema}_Collection".format(schema=schema)
 
         print(COLLECTION_NAME)
 
@@ -218,15 +232,15 @@ class DocumentService():
             connection_string=DocumentService.CONNECTION_STRING,
             embedding_function=DocumentService.embeddings,
         )
-        
+
         retriever = store.as_retriever(
-            search_kwargs={'filter': filter, 'k': result_coult}
+            search_kwargs={"filter": filter, "k": result_coult}
         )
 
         search_documents_tool = create_retriever_tool(
             retriever,
             "random_retrieval",
-            "Randomly retrieve and select some documents from the retrieved data."
+            "Randomly retrieve and select some documents from the retrieved data.",
         )
         tools = [search_documents_tool]
 
@@ -235,7 +249,7 @@ class DocumentService():
                 "Generate results using the language of retrieval data. "
                 "Feel free to use any tools available to look up. "
                 "The generated 10 questions must ask the key point of the each retrieved data. "
-                "The output result is a JSON object string and the format must be like this: ```json {\"assistant_questions\": [\"question_1\", \"question_2\", \"question_3\"]}``` "
+                'The output result is a JSON object string and the format must be like this: ```json {"assistant_questions": ["question_1", "question_2", "question_3"]}``` '
                 "Try your best to generate 10 questions! "
             )
         )
@@ -246,18 +260,22 @@ class DocumentService():
 
         agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
 
-        agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True,
-                                       return_intermediate_steps=True)
+        agent_executor = AgentExecutor(
+            agent=agent, tools=tools, verbose=True, return_intermediate_steps=True
+        )
 
         agent_res = agent_executor(
-            {"input": "Could you please generate some summary questions related to the retrieved documents to help the readers understand the content easily?"})
-                
+            {
+                "input": "Could you please generate some summary questions related to the retrieved documents to help the readers understand the content easily?"
+            }
+        )
+
         print("Agent Res: ", agent_res["output"])
-        
+
         data = agent_res["output"].split("\n")[0]
 
         return json.loads(data)
-    
+
     # @staticmethod
     # def generateQuestionsFromChunks(chunks):
     #     question = []
