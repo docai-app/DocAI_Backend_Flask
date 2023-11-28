@@ -27,6 +27,7 @@ llm_gpt4_turbo = ChatOpenAI(
 summaryFormDataPrompt = PromptTemplate(
     input_variables=["query", "content"],
     template="""
+        Let's think step by step! \n
         Acts as a Data Engineer, could you help me to summarize the reference data to match \
         the description about '''{query}''' by highcharts. You can only extract the necessary \
         data from the reference data and extract them to match the demand description. \
@@ -43,10 +44,11 @@ summaryFormDataPrompt = PromptTemplate(
 generateChartPrompt = PromptTemplate(
     input_variables=["query", "data"],
     template="""
+        Let's think step by step! \n
         Acts as a Data Engineer, could you help me to implement the data analysis task on \
         '''{query}''' The output result I want you to make some charts by using highcharts.js \
         and give me an directly runnable HTML code. If the user have not provided specific \
-        details about the desired analysis or visualization requirements. Just make three charts \
+        details about the desired analysis or visualization requirements. Just make a chart \
         such as the following example for the user ! \
         Here is the example for your reference and please use this format \
         ```html \
@@ -56,8 +58,6 @@ generateChartPrompt = PromptTemplate(
             </head> \
             <body> \
                 <div id="chart-container-1" style="width:100%; height:500px;"></div> \
-                <div id="chart-container-2" style="width:100%; height:500px;"></div> \
-                <div id="chart-container-3" style="width:100%; height:500px;"></div> \
                 <script> \
                     var data = [...] \
                     Highcharts.chart('chart-container-1', ...) \
@@ -74,6 +74,7 @@ generateChartPrompt = PromptTemplate(
 generateStatisticsPrompt = PromptTemplate(
     input_variables=["query", "data"],
     template="""
+        Let's think step by step! \n
         Acts as a Statistics Engineer, could you help me to generate the statistics detailed report \
         by using the user's query: '''{query}'''? The output result I just want you to write the \
         detailed text report. You have better to make it very detailed and clear. \
@@ -87,6 +88,7 @@ generateStatisticsPrompt = PromptTemplate(
 generateSimpleStatisticsPrompt = PromptTemplate(
     input_variables=["query", "data"],
     template="""
+        Let's think step by step! \n
         Acts as a Statistics Engineer, could you help me to generate the statistics simple report \
         by using the user's query: '''{query}'''? The output result I just want you to write the \
         simple text listed format report. You have better to make it very simple list and clear. \
@@ -121,6 +123,8 @@ class GenerateService:
         }
 
         sql = generateSQLByViews(viewsName, tenant, query, dataSchema)
+        
+        print(sql)
 
         rows = db.session.execute(sql)
 

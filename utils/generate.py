@@ -18,6 +18,7 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
     )
 
     QUERY = """
+            Let's think step by step!
             Given an input question, first create a syntactically correct postgresql query to run, 
             this query can only access the table named \"{tenant}\".\"{viewsName}\", 
             \"{tenant}\".\"{viewsName}\" schema has many columns named {dataSchemaString} and uploaded_at, 
