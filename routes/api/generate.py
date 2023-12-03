@@ -15,6 +15,7 @@ def generate_chart():
         print(e)
         return jsonify({'status': False, 'message': 'Error: ' + str(e)})
 
+
 @generate.route('/generate/smart_extraction/chart', methods=['POST'])
 def generate_analysis():
     try:
@@ -24,12 +25,14 @@ def generate_analysis():
         tenant = requestData['tenant']
         dataSchema = requestData['data_schema']
         print(query, viewsName, tenant, dataSchema)
-        result = GenerateService.generateChartFromDBData(viewsName, tenant, query, dataSchema)
+        result = GenerateService.generateChartFromDBData(
+            viewsName, tenant, query, dataSchema)
         return jsonify({'status': True, 'result': result})
     except Exception as e:
         print(e)
         return jsonify({'status': False, 'message': 'Error: ' + str(e)})
-    
+
+
 @generate.route('/generate/smart_extraction/statistics', methods=['POST'])
 def generate_statistics():
     try:
@@ -38,8 +41,10 @@ def generate_statistics():
         viewsName = requestData['views_name']
         tenant = requestData['tenant']
         dataSchema = requestData['data_schema']
+        # dataSchema = requestData['schema']
         print(query, viewsName, tenant, dataSchema)
-        result = GenerateService.generateStatisticsFromDBData(viewsName, tenant, query, dataSchema)
+        result = GenerateService.generateStatisticsFromDBData(
+            viewsName, tenant, query, dataSchema)
         return jsonify({'status': True, 'result': result})
     except Exception as e:
         print(e)
