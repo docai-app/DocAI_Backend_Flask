@@ -116,15 +116,15 @@ class GenerateService:
         return chart
 
     @staticmethod
-    def generateChartFromDBData(viewsName, tenant, query, dataSchema=None):
+    def generateChartFromDBData(viewsName, tenant, query, dataSchema=None, schema=None):
         extractedData = {
             "dataSchema": [],
             "data": [],
         }
 
-        sql = generateSQLByViews(viewsName, tenant, query, dataSchema)
-        
-        print(sql)
+        sql = generateSQLByViews(viewsName, tenant, query, schema)
+
+        print("SQL: ", sql)
 
         rows = db.session.execute(sql)
 
@@ -141,19 +141,34 @@ class GenerateService:
         print(chart)
         print("----------------------")
 
-        return chart
+        return (chart, sql)
 
     @staticmethod
-    def generateStatisticsFromDBData(viewsName, tenant, query, dataSchema=None):
+    def generateStatisticsFromDBData(
+        viewsName, tenant, query, dataSchema=None, schema=None
+    ):
         extractedData = {
             "dataSchema": [],
             "data": [],
         }
 
-        sql = generateSQLByViews(viewsName, tenant, query, dataSchema, False)
+        sql = generateSQLByViews(viewsName, tenant, query, schema)
+
+        print("SQL: ", sql)
+
+        rows = db.session.execute(sql)
+
+        extractedData["dataSchema"] = list(rows.keys())
+
+        for row in rows:
+            extractedData["data"].append(dict(row))
+            print(row)
+
+        print(extractedData)
 
         chain = LLMChain(llm=llm_gpt4_turbo, prompt=generateSimpleStatisticsPrompt)
-        report = chain.run(query=query, data=sql)
+        report = chain.run(query=query, data=extractedData)
         print(report)
+        print("----------------------")
 
-        return report
+        return (report, sql)

@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  docai-flask-dev:
+    build: .
+    ports:
+      - 8889:8888
+    volumes:
+      - ./DocAI_Backend_Flask/:/docai-dev
+    restart: always
