@@ -117,58 +117,66 @@ class GenerateService:
 
     @staticmethod
     def generateChartFromDBData(viewsName, tenant, query, dataSchema=None, schema=None):
-        extractedData = {
-            "dataSchema": [],
-            "data": [],
-        }
+        try:
+            extractedData = {
+                "dataSchema": [],
+                "data": [],
+            }
 
-        sql = generateSQLByViews(viewsName, tenant, query, schema)
+            sql = generateSQLByViews(viewsName, tenant, query, schema)
 
-        print("SQL: ", sql)
+            print("SQL: ", sql)
 
-        rows = db.session.execute(sql)
+            rows = db.session.execute(sql)
 
-        extractedData["dataSchema"] = list(rows.keys())
+            extractedData["dataSchema"] = list(rows.keys())
 
-        for row in rows:
-            extractedData["data"].append(dict(row))
-            print(row)
+            for row in rows:
+                extractedData["data"].append(dict(row))
+                print(row)
 
-        print(extractedData)
+            print(extractedData)
 
-        chain = LLMChain(llm=llm_gpt4_turbo, prompt=generateChartPrompt)
-        chart = chain.run(query=query, data=extractedData)
-        print(chart)
-        print("----------------------")
+            chain = LLMChain(llm=llm_gpt4_turbo, prompt=generateChartPrompt)
+            chart = chain.run(query=query, data=extractedData)
+            print(chart)
+            print("----------------------")
 
-        return (chart, sql)
+            return (chart, sql, 1)
+        except Exception as e:
+            print("Error: ", e)
+            return (str(e), "", 0)
 
     @staticmethod
     def generateStatisticsFromDBData(
         viewsName, tenant, query, dataSchema=None, schema=None
     ):
-        extractedData = {
-            "dataSchema": [],
-            "data": [],
-        }
+        try:
+            extractedData = {
+                "dataSchema": [],
+                "data": [],
+            }
 
-        sql = generateSQLByViews(viewsName, tenant, query, schema)
+            sql = generateSQLByViews(viewsName, tenant, query, schema)
 
-        print("SQL: ", sql)
+            print("SQL: ", sql)
 
-        rows = db.session.execute(sql)
+            rows = db.session.execute(sql)
 
-        extractedData["dataSchema"] = list(rows.keys())
+            extractedData["dataSchema"] = list(rows.keys())
 
-        for row in rows:
-            extractedData["data"].append(dict(row))
-            print(row)
+            for row in rows:
+                extractedData["data"].append(dict(row))
+                print(row)
 
-        print(extractedData)
+            print(extractedData)
 
-        chain = LLMChain(llm=llm_gpt4_turbo, prompt=generateSimpleStatisticsPrompt)
-        report = chain.run(query=query, data=extractedData)
-        print(report)
-        print("----------------------")
+            chain = LLMChain(llm=llm_gpt4_turbo, prompt=generateSimpleStatisticsPrompt)
+            report = chain.run(query=query, data=extractedData)
+            print(report)
+            print("----------------------")
 
-        return (report, sql)
+            return (report, sql, 1)
+        except Exception as e:
+            print("Error: ", e)
+            return (str(e), "", 0)
