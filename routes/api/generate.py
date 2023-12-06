@@ -26,12 +26,15 @@ def generate_analysis():
         dataSchema = requestData["data_schema"]
         schema = requestData["schema"]
         print(query, viewsName, tenant, dataSchema, schema)
-        result, sql = GenerateService.generateChartFromDBData(
+        result, sql, flag = GenerateService.generateChartFromDBData(
             viewsName, tenant, query, dataSchema, schema
         )
-        return jsonify({"status": True, "result": result, "sql": sql})
+
+        if flag == 1:
+            return jsonify({"status": True, "result": result, "sql": sql})
+        else:
+            return jsonify({"status": False, "result": result, "sql": sql})
     except Exception as e:
-        print(e)
         return jsonify({"status": False, "message": "Error: " + str(e)})
 
 
@@ -45,10 +48,13 @@ def generate_statistics():
         dataSchema = requestData["data_schema"]
         schema = requestData["schema"]
         print(query, viewsName, tenant, dataSchema, schema)
-        result, sql = GenerateService.generateStatisticsFromDBData(
+        result, sql, flag = GenerateService.generateStatisticsFromDBData(
             viewsName, tenant, query, dataSchema, schema
         )
-        return jsonify({"status": True, "result": result, "sql": sql})
+
+        if flag == 1:
+            return jsonify({"status": True, "result": result, "sql": sql})
+        else:
+            return jsonify({"status": False, "result": result, "sql": sql})
     except Exception as e:
-        print(e)
         return jsonify({"status": False, "message": "Error: " + str(e)})
