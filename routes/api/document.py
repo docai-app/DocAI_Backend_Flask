@@ -5,6 +5,7 @@ from services.classification import ClassificationService
 from flask_sqlalchemy import SQLAlchemy
 from database.services.Documents import DocumentsQueryService
 from services.document import DocumentService
+from services.autogen import AutogenSerivce, MultiAgentService
 
 db = SQLAlchemy()
 document = Blueprint('document', __name__)
@@ -92,5 +93,21 @@ def suggestion():
         metadata = requestData['metadata'] or {}
         answer = DocumentService.suggestionDocumentQA(schema, metadata)
         return jsonify({'status': True, 'suggestion': answer})
+    except Exception as e:
+        return jsonify({'status': False, 'message': str(e)})
+
+
+@document.route('/documents/multiagent/qa', methods=['POST'])
+def multiagentQA():
+    try:
+        requestData = request.get_json()
+        query = requestData['query']
+        schema = requestData['schema']
+        metadata = requestData['metadata'] or {}
+        smart_extraction_schemas = requestData['smart_extraction_schemas']
+        history = requestData['chat_history'] or ''
+        answer, chat_history = AutogenSerivce.chat(
+            query, schema, metadata, smart_extraction_schemas, history)
+        return jsonify({'status': True, 'content': answer, 'chat_history': chat_history})
     except Exception as e:
         return jsonify({'status': False, 'message': str(e)})
