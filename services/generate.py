@@ -108,7 +108,7 @@ generateSimpleStatisticsPrompt = PromptTemplate(
         summary result. You have better to make it very simple and clear. \
         Here is the reference data you have to use: \
         ```{data}``` \
-        Use the user's query language (繁體中文) to generate the statistics simple summary result. \
+        Use the user's query language (繁體中文) to generate the statistics result. \
         Output Result: \
     """,
 )
