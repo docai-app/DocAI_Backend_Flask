@@ -86,8 +86,6 @@ def init_rollbar():
 @app.route('/')
 def hello():
     print("in hello")
-    x = None
-    x[5]
     return "Hello World!"
 
 

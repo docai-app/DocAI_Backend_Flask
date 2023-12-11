@@ -142,21 +142,6 @@ class DocumentService:
             }
         )
 
-        # Normal QA
-        # memory = ConversationBufferWindowMemory(
-        #     memory_key="chat_history", k=len(metadata['document_id']) or 10, return_messages=True)
-
-        # chat = ConversationalRetrievalChain.from_llm(llm=ChatOpenAI(model_name=os.getenv(
-        #     "OPENAI_MODEL_NAME"), temperature=0.3), retriever=retriever, memory=memory)
-
-        # for message in history:
-        #     if 'human' in message:
-        #     memory.chat_memory.add_user_message(message['human'])
-        # elif 'ai' in message:
-        #     memory.chat_memory.add_ai_message(message['ai'])
-
-        # res = chat({"question": query}, return_only_outputs=False)
-
         # Agent QA
         search_documents_tool = create_retriever_tool(
             retriever,

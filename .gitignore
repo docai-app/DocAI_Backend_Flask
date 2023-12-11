@@ -14,3 +14,4 @@ test_lang.ipynb
 test.html
 test.pdf
 .ipynb_checkpoints
+.cache
