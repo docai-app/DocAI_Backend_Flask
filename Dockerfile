@@ -1,9 +1,8 @@
 FROM python:3.10
 WORKDIR /docai
-ADD . /docai
+COPY . /docai
 
 RUN pip install -r requirements.txt
 
-COPY . .
 
-ENTRYPOINT ["bash", "entrypoint.sh"]
+# ENTRYPOINT ["bash", "entrypoint.sh"]

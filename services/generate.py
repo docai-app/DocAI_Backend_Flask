@@ -185,7 +185,8 @@ class GenerateService:
 
             print(extractedData)
 
-            chain = LLMChain(llm=llm_gpt4_turbo, prompt=generateSimpleStatisticsPrompt)
+            chain = LLMChain(llm=llm_gpt4_turbo,
+                             prompt=generateSimpleStatisticsPrompt)
             report = chain.run(query=query, data=extractedData)
             print(report)
             print("----------------------")
