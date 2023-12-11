@@ -85,16 +85,30 @@ generateStatisticsPrompt = PromptTemplate(
     """,
 )
 
+# generateSimpleStatisticsPrompt = PromptTemplate(
+#     input_variables=["query", "data"],
+#     template="""
+#         Let's think step by step! \n
+#         Acts as a Statistics Engineer, could you help me to generate the statistics simple report \
+#         by using the user's query: '''{query}'''? The output result I just want you to write the \
+#         simple text listed format report. You have better to make it very simple list and clear. \
+#         Here is the reference data you have to use: \
+#         ```{data}``` \
+#         Use the user's query language (繁體中文) to generate the statistics detailed report. \
+#         Output Result: \
+#     """,
+# )
+
 generateSimpleStatisticsPrompt = PromptTemplate(
     input_variables=["query", "data"],
     template="""
         Let's think step by step! \n
-        Acts as a Statistics Engineer, could you help me to generate the statistics simple report \
+        Acts as a Statistics Engineer, could you help me to generate the statistics simple result \
         by using the user's query: '''{query}'''? The output result I just want you to write the \
-        simple text listed format report. You have better to make it very simple list and clear. \
+        summary result. You have better to make it very simple and clear. \
         Here is the reference data you have to use: \
         ```{data}``` \
-        Use the user's query language (繁體中文) to generate the statistics detailed report. \
+        Use the user's query language (繁體中文) to generate the statistics result. \
         Output Result: \
     """,
 )
