@@ -126,7 +126,8 @@ If the result indicates there is an error, fix the error and output the code aga
         print("結果", file=sys.stderr)
         print(groupchat.messages, file=sys.stderr)
 
-        ai_responses = [record for record in groupchat.messages if record.get(
-            'role') != 'user_proxy']
-        last_response = ai_responses[-1]
-        return last_response
+        # ai_responses = [record for record in groupchat.messages if record.get(
+        #     'name') != 'user_proxy']
+        # last_response = ai_responses[-1]
+        # return last_response
+        return groupchat.messages
