@@ -32,17 +32,19 @@ load_dotenv()
 
 
 class SmartExtractionService():
-    embeddings = OpenAIEmbeddings()
-    CONNECTION_STRING = os.getenv("PGVECTOR_DB_CONNECTION_STRING")
-    pgvector_db = PGVectorDB("PGVECTOR_DB")
+    # embeddings = OpenAIEmbeddings()
+    # CONNECTION_STRING = os.getenv("PGVECTOR_DB_CONNECTION_STRING")
+    # pgvector_db = PGVectorDB("PGVECTOR_DB")
 
     @staticmethod
     def createMapReduceChain(docs, map_prompt, reduce_prompt, logObject):
-        llm = ChatOpenAI(model_name=os.getenv("OPENAI_MODEL_NAME"), temperature=0.2)
-        
+        llm = ChatOpenAI(model_name=os.getenv(
+            "OPENAI_MODEL_NAME"), temperature=0.2)
+
         # Prompt and method for converting Document -> str.
         document_prompt = PromptTemplate.from_template("{page_content}")
-        partial_format_document = partial(format_document, prompt=document_prompt)
+        partial_format_document = partial(
+            format_document, prompt=document_prompt)
 
         map_chain = (
             {"context": partial_format_document}
@@ -53,7 +55,8 @@ class SmartExtractionService():
 
         # A wrapper chain to keep the original Document metadata
         map_as_doc_chain = (
-            RunnableParallel({"doc": RunnablePassthrough(), "content": map_chain})
+            RunnableParallel(
+                {"doc": RunnablePassthrough(), "content": map_chain})
             | (lambda x: Document(page_content=x["content"], metadata=x["doc"].metadata))
         ).with_config(run_name="Summarize (return doc)")
 
@@ -73,7 +76,6 @@ class SmartExtractionService():
         def get_num_tokens(docs):
             return llm.get_num_tokens(format_docs(docs))
 
-
         def collapse(
             docs,
             config,
@@ -83,7 +85,8 @@ class SmartExtractionService():
             while get_num_tokens(docs) > token_max:
                 config["run_name"] = f"Collapse {collapse_ct}"
                 invoke = partial(collapse_chain.invoke, config=config)
-                split_docs = split_list_of_docs(docs, get_num_tokens, token_max)
+                split_docs = split_list_of_docs(
+                    docs, get_num_tokens, token_max)
                 docs = [collapse_docs(_docs, invoke) for _docs in split_docs]
                 collapse_ct += 1
 
@@ -106,7 +109,7 @@ class SmartExtractionService():
             run_name="Map reduce")
 
         return map_reduce
-    
+
     @staticmethod
     def mapReduce(storage_url, schema, data_schema):
         loader = PyPDFLoader(storage_url, extract_images=True)
@@ -116,10 +119,9 @@ class SmartExtractionService():
         print("Schema: ", schema)
         print("Res Data Schema: ", res_data_schema)
         for s in schema:
-            res_map_reduce = SmartExtractionService.createMapReduceChain(docs, s['query'][0] + "\n\n{context}", s['query'][1] + "\n\n{context}", {})
+            res_map_reduce = SmartExtractionService.createMapReduceChain(
+                docs, s['query'][0] + "\n\n{context}", s['query'][1] + "\n\n{context}", {})
             res = res_map_reduce.invoke(docs, config={"max_concurrency": 5})
             res_data_schema[s['key']] = res
         print("After Res Data Schema: ", res_data_schema)
         return res_data_schema
-    
-        

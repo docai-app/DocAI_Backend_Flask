@@ -10,6 +10,7 @@ import os
 import sys
 
 from langchain_tools.SmartExtractionSchemaSelectionTool import SmartExtractionSchemaSelectionTool
+from langchain_tools.StatisticAnswerTool import StatisticAnswerTool
 
 import autogen
 
@@ -35,6 +36,8 @@ class AutogenSerivce:
         smart_extraction_schema_selection_tool = SmartExtractionSchemaSelectionTool(
             metadata=tool_metadata)
 
+        statistic_answer_tool = StatisticAnswerTool(metadata=tool_metadata)
+
         user_proxy = autogen.UserProxyAgent(
             name="user_proxy",
             is_termination_msg=lambda x: x.get("content", "") and x.get(
@@ -50,7 +53,8 @@ class AutogenSerivce:
         user_proxy.register_function(
             function_map={
                 retrieval_qa_tool.name: retrieval_qa_tool._run,
-                smart_extraction_schema_selection_tool.name: smart_extraction_schema_selection_tool._run
+                smart_extraction_schema_selection_tool.name: smart_extraction_schema_selection_tool._run,
+                statistic_answer_tool.name: statistic_answer_tool._run
                 # summary_documents_tool.name: summary_documents_tool._run,
                 # search_documents_tool.name: search_documents_tool._run
             }
@@ -68,6 +72,14 @@ class AutogenSerivce:
             }, {
                 'name': smart_extraction_schema_selection_tool.name,
                 'description': smart_extraction_schema_selection_tool.description,
+                'parameters': {
+                    'type': 'object',
+                    'properties': {'query': {'type': 'string'}},
+                    'required': []
+                }
+            }, {
+                'name': statistic_answer_tool.name,
+                'description': statistic_answer_tool.description,
                 'parameters': {
                     'type': 'object',
                     'properties': {'query': {'type': 'string'}},
