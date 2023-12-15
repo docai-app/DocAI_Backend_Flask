@@ -31,8 +31,8 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
     QUERY = """
             Given an input question, first create a syntactically correct postgresql query to run,
             this query can only access the table named \"{tenant}\".\"{viewsName}\",
-            \"{tenant}\".\"{viewsName}\" schema has many columns representing in hash {dataSchemaString},
-            all the data_type is datetime column should always query by TO_DATE(the_column_name, 'YYYY/MM/DD'),
+            \"{tenant}\".\"{viewsName}\" schema has many columns representing in hash {dataSchemaString} and an (uploaded_at: datetime) column,
+            all the data_type is datetime column should always query by TO_DATE([the_column_name], 'YYYY/MM/DD'),
             then look at the results of the query and return the answer,
             Don't add the LIMIT amount on the SQLQuery result,
             使用與 query 相同的語言來回答問題!

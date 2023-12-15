@@ -9,14 +9,22 @@ from langchain.callbacks.manager import (
 from langchain.chains import LLMChain
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
+import openai
+import os
 
 
 def smart_extraction_schema_selector(query, smart_extraction_schemas):
-    prompt_template = "What is a good name for a company that makes {product}?"
-    llm = OpenAI(temperature=0)
-    llm_chain = LLMChain(
-        llm=llm, prompt=PromptTemplate.from_template(prompt_template))
-    return llm_chain.run("colorful socks")
+    PROMPT = f"""根據{smart_extraction_schemas}，請問{query}屬於的是哪一個資料？，然後提取出對應的 uuid"""
+    response = openai.ChatCompletion.create(
+        model=os.getenv("OPENAI_MODEL_NAME"),
+        messages=[
+            {"role": "user", "content": PROMPT}
+        ],
+        temperature=0
+    )
+    print(smart_extraction_schemas)
+    print(PROMPT)
+    return response
 
 
 class SmartExtractionSchemaSelectionTool(BaseTool):
