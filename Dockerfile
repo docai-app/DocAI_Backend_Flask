@@ -4,5 +4,4 @@ COPY . /docai
 
 RUN pip install -r requirements.txt
 
-
 # ENTRYPOINT ["bash", "entrypoint.sh"]
