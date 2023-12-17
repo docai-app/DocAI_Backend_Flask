@@ -45,15 +45,13 @@ class DocumentService:
 
     @staticmethod
     def saveDocument(document, schema):
-        COLLECTION_NAME = "DocAI_Documents_{schema}_Collection".format(
-            schema=schema)
+        COLLECTION_NAME = "DocAI_Documents_{schema}_Collection".format(schema=schema)
 
         try:
             docs = []
             if getExtension(document["name"]) == "pdf":
                 print("Extension: ", getExtension(document["name"]))
-                loader = PyPDFLoader(
-                    document["storage_url"], extract_images=False)
+                loader = PyPDFLoader(document["storage_url"], extract_images=False)
                 pages = loader.load()
                 docs = pages
             else:
@@ -93,8 +91,7 @@ class DocumentService:
     def similaritySearch(query, schema, metadata):
         filter = {}
 
-        COLLECTION_NAME = "DocAI_Documents_{schema}_Collection".format(
-            schema=schema)
+        COLLECTION_NAME = "DocAI_Documents_{schema}_Collection".format(schema=schema)
 
         store = PGVector(
             collection_name=COLLECTION_NAME,
@@ -107,22 +104,18 @@ class DocumentService:
 
     @staticmethod
     def smartExtractionSchemaSearch(query, schema, metdata, history):
-
         pass
 
     @staticmethod
     def qaDocuments(query, schema, metadata, history):
         filter = {}
-        llm = ChatOpenAI(model_name=os.getenv(
-            "OPENAI_MODEL_NAME"), temperature=0.2)
+        llm = ChatOpenAI(model_name=os.getenv("OPENAI_MODEL_NAME"), temperature=0.2)
         memory_key = "agent_history"
 
         if "document_id" in metadata:
-            filter["document_id"] = {
-                "in": [str(i) for i in metadata["document_id"]]}
+            filter["document_id"] = {"in": [str(i) for i in metadata["document_id"]]}
 
-        COLLECTION_NAME = "DocAI_Documents_{schema}_Collection".format(
-            schema=schema)
+        COLLECTION_NAME = "DocAI_Documents_{schema}_Collection".format(schema=schema)
 
         print(COLLECTION_NAME)
 
@@ -169,18 +162,21 @@ class DocumentService:
 
         system_message = SystemMessage(
             content=(
-                "Only use the English and Traditional Chinese(繁體中文) language to answer the questions! "
+                "Only use the {language} language to answer the questions! "
+                "You have to use the {tone} tone to answer the questions! "
                 "Do your best to answer the questions. "
                 "Feel free to use any tools available to look up "
                 "Relevant information, only if neccessary "
                 "If you cannot answer the question, just say I don't know or cannot find the answer. You cannot generate some fake content and anything which cannot find from the retrived data. "
+            ).format(
+                language=metadata["language"] if "language" in metadata else "繁體中文",
+                tone=metadata["tone"] if "tone" in metadata else "專業",
             )
         )
 
         prompt = OpenAIFunctionsAgent.create_prompt(
             system_message=system_message,
-            extra_prompt_messages=[
-                MessagesPlaceholder(variable_name=memory_key)],
+            extra_prompt_messages=[MessagesPlaceholder(variable_name=memory_key)],
         )
 
         print(prompt)
@@ -215,15 +211,12 @@ class DocumentService:
     def suggestionDocumentQA(schema, metadata):
         filter = {}
         result_coult = 8
-        llm = ChatOpenAI(model_name=os.getenv(
-            "OPENAI_MODEL_NAME"), temperature=0.2)
+        llm = ChatOpenAI(model_name=os.getenv("OPENAI_MODEL_NAME"), temperature=0.2)
 
         if "document_id" in metadata:
-            filter["document_id"] = {
-                "in": [str(i) for i in metadata["document_id"]]}
+            filter["document_id"] = {"in": [str(i) for i in metadata["document_id"]]}
 
-        COLLECTION_NAME = "DocAI_Documents_{schema}_Collection".format(
-            schema=schema)
+        COLLECTION_NAME = "DocAI_Documents_{schema}_Collection".format(schema=schema)
 
         print(COLLECTION_NAME)
 
