@@ -15,3 +15,7 @@ test.html
 test.pdf
 .ipynb_checkpoints
 .cache
+
+# Docker
+docker-compose.yml
+Dockerfile
