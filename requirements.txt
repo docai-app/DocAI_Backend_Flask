@@ -8,6 +8,7 @@ modAL-python==0.4.1
 scikit-learn==1.3.0
 flask==2.0.1
 flask_cors==3.0.10
+flask_socketio
 uvicorn[standard]==0.23.2
 gunicorn
 sentence_transformers==2.2.2
@@ -18,9 +19,9 @@ Flask-Script==2.0.6
 psycopg2-binary==2.9.3
 sqlalchemy==1.4.37
 langchain==0.0.336
-openai==0.28.1
+# openai==0.28.1
 # openai==1.3.6
-pyautogen==0.1.14
+# pyautogen==0.1.14
 google-search-results
 pgvector
 tiktoken
@@ -28,3 +29,7 @@ langchain_experimental
 werkzeug==2.0.3
 pypdf
 rapidocr-onnxruntime
+duckduckgo-search
+
+openai==1.6.1 # 2024-01-03
+pyautogen==0.2.2 # 2024-01-03
