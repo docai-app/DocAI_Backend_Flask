@@ -10,8 +10,14 @@ class AutogenAgentService:
         cursor = docai_db.conn.cursor()
 
         query = """
-            SELECT * FROM assistant_agents
-            WHERE name IN %s AND version = 'production'
+            SELECT 
+                aa.id, aa.name, aa.name_en, aa.system_message, aa.description, aa.llm_config, aa.meta,
+                json_agg(agent_tools.*) as agent_tools
+            FROM assistant_agents as aa
+            LEFT OUTER JOIN agent_use_tools ON agent_use_tools.assistant_agent_id = aa.id
+            LEFT OUTER JOIN agent_tools ON agent_tools.id = agent_use_tools.agent_tool_id
+            WHERE aa.name IN %s AND aa.version = 'production'
+            GROUP BY aa.id, aa.name, aa.name_en, aa.system_message, aa.description, aa.llm_config, aa.meta;
         """
 
         cursor.execute(query, (tuple(names),))
@@ -34,8 +40,14 @@ class AutogenAgentService:
         cursor = docai_db.conn.cursor()
 
         query = """
-            SELECT * FROM assistant_agents
-            WHERE name = %s AND version = 'production'
+            SELECT 
+                aa.id, aa.name, aa.name_en, aa.system_message, aa.description, aa.llm_config, aa.meta,
+                json_agg(agent_tools.*) as agent_tools
+            FROM assistant_agents as aa
+            LEFT OUTER JOIN agent_use_tools ON agent_use_tools.assistant_agent_id = aa.id
+            LEFT OUTER JOIN agent_tools ON agent_tools.id = agent_use_tools.agent_tool_id
+            WHERE aa.name = %s AND aa.version = 'production'
+            GROUP BY aa.id, aa.name, aa.name_en, aa.system_message, aa.description, aa.llm_config, aa.meta;
         """
 
         cursor.execute(query, (name,))
