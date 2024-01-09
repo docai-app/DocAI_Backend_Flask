@@ -41,13 +41,13 @@ class AutogenAgentService:
 
         query = """
             SELECT 
-                aa.id, aa.name, aa.name_en, aa.system_message, aa.description, aa.llm_config, aa.meta,
+                aa.id, aa.name, aa.name_en, aa.system_message, aa.description, aa.llm_config, aa.meta, aa.prompt_header,
                 json_agg(agent_tools.*) as agent_tools
             FROM assistant_agents as aa
             LEFT OUTER JOIN agent_use_tools ON agent_use_tools.assistant_agent_id = aa.id
             LEFT OUTER JOIN agent_tools ON agent_tools.id = agent_use_tools.agent_tool_id
             WHERE aa.name = %s AND aa.version = 'production'
-            GROUP BY aa.id, aa.name, aa.name_en, aa.system_message, aa.description, aa.llm_config, aa.meta;
+            GROUP BY aa.id, aa.name, aa.name_en, aa.system_message, aa.description, aa.llm_config, aa.meta, aa.prompt_header;
         """
 
         cursor.execute(query, (name,))

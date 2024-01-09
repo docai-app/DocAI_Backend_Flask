@@ -1,4 +1,6 @@
 
+# from IPython import get_ipython
+import sys
 import re
 from flask import Blueprint, jsonify, request
 from database.services.AutogenAgents import AutogenAgentService
@@ -8,6 +10,39 @@ import autogen
 import importlib
 
 autogen_api = Blueprint('autogen', __name__)
+
+
+# def exec_python(cell):
+#     ipython = get_ipython()
+#     result = ipython.run_cell(cell)
+#     log = str(result.result)
+#     if result.error_before_exec is not None:
+#         log += f"\n{result.error_before_exec}"
+#     if result.error_in_exec is not None:
+#         log += f"\n{result.error_in_exec}"
+#     return log
+
+
+def exec_python(cell: str):
+    # if "cell" in args:
+    #     cell_content = args["cell"]
+    # else:
+    #     cell_content = args
+
+    cell_content = cell
+
+    # 将代码分割成单独的语句
+    statements = cell_content.strip().split('\n')
+
+    # 准备一个字典来存储执行过程中的局部变量
+    local_vars = {}
+
+    # 执行所有除最后一个语句以外的代码
+    for statement in statements[:-1]:
+        exec(statement, globals(), local_vars)
+
+    # 执行最后一个语句并返回结果
+    return eval(statements[-1], globals(), local_vars)
 
 
 def transform_tool_name(tool_name):
@@ -23,23 +58,14 @@ def import_agent_tool(agent_tool, config):
     invoke_name = agent_tool['invoke_name']
     tool_name = agent_tool['name']  # 調用人使用的名稱, 非 class name
 
-    print("come to here")
-    print(tool_name)
-    print(agent_tool['meta'])
-    print(config)
-    print("=======================================================")
     # agent tool 分為需要初始化 同 不需要初始化兩種
     # 需要初始化的話，例如要從指定的 folder 中提取資料的 qa tool，就要從參數中讀取
     if "initialize" in agent_tool['meta'] and tool_name in config:
-        print("fuck ?")
         # 需要初始化, 則 import class
         module = importlib.import_module(f"langchain_tools.{invoke_name}")
         class_ = getattr(module, invoke_name)
         metadata = config[tool_name]['initialize']['metadata']
-        print("metadata")
-        print(metadata)
         function = class_(metadata=metadata)
-        print("fuck here?")
         return (transform_tool_name(agent_tool['invoke_name']), function)
 
     if agent_tool['invoke_name'] == "DuckDuckgoSearchTool":
@@ -79,35 +105,23 @@ def create_ask_expert_function(expert, agent_tools_config, config):
         function_map = {}
         for agent_tool in expert['agent_tools']:
             name, function = import_agent_tool(agent_tool, agent_tools_config)
+
+            # override 預設的 description
+            tool_name = agent_tool['name']
+            if tool_name in agent_tools_config and 'description' in agent_tools_config[tool_name]:
+                customize_description = agent_tools_config[tool_name]['description']
+            else:
+                customize_description = agent_tool['description']
+
             functions.append({
                 "name": name,
-                "description": agent_tool['description'],
+                "description": customize_description,
                 "parameters": agent_tool['meta']['parameters']
             })
 
             # 创建函数映射表
             function_map[name] = function._run
 
-        # assistant_for_expert = autogen.AssistantAgent(
-        #     name=f"assistant_for_{expert['name_en']}",
-        #     max_consecutive_auto_reply=3,
-        #     llm_config={
-        #         "seed": 42,
-        #         "temperature": 0,
-        #         "config_list": config_list,
-        #         "functions": [
-        #             {
-        #                 "name": duckduckgo_search.name,
-        #                 "description": duckduckgo_search.description,
-        #                 'parameters': {
-        #                     "type": "object",
-        #                     "properties": {'query': {'description': 'search query to look up', 'type': 'string'}},
-        #                     "required": ["query"]
-        #                 },
-        #             }
-        #         ],
-        #     },
-        # )
         assistant_for_expert = autogen.AssistantAgent(
             name=f"assistant_for_{expert['name_en']}",
             max_consecutive_auto_reply=3,
@@ -118,15 +132,7 @@ def create_ask_expert_function(expert, agent_tools_config, config):
                 "functions": functions,
             },
         )
-        # expert_agent = autogen.UserProxyAgent(
-        #     name=f"{expert['name_en']}",
-        #     # human_input_mode="ALWAYS",
-        #     human_input_mode="NEVER",
-        #     code_execution_config={"work_dir": f"{expert['name_en']}"},
-        #     function_map={
-        #         "duckduckgo_search": duckduckgo_search._run,
-        #     }
-        # )
+
         expert_agent = autogen.UserProxyAgent(
             name=f"{expert['name_en']}",
             # human_input_mode="ALWAYS",
@@ -176,7 +182,7 @@ def print_messages(recipient, messages, sender, config):
     print(sender)
     if 'emit' in config:
         config['emit'](
-            'message', {"sender": sender.name, "message": messages[-1]}, room=config['room'])
+            'message', {"sender": sender.name, "message": messages[-1]}, room=config['room'], prompt_header=config['prompt_header'])
 
     return False, None  # required to ensure the agent communication flow continues
 
@@ -195,33 +201,48 @@ def assistant_core(data, config):
     prompt = f"{history}\n\n{prompt}"
 
     agent = AutogenAgentService.get_assistant_agent_by_name(assistant_name)
+    prompt_header = agent['prompt_header']
 
     experts = AutogenAgentService.get_experts_by_names(expert_names)
 
+    # 合并個 config 傳入去比 print_messages
+    merged_config = {**{
+        "callback": None,
+        "prompt_header": prompt_header
+    }, **config}
+
     # 创建函数映射表
-    function_map = {}
+    function_map = {
+        "python": exec_python
+    }
     for expert in experts:
         function_key = f"ask_{expert['name_en']}"
-        function_map[function_key] = create_ask_expert_function(expert, agent_tools_config, config)
+        function_map[function_key] = create_ask_expert_function(expert, agent_tools_config, merged_config)
 
     user_proxy = autogen.UserProxyAgent(
         name="user_proxy",
         human_input_mode="NEVER",
         max_consecutive_auto_reply=3,
-        code_execution_config={"work_dir": "user_proxy"},
+        code_execution_config={
+            "work_dir": 'user_proxy',
+            "use_docker": True,
+            "last_n_messages": 1,
+        },
+        # is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
+        system_message="Reply TERMINATE when the task is done.",
         function_map=function_map
     )
 
     assistant_agent = autogen.AssistantAgent(
         name=agent['name_en'],
         system_message=agent['system_message'],
+        # is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
+        # code_execution_config={
+        #     "work_dir": "assistant_agent",
+        #     "use_docker": "python:latest"
+        # },
         llm_config=agent['llm_config']
     )
-
-    # 合并個 config 傳入去比 print_messages
-    merged_config = {**{
-        "callback": None
-    }, **config}
 
     user_proxy.register_reply(
         [autogen.Agent, None],
@@ -235,7 +256,9 @@ def assistant_core(data, config):
         config=merged_config,
     )
 
-    user_proxy.initiate_chat(assistant_agent, message=prompt)
+    # f"{prompt_header}\n\n{prompt}"
+
+    user_proxy.initiate_chat(assistant_agent, message=f"{prompt_header}\n\n{prompt}")
 
     messages = user_proxy.chat_messages[assistant_agent]
 
