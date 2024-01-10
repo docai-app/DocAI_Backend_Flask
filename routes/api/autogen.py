@@ -95,6 +95,10 @@ def sql_result_2dict(cursor, result):
 
 def create_ask_expert_function(expert, agent_tools_config, config):
 
+    print("create_ask_expert_function")
+    print(expert)
+    print("create_ask_expert_function end")
+
     config_list = autogen.config_list_from_json("OAI_CONFIG_LIST")
 
     def ask_expert_function(message):
@@ -212,9 +216,12 @@ def assistant_core(data, config):
     }, **config}
 
     # 创建函数映射表
-    function_map = {
-        "python": exec_python
-    }
+    # function_map = {
+    #     "python": exec_python
+    # }
+
+    function_map = {}
+
     for expert in experts:
         function_key = f"ask_{expert['name_en']}"
         function_map[function_key] = create_ask_expert_function(expert, agent_tools_config, merged_config)
@@ -233,15 +240,18 @@ def assistant_core(data, config):
         function_map=function_map
     )
 
+    # 助理的 llm_config 係要根據傳入的 experts 去調整的
+    # 因為助理要知道有咩 experts 係可以調用的
+    agent_llm_config = agent['llm_config']
+    for expert in experts:
+        if 'function_config' in expert['meta']:
+            function_config = expert['meta']['function_config']
+            agent_llm_config['functions'].append(function_config)
+
     assistant_agent = autogen.AssistantAgent(
         name=agent['name_en'],
         system_message=agent['system_message'],
-        # is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
-        # code_execution_config={
-        #     "work_dir": "assistant_agent",
-        #     "use_docker": "python:latest"
-        # },
-        llm_config=agent['llm_config']
+        llm_config=agent_llm_config
     )
 
     user_proxy.register_reply(
