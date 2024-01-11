@@ -1,10 +1,11 @@
 import os
 from langchain.prompts import PromptTemplate
-from langchain.chat_models import ChatOpenAI
-from langchain.llms import OpenAI
+from langchain_community.chat_models import ChatOpenAI
+from langchain_community.llms import OpenAI
 from langchain.chains import LLMChain
 from langchain import SQLDatabase
-from langchain_experimental.sql import SQLDatabaseChain
+# from langchain_experimental.sql import SQLDatabaseChain
+from langchain.chains.sql_database.base import SQLDatabaseChain
 from ext import db
 from dotenv import load_dotenv
 

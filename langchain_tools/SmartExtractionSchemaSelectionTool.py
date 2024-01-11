@@ -1,3 +1,4 @@
+import os
 from langchain.tools import BaseTool, StructuredTool, Tool, tool
 from typing import Optional, Type
 
@@ -7,21 +8,20 @@ from langchain.callbacks.manager import (
 )
 
 from langchain.chains import LLMChain
-from langchain.llms import OpenAI
+from langchain_community.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from openai import OpenAI
 
 client = OpenAI()
-import os
 
 
 def smart_extraction_schema_selector(query, smart_extraction_schemas):
     PROMPT = f"""根據{smart_extraction_schemas}，請問{query}屬於的是哪一個資料？，然後提取出對應的 uuid"""
     response = client.chat.completions.create(model=os.getenv("OPENAI_MODEL_NAME"),
-    messages=[
+                                              messages=[
         {"role": "user", "content": PROMPT}
     ],
-    temperature=0)
+        temperature=0)
     print(smart_extraction_schemas)
     print(PROMPT)
     return response

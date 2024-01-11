@@ -3,7 +3,7 @@ from langchain_tools.RetrivalQuestionAnswerTool import RetrivalQuestionAnswerToo
 from langchain.agents import load_tools
 from langchain.agents import initialize_agent
 from langchain.agents import AgentType
-from langchain.llms import OpenAI
+from langchain_community.llms import OpenAI
 from langchain.agents import Tool
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
