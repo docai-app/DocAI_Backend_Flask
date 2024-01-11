@@ -163,6 +163,7 @@ class DocumentService:
 
         system_message = SystemMessage(
             content=(
+                "First, modify the user's input based on the context to create a coherent and logical sentence."
                 "Let's think step by step! Today is {today}, weekday is {weekday}! Monday is 0 and Sunday is 6. The day is very important when the user is asking for the documents related to the day. Maybe they will ask you tomorrow and next week for an answer. "
                 "Only use the {language} language to answer the questions! "
                 "You have to use the {tone} tone to answer the questions! "
