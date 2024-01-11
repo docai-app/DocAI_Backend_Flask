@@ -15,7 +15,18 @@ load_dotenv()
 def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True):
     llm2 = OpenAI(temperature=0, model_name=os.getenv("OPENAI_MODEL_NAME"))
 
-    pgdb = SQLDatabase.from_uri(os.getenv("DATABASE_URL"))
+    if isinstance(viewsName, list):
+        include_table_names = viewsName
+    elif isinstance(viewsName, str):
+        include_table_names = [viewsName]
+
+    pgdb = SQLDatabase.from_uri(
+        os.getenv("DATABASE_URL"),
+        schema=tenant,
+        include_tables=include_table_names,
+        view_support=True,
+    )
+
     records_example = pgdb.run(
         """
                                select * from \"{tenant}\".\"{viewsName}\"
@@ -30,7 +41,6 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
 
     dataSchemaString = {d["key"]: d["data_type"] for d in dataSchema}
     QUERY = """
-            Let's think step by step! Today is {today}, weekday is {weekday}! Monday is 0 and Sunday is 6. The day is very important when the user is asking for the documents related to the day. Maybe they will ask you tomorrow and next week for an answer! 
             Given an input question, first create a syntactically correct postgresql query to run,
             this query can only access the table named \"{tenant}\".\"{viewsName}\",
             \"{tenant}\".\"{viewsName}\" schema has many columns representing in hash {dataSchemaString} and an (uploaded_at: datetime) column,
@@ -56,9 +66,7 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
         viewsName=viewsName,
         tenant=tenant,
         dataSchemaString=dataSchemaString,
-        records_example=records_example,
-        today=date.today(),
-        weekday=date.today().weekday(),
+        records_example=records_example
     )
 
     print("Query: ", QUERY)
