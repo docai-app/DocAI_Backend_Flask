@@ -23,6 +23,11 @@ config_list = autogen.config_list_from_json(
 
 
 class AutogenSerivce:
+
+    @staticmethod
+    def run_flow(chatbotConfig):
+        pass
+
     @staticmethod
     def chat(tool_metadata):
         llm = OpenAI(openai_api_key=os.getenv(
