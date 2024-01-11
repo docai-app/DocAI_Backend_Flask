@@ -21,3 +21,4 @@ docker-compose.yml
 Dockerfile
 
 OAI_CONFIG_LIST
+docai_data_analysis

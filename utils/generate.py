@@ -1,11 +1,13 @@
 import os
 from langchain.prompts import PromptTemplate
-from langchain_community.chat_models import ChatOpenAI
-from langchain_community.llms import OpenAI
+# from langchain_community.llms import OpenAI
+from experimental.llms.openai import OpenAI
+
 from langchain.chains import LLMChain
 from langchain import SQLDatabase
 # from langchain_experimental.sql import SQLDatabaseChain
-from langchain.chains.sql_database.base import SQLDatabaseChain
+from experimental.sql import SQLDatabaseChain
+# from langchain.chains.sql_database.base import SQLDatabaseChain
 from ext import db
 from dotenv import load_dotenv
 
@@ -19,7 +21,14 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
         model_name=os.getenv("OPENAI_MODEL_NAME"),
     )
 
-    pgdb = SQLDatabase.from_uri(os.getenv("DATABASE_URL"))
+    if isinstance(viewsName, list):
+        include_table_names = viewsName
+    elif isinstance(viewsName, str):
+        include_table_names = [viewsName]
+
+    pgdb = SQLDatabase.from_uri(os.getenv("DATABASE_URL"), schema=tenant,
+                                include_tables=include_table_names, view_support=True)
+
     records_example = pgdb.run("""
                                select * from \"{tenant}\".\"{viewsName}\"
                                limit 10
@@ -64,6 +73,8 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
         llm=llm2, database=pgdb, verbose=True, return_sql=returnSQL)
 
     print("DB Chain: ", db_chain)
+    # import pdb
+    # pdb.set_trace()
 
     sql = db_chain.run(QUERY)
 

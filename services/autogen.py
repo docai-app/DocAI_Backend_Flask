@@ -1,13 +1,4 @@
-import importlib
 from langchain_tools.RetrivalQuestionAnswerTool import RetrivalQuestionAnswerTool
-from langchain.agents import load_tools
-from langchain.agents import initialize_agent
-from langchain.agents import AgentType
-from langchain_community.llms import OpenAI
-from langchain.agents import Tool
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
-import os
 import sys
 
 from langchain_tools.SmartExtractionSchemaSelectionTool import SmartExtractionSchemaSelectionTool
@@ -31,9 +22,6 @@ class AutogenSerivce:
 
     @staticmethod
     def chat(tool_metadata):
-        llm = OpenAI(openai_api_key=os.getenv(
-            "OPENAI_API_KEY"), temperature=0.6)
-
         # retrieval_qa_tool = RetrivalQuestionAnswerTool(
         #     query, schema_name, metadata["document_ids"], chat_history, metadata={'custom_variable': {'hello': 'world'}})
 

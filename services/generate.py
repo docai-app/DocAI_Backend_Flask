@@ -1,7 +1,7 @@
 import os
 from langchain.prompts import PromptTemplate
 from langchain_community.chat_models import ChatOpenAI
-from langchain_community.llms import OpenAI
+# from langchain_community.llms import OpenAI
 from langchain.chains import LLMChain
 from langchain import SQLDatabase
 from ext import db
