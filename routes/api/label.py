@@ -2,8 +2,6 @@ import os
 from database.models.Labels import Labels
 from database.services.Labels import LabelsQueryService
 from flask import Blueprint, jsonify, request
-from services.database import DatabaseService
-from utils.model import row2dict, rows2dict
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -22,3 +20,15 @@ def new():
     name = requestData['name']
     res = LabelsQueryService.insert(name)
     return jsonify({'status': res})
+
+
+# Update specify label's name API
+@label.route('/labels/<id>', methods=['PUT'])
+def update(id):
+    try:
+        requestData = request.get_json()
+        name = requestData['name']
+        res = LabelsQueryService.update(id, name)
+        return jsonify({'status': res})
+    except Exception as e:
+        return jsonify({'status': res, 'message': 'No label found'})

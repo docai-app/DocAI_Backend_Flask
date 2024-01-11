@@ -25,18 +25,23 @@ def initial():
 
 @classification.route('/classification/predict', methods=['GET'])
 def predict():
-    id = request.args.get('id')
-    res = ClassificationService.predict(id)
-    return jsonify({'label': res})
+    print("Model name: ", request.args.get('model'))
+    content = request.args.get('content')
+    model = request.args.get('model') or 'public'
+    res = ClassificationService.predict(content, model)
+    return jsonify({'label_id': res})
 
 
 @classification.route('/classification/confirm', methods=['POST'])
 def confirm():
     try:
         requestData = request.get_json()
-        id = requestData['id']
+        content = requestData['content']
         label = requestData['label']
-        res = ClassificationService.confirm(id, label)
+        model = requestData['model'] or 'public'
+        print(content, label, model)
+        print(type(label))
+        res = ClassificationService.confirm(content, label, model)
         return jsonify({'status': res, 'message': 'Document confirmed'})
     except Exception as e:
         return jsonify({'status': False, 'message': str(e)})

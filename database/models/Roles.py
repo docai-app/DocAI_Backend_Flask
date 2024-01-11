@@ -16,7 +16,7 @@ class Roles(db.Model, Base):
     updated_at = db.Column(DateTime, nullable=False, default=db.func.now())
     created_at = db.Column(DateTime, nullable=False, default=db.func.now())
     
-    users = relationship("Users", back_populates="role_details")
+    # users = relationship("Users", back_populates="role_details")
 
     def __init__(self, id, role, description, updated_at, created_at):
         self.id = id

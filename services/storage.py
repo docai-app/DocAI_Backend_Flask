@@ -1,10 +1,8 @@
 import os
-import pickle
 from unittest import result
 import uuid
 from azure.storage.blob import BlobServiceClient, ContentSettings
 from database.services.Documents import DocumentsQueryService
-from services.database import DatabaseService
 from services.ocr import OCRService
 from utils.utils import getExtension
 
@@ -26,7 +24,7 @@ class StorageService:
                 file, content_settings=ContentSettings(file.content_type))
             content = OCRService.getText(blob_client.url)
             document = DocumentsQueryService.insert(
-                documentID, filename, blob_client.url, content)
+                documentID, filename, blob_client.url, content, 0)
             return document
         except Exception as e:
             return e

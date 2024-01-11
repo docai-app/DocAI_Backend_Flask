@@ -1,8 +1,8 @@
-import os, time, uuid
+import os
+import time
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from msrest.authentication import CognitiveServicesCredentials
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -18,21 +18,20 @@ client = ComputerVisionClient(endpoint, credentials)
 class OCRService:
     @staticmethod
     def azureOCR(filePath):
-        # file = open(filePath, 'rb')
         # Async SDK call that "reads" the image
-        response = client.read(filePath, raw=True)
-
+        response = client.read(str(filePath), raw=True)
+        print("Response: ", response)
         # Get ID from returned headers
         operation_location = response.headers["Operation-Location"]
         operation_id = operation_location.split("/")[-1]
 
         # SDK call that gets what is read
         while True:
+            time.sleep(1)
             result = client.get_read_result(operation_id)
             if result.status.lower() not in ['notstarted', 'running']:
                 break
             print('Waiting for result...')
-            time.sleep(1)
         return result
 
     @staticmethod
@@ -43,5 +42,5 @@ class OCRService:
             for readResult in result.analyze_result.read_results:
                 for line in readResult.lines:
                     text += line.text
-                print()
+                print(text)
         return text
