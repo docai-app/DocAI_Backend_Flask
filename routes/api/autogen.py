@@ -8,6 +8,7 @@ import time
 import autogen
 # from langchain_tools.DuckduckgoSearchTool import duckduckgo_search
 import importlib
+from datetime import date
 
 autogen_api = Blueprint('autogen', __name__)
 
@@ -94,10 +95,6 @@ def sql_result_2dict(cursor, result):
 
 
 def create_ask_expert_function(expert, agent_tools_config, config):
-
-    print("create_ask_expert_function")
-    print(expert)
-    print("create_ask_expert_function end")
 
     config_list = autogen.config_list_from_json("OAI_CONFIG_LIST")
 
@@ -248,9 +245,13 @@ def assistant_core(data, config):
             function_config = expert['meta']['function_config']
             agent_llm_config['functions'].append(function_config)
 
+    system_message_header = "Today is {today}, weekday is {weekday}! Monday is 0 and Sunday is 6. The day is very important when the user is asking for the documents related to the day".format(today=date.today(),
+                                                                                                                                                                                                 weekday=date.today().weekday())
+    system_message_add_date = f"{system_message_header}\n{agent['system_message']}"
+
     assistant_agent = autogen.AssistantAgent(
         name=agent['name_en'],
-        system_message=agent['system_message'],
+        system_message=system_message_add_date,
         llm_config=agent_llm_config
     )
 

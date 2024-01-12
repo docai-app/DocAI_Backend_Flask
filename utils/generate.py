@@ -42,7 +42,7 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
             Given an input question, first create a syntactically correct postgresql query to run,
             this query can only access the table named \"{tenant}\".\"{viewsName}\",
             \"{tenant}\".\"{viewsName}\" schema has many columns representing in hash {dataSchemaString} and an (uploaded_at: datetime) column,
-            all the data_type is datetime column should always query by TO_DATE([the_column_name], 'YYYY/MM/DD'),
+            all the data_type is datetime column should always query by TO_DATE([(the_column_name)::text], 'YYYY/MM/DD'),
             當需要查詢日期時, 先使用除 uploaded_at 外的其他日期, 除非 uploaded_at 是唯一一個日期類型
             then look at the results of the query and return the answer,
             Don't add the LIMIT amount on the SQLQuery result,
