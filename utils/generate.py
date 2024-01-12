@@ -10,15 +10,24 @@ from experimental.sql import SQLDatabaseChain
 # from langchain.chains.sql_database.base import SQLDatabaseChain
 from ext import db
 from dotenv import load_dotenv
+from datetime import date
 
 load_dotenv()
 
 
 def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True):
+    llm2 = OpenAI(temperature=0, model_name=os.getenv("OPENAI_MODEL_NAME"))
 
-    llm2 = OpenAI(
-        temperature=0,
-        model_name=os.getenv("OPENAI_MODEL_NAME"),
+    if isinstance(viewsName, list):
+        include_table_names = viewsName
+    elif isinstance(viewsName, str):
+        include_table_names = [viewsName]
+
+    pgdb = SQLDatabase.from_uri(
+        os.getenv("DATABASE_URL"),
+        schema=tenant,
+        include_tables=include_table_names,
+        view_support=True,
     )
 
     if isinstance(viewsName, list):
@@ -32,12 +41,15 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
     records_example = pgdb.run("""
                                select * from \"{tenant}\".\"{viewsName}\"
                                limit 10
-                               """.format(tenant=tenant, viewsName=viewsName))
+                               """.format(
+        tenant=tenant, viewsName=viewsName
+    )
+    )
 
     print("records example")
     print(records_example)
 
-    dataSchemaString = {d['key']: d['data_type'] for d in dataSchema}
+    dataSchemaString = {d["key"]: d["data_type"] for d in dataSchema}
     QUERY = """
             Given an input question, first create a syntactically correct postgresql query to run,
             this query can only access the table named \"{tenant}\".\"{viewsName}\",
@@ -70,7 +82,8 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
     print("Query: ", QUERY)
 
     db_chain = SQLDatabaseChain(
-        llm=llm2, database=pgdb, verbose=True, return_sql=returnSQL)
+        llm=llm2, database=pgdb, verbose=True, return_sql=returnSQL
+    )
 
     print("DB Chain: ", db_chain)
     # import pdb
@@ -79,6 +92,7 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
     sql = db_chain.run(QUERY)
 
     return sql
+
 
 # def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True):
 #     dataSchemaString = ", ".join(dataSchema.keys())
