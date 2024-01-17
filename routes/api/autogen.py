@@ -183,7 +183,7 @@ def print_messages(recipient, messages, sender, config):
     print(sender)
     if 'emit' in config:
         config['emit'](
-            'message', {"sender": sender.name, "message": messages[-1]}, room=config['room'], prompt_header=config['prompt_header'])
+            'message', {"sender": sender.name, "message": messages[-1], "response_to": config['prompt']}, room=config['room'], prompt_header=config['prompt_header'])
 
     return False, None  # required to ensure the agent communication flow continues
 
@@ -209,7 +209,8 @@ def assistant_core(data, config):
     # 合并個 config 傳入去比 print_messages
     merged_config = {**{
         "callback": None,
-        "prompt_header": prompt_header
+        "prompt_header": prompt_header,
+        "prompt": prompt
     }, **config}
 
     # 创建函数映射表
