@@ -118,8 +118,10 @@ def handle_message(data):
     # 只回傳給發送請求的客戶端
     # emit('message', json.loads(data), room=request.sid)
 
+    json_data = json.loads(data)
+
     # call 我的 function
-    assistant_core(json.loads(data), {
+    assistant_core(json_data, {
         "emit": emit,
         "room": request.sid,
         "request": request

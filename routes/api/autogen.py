@@ -176,10 +176,14 @@ def print_messages(recipient, messages, sender, config):
         callback = config["callback"]
         callback(sender, recipient, messages[-1])
 
-    # loop = asyncio.get_event_loop()
-    # loop.run_until_complete(socketManager.broadcast(messages[-1]))
-    # loop.close()
-    # asyncio.ensure_future(socketManager.broadcast(json.dumps(messages[-1])))
+    # 空白就唔出了
+    if messages[-1]['content'] == "":
+        return False, None
+
+    # 如果係 development mode, 就全部都輸出, 否則只輸出 user_proxy 同 assistant_agent
+    if config['development'] == True and sender.name not in ['user_proxy', 'assistant_agent']:
+        return False, None
+
     print(sender)
     if 'emit' in config:
         config['emit'](
@@ -194,6 +198,7 @@ def assistant_core(data, config):
     prompt = data['prompt']
     history = data.get('history', "")
     agent_tools_config = data.get('agent_tools', {})
+    development_mode = data.get('development_mode', True)
 
     print("agent tools config")
     print(agent_tools_config)
@@ -210,7 +215,8 @@ def assistant_core(data, config):
     merged_config = {**{
         "callback": None,
         "prompt_header": prompt_header,
-        "prompt": prompt
+        "prompt": prompt,
+        "development": development_mode
     }, **config}
 
     # 创建函数映射表
@@ -226,7 +232,7 @@ def assistant_core(data, config):
 
     user_proxy = autogen.UserProxyAgent(
         name="user_proxy",
-        human_input_mode="NEVER",
+        human_input_mode="TERMINATE",
         max_consecutive_auto_reply=3,
         code_execution_config={
             "work_dir": 'user_proxy',
@@ -234,6 +240,7 @@ def assistant_core(data, config):
             "last_n_messages": 1,
         },
         # is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
+        # is_termination_msg=lambda x: x.get("content", "").rstrip() == "",
         system_message="Reply TERMINATE when the task is done.",
         function_map=function_map
     )
@@ -249,6 +256,8 @@ def assistant_core(data, config):
     system_message_header = "Today is {today}, weekday is {weekday}! Monday is 0 and Sunday is 6. The day is very important when the user is asking for the documents related to the day".format(today=date.today(),
                                                                                                                                                                                                  weekday=date.today().weekday())
     system_message_add_date = f"{system_message_header}\n{agent['system_message']}"
+
+    system_message_add_date = system_message_add_date + "\n 當用戶輸入空白時，不要回覆"
 
     assistant_agent = autogen.AssistantAgent(
         name=agent['name_en'],
