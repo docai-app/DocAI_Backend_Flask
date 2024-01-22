@@ -190,7 +190,8 @@ def print_messages(recipient, messages, sender, config):
         # import pdb
         # pdb.set_trace()
         # msg = re.sub(pattern, "", messages[-1]['content'])
-        messages[-1]['content'] = messages[-1]['content'].replace(config['prompt_header'], "")
+        if config['development'] == True:
+            messages[-1]['content'] = messages[-1]['content'].replace(config['prompt_header'], "")
         # import pdb
         # pdb.set_trace()
         config['emit'](
