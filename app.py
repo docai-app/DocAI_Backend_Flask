@@ -1,3 +1,4 @@
+# import eventlet
 from routes.api.autogen import assistant_core
 import json
 from database.services.AutogenAgents import AutogenAgentService
@@ -42,6 +43,8 @@ tracer.configure(
     port=8126,
 )
 
+# eventlet.monkey_patch()
+
 
 def createApp(config="database/settings.py"):
     app = Flask(__name__)
@@ -73,7 +76,7 @@ app = createApp()
 # socketio = SocketIO(app, cors_allowed_origins="*",
 #                     logger=True, engineio_logger=True)
 
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins=['http://localhost:3000'])
 
 
 @app.before_first_request

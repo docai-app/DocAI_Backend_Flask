@@ -186,6 +186,13 @@ def print_messages(recipient, messages, sender, config):
 
     print(sender)
     if 'emit' in config:
+        # pattern = config['prompt_header']
+        # import pdb
+        # pdb.set_trace()
+        # msg = re.sub(pattern, "", messages[-1]['content'])
+        messages[-1]['content'] = messages[-1]['content'].replace(config['prompt_header'], "")
+        # import pdb
+        # pdb.set_trace()
         config['emit'](
             'message', {"sender": sender.name, "message": messages[-1], "response_to": config['prompt']}, room=config['room'], prompt_header=config['prompt_header'])
 
@@ -232,7 +239,7 @@ def assistant_core(data, config):
 
     user_proxy = autogen.UserProxyAgent(
         name="user_proxy",
-        human_input_mode="TERMINATE",
+        human_input_mode="NEVER",
         max_consecutive_auto_reply=3,
         code_execution_config={
             "work_dir": 'user_proxy',
