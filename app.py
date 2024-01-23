@@ -64,7 +64,7 @@ def createApp(config="database/settings.py"):
     app.register_blueprint(smart_extraction_schema)
     app.register_blueprint(autogen_api)
     CORS(app, resources={
-         r"/*": {"origins": ["*", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
+         r"/*": {"origins": ["*", "http://localhost:3000", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
     db.init_app(app)
     migrate = Migrate(app, db, compare_type=True)
     migrate.init_app(app, db)

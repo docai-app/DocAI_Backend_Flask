@@ -206,7 +206,7 @@ def assistant_core(data, config):
     prompt = data['prompt']
     history = data.get('history', "")
     agent_tools_config = data.get('agent_tools', {})
-    development_mode = data.get('development_mode', True)
+    development_mode = data.get('development', True)
 
     print("agent tools config")
     print(agent_tools_config)
@@ -284,8 +284,6 @@ def assistant_core(data, config):
         reply_func=print_messages,
         config=merged_config,
     )
-
-    # f"{prompt_header}\n\n{prompt}"
 
     user_proxy.initiate_chat(assistant_agent, message=f"{prompt_header}\n\n{prompt}")
 
