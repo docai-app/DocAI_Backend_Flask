@@ -46,6 +46,10 @@ def exec_python(cell: str):
     return eval(statements[-1], globals(), local_vars)
 
 
+def exec_html(cell: str):
+    return cell
+
+
 def transform_tool_name(tool_name):
     # 將 camel case 轉換為 snake case
     transformed_name = re.sub(r'(?<!^)(?=[A-Z])', '_', tool_name).lower()
@@ -102,8 +106,28 @@ def create_ask_expert_function(expert, agent_tools_config, config):
         # 实现专家回答问题的逻辑
 
         # 讀取 expert 可以使用的工具(s)
-        functions = []
-        function_map = {}
+        functions = [
+            {
+                "name": "html",
+                "parameters": {
+                    "type": "object",
+                    "required": [
+                        "cell"
+                    ],
+                    "properties": {
+                        "cell": {
+                            "type": "string",
+                            "description": "處理 html 內容"
+                        }
+                    }
+                },
+                "description": "run cell in html and return the execution result."
+            }
+        ]
+        function_map = {
+            'html': exec_html
+        }
+
         for agent_tool in expert['agent_tools']:
             name, function = import_agent_tool(agent_tool, agent_tools_config)
 
@@ -158,8 +182,8 @@ def create_ask_expert_function(expert, agent_tools_config, config):
         expert_agent.stop_reply_at_receive(assistant_for_expert)
         # expert.human_input_mode, expert.max_consecutive_auto_reply = "NEVER", 3
         # final message sent from the expert
-        expert_agent.send(
-            "總結答案和解法方法，然後用一個簡單易懂的方式說明", assistant_for_expert)
+        # expert_agent.send(
+        #     "如果返回的是 html 代碼，則直接返回 html 的內容, 否則總結答案和解法方法，然後用一個簡單易懂的方式說明", assistant_for_expert)
         # return the last message the expert received
 
         print("expert saying")
@@ -181,7 +205,7 @@ def print_messages(recipient, messages, sender, config):
         return False, None
 
     # 如果係 development mode, 就全部都輸出, 否則只輸出 user_proxy 同 assistant_agent
-    if config['development'] == True and sender.name not in ['user_proxy', 'assistant_agent']:
+    if config['development'] == False and sender.name not in ['user_proxy', 'assistant_agent']:
         return False, None
 
     print(sender)
@@ -190,7 +214,9 @@ def print_messages(recipient, messages, sender, config):
         # import pdb
         # pdb.set_trace()
         # msg = re.sub(pattern, "", messages[-1]['content'])
-        if config['development'] == True:
+        if config['development'] == False and 'content' in messages[-1] and messages[-1]['content'] is not None:
+            # import pdb
+            # pdb.set_trace()
             messages[-1]['content'] = messages[-1]['content'].replace(config['prompt_header'], "")
         # import pdb
         # pdb.set_trace()
@@ -206,13 +232,14 @@ def assistant_core(data, config):
     prompt = data['prompt']
     history = data.get('history', "")
     agent_tools_config = data.get('agent_tools', {})
-    development_mode = data.get('development', True)
+    development_mode = data.get('development', False)
 
     print("agent tools config")
     print(agent_tools_config)
 
     # 將 history 拼入去 prompt
-    prompt = f"{history}\n\n{prompt}"
+    if history != "":
+        prompt = f"{history}\n\n{prompt}"
 
     agent = AutogenAgentService.get_assistant_agent_by_name(assistant_name)
     prompt_header = agent['prompt_header']
@@ -228,11 +255,11 @@ def assistant_core(data, config):
     }, **config}
 
     # 创建函数映射表
-    # function_map = {
-    #     "python": exec_python
-    # }
+    function_map = {
+        "html": exec_html
+    }
 
-    function_map = {}
+    # function_map = {}
 
     for expert in experts:
         function_key = f"ask_{expert['name_en']}"
@@ -260,6 +287,25 @@ def assistant_core(data, config):
         if 'function_config' in expert['meta']:
             function_config = expert['meta']['function_config']
             agent_llm_config['functions'].append(function_config)
+
+    agent_llm_config['functions'].append(
+        {
+            "name": "html",
+            "parameters": {
+                "type": "object",
+                "required": [
+                    "cell"
+                ],
+                "properties": {
+                    "cell": {
+                        "type": "string",
+                        "description": "處理 html 內容"
+                    }
+                }
+            },
+            "description": "run cell in html and return the execution result."
+        }
+    )
 
     system_message_header = "Today is {today}, weekday is {weekday}! Monday is 0 and Sunday is 6. The day is very important when the user is asking for the documents related to the day".format(today=date.today(),
                                                                                                                                                                                                  weekday=date.today().weekday())
