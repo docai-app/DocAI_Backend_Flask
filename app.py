@@ -76,7 +76,7 @@ app = createApp()
 # socketio = SocketIO(app, cors_allowed_origins="*",
 #                     logger=True, engineio_logger=True)
 
-socketio = SocketIO(app, cors_allowed_origins=['http://localhost:3000'])
+socketio = SocketIO(app, cors_allowed_origins=['http://localhost:3000', "https://test-docai-chatbot-plus.vercel.app/"])
 
 
 @app.before_first_request
