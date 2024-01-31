@@ -8,6 +8,7 @@ data
 database/*.db
 database/database.db
 database/database_backup.db
+images
 
 state_of_the_union.txt
 test_lang.ipynb

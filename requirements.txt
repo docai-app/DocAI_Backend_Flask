@@ -31,5 +31,11 @@ pypdf
 rapidocr-onnxruntime
 duckduckgo-search
 
+# PDF Generation Dependencies
+replicate==0.21.0
+opencv-python-headless==4.8.1.78
+PyPDF2==3.0.1
+reportlab==4.0.7
+
 # openai==1.6.1 # 2024-01-03
 # pyautogen==0.2.2 # 2024-01-03
