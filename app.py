@@ -64,7 +64,7 @@ def createApp(config="database/settings.py"):
     app.register_blueprint(smart_extraction_schema)
     app.register_blueprint(autogen_api)
     CORS(app, resources={
-         r"/*": {"origins": ["*", "http://localhost:3000", "https://test-docai-chatbot-plus.vercel.app/", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
+         r"/*": {"origins": ["*", "http://localhost:3000", "https://test-docai-chatbot-plus.vercel.app", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
     db.init_app(app)
     migrate = Migrate(app, db, compare_type=True)
     migrate.init_app(app, db)
@@ -76,7 +76,7 @@ app = createApp()
 # socketio = SocketIO(app, cors_allowed_origins="*",
 #                     logger=True, engineio_logger=True)
 
-socketio = SocketIO(app, cors_allowed_origins=['http://localhost:3000', "https://test-docai-chatbot-plus.vercel.app/"])
+socketio = SocketIO(app, cors_allowed_origins=['http://localhost:3000', "https://test-docai-chatbot-plus.vercel.app"])
 
 
 @app.before_first_request

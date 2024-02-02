@@ -205,7 +205,7 @@ def print_messages(recipient, messages, sender, config):
         return False, None
 
     # 如果係 development mode, 就全部都輸出, 否則只輸出 user_proxy 同 assistant_agent
-    if config['development'] == False and sender.name not in ['user_proxy', 'assistant_agent']:
+    if config['development'] == False and sender.name not in ['user_proxy', 'assistant_agent', 'employee_training_agent']:
         return False, None
 
     print(sender)
@@ -244,7 +244,10 @@ def assistant_core(data, config):
     agent = AutogenAgentService.get_assistant_agent_by_name(assistant_name)
     prompt_header = agent['prompt_header']
 
-    experts = AutogenAgentService.get_experts_by_names(expert_names)
+    if len(expert_names) > 0:
+        experts = AutogenAgentService.get_experts_by_names(expert_names)
+    else:
+        experts = []
 
     # 合并個 config 傳入去比 print_messages
     merged_config = {**{
