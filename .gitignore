@@ -20,3 +20,5 @@ test.pdf
 # Docker
 docker-compose.yml
 Dockerfile
+
+result

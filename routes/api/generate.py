@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify, request, send_file
 from services.generate import GenerateService
 from utils.storybook_generate import BuildBook
 from utils.pdf_generate import build_pdf
+import uuid
 
 load_dotenv()
 
@@ -65,19 +66,20 @@ def generate_statistics():
     except Exception as e:
         return jsonify({"status": False, "message": "Error: " + str(e)})
 
+
 @generate.route("/generate/storybook", methods=["POST"])
 def generate_storybook():
     try:
+        bookId = uuid.uuid4()
         requestData = request.get_json()
         query = requestData["query"]
         style = requestData["style"]
         print(query, style)
-        build_book = BuildBook(os.getenv("OPENAI_GPT4_MODEL_NAME"), query, style)
-        pages = build_book.list_of_tuples
-        finished_pdf = build_pdf(pages, 'result.pdf')
-        file_bytes = open(finished_pdf, 'rb').read()
-        
+        buildBook = BuildBook(os.getenv("OPENAI_GPT4_MODEL_NAME"), query, style)
+        pages = buildBook.list_of_tuples
+        finishedPdf = build_pdf(pages, "result/storybook/storybook_" + str(bookId) + ".pdf")
+
         # return file_bytes
-        return send_file(finished_pdf, as_attachment=True, download_name="storybook.pdf")
+        return send_file(finishedPdf, as_attachment=True, download_name="storybook.pdf")
     except Exception as e:
         return jsonify({"status": False, "message": "Error: " + str(e)})
