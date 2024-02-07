@@ -89,7 +89,7 @@ def generate_storybook():
         )
         pages = buildBook.list_of_tuples
         finishedPdf = build_pdf(
-            pages, "./result/storybook/storybook_" + str(bookId) + ".pdf"
+            pages, "result/storybook/storybook_" + str(bookId) + ".pdf"
         )
 
         # return file_bytes
