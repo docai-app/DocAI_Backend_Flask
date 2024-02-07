@@ -58,7 +58,7 @@ def transform_tool_name(tool_name):
     return transformed_name
 
 
-def import_agent_tool(agent_tool, config):
+def import_agent_tool(expert, agent_tool, config):
 
     invoke_name = agent_tool['invoke_name']
     tool_name = agent_tool['name']  # 調用人使用的名稱, 非 class name
@@ -70,6 +70,7 @@ def import_agent_tool(agent_tool, config):
         module = importlib.import_module(f"langchain_tools.{invoke_name}")
         class_ = getattr(module, invoke_name)
         metadata = config[tool_name]['initialize']['metadata']
+        metadata['expert'] = expert
         function = class_(metadata=metadata)
         return (transform_tool_name(agent_tool['invoke_name']), function)
 
@@ -129,7 +130,7 @@ def create_ask_expert_function(expert, agent_tools_config, config):
         }
 
         for agent_tool in expert['agent_tools']:
-            name, function = import_agent_tool(agent_tool, agent_tools_config)
+            name, function = import_agent_tool(expert, agent_tool, agent_tools_config)
 
             # override 預設的 description
             tool_name = agent_tool['name']
@@ -149,6 +150,7 @@ def create_ask_expert_function(expert, agent_tools_config, config):
 
         assistant_for_expert = autogen.AssistantAgent(
             name=f"assistant_for_{expert['name_en']}",
+            system_message=f"{expert['helper_agent_system_message']}",
             max_consecutive_auto_reply=3,
             llm_config={
                 "seed": 42,
@@ -160,6 +162,8 @@ def create_ask_expert_function(expert, agent_tools_config, config):
 
         expert_agent = autogen.UserProxyAgent(
             name=f"{expert['name_en']}",
+            # system_message=f"選擇一條問題作為最終結果，確保輸出是 json 格式",
+            system_message=f"{expert['system_message']}",
             # human_input_mode="ALWAYS",
             human_input_mode="NEVER",
             code_execution_config={"work_dir": f"{expert['name_en']}"},
@@ -187,8 +191,14 @@ def create_ask_expert_function(expert, agent_tools_config, config):
         # return the last message the expert received
 
         print("expert saying")
-        print(expert_agent.last_message()["content"])
-        return expert_agent.last_message()["content"]
+        # print(expert_agent.last_message()["content"])
+        # import pdb
+        # pdb.set_trace()
+
+        all_messages = [item for sublist in expert_agent.chat_messages.values() for item in sublist]
+        filtered_messages = [item for item in all_messages if item['content'] not in ['', 'TERMINATE']]
+
+        return filtered_messages[-1]["content"].replace("\n\nTERMINATE", "")
 
     return ask_expert_function
 
@@ -218,8 +228,8 @@ def print_messages(recipient, messages, sender, config):
             # import pdb
             # pdb.set_trace()
             messages[-1]['content'] = messages[-1]['content'].replace(config['prompt_header'], "")
-        # import pdb
-        # pdb.set_trace()
+            messages[-1]['content'] = messages[-1]['content'].lstrip("\n\n")
+
         config['emit'](
             'message', {"sender": sender.name, "message": messages[-1], "response_to": config['prompt']}, room=config['room'], prompt_header=config['prompt_header'])
 
@@ -310,9 +320,9 @@ def assistant_core(data, config):
         }
     )
 
-    system_message_header = "Today is {today}, weekday is {weekday}! Monday is 0 and Sunday is 6. The day is very important when the user is asking for the documents related to the day".format(today=date.today(),
-                                                                                                                                                                                                 weekday=date.today().weekday())
-    system_message_add_date = f"{system_message_header}\n{agent['system_message']}"
+    system_message_header = "Today is {today}, weekday is {weekday}! Monday is 0 and Sunday is 6. ".format(today=date.today(),
+                                                                                                           weekday=date.today().weekday())
+    system_message_add_date = f"{system_message_header}\n{agent['system_message']}\n{prompt_header}"
 
     system_message_add_date = system_message_add_date + "\n 當用戶輸入空白時，不要回覆"
 
