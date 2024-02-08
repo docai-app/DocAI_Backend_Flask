@@ -9,6 +9,7 @@ import autogen
 # from langchain_tools.DuckduckgoSearchTool import duckduckgo_search
 import importlib
 from datetime import date
+import json
 
 autogen_api = Blueprint('autogen', __name__)
 
@@ -223,8 +224,22 @@ def print_messages(recipient, messages, sender, config):
     if config['development'] == False and config['category'] not in ['user_proxy', 'assistant']:
         return False, None
 
+    display_method = "voice"
     print(sender)
     if 'emit' in config:
+
+        # 如果 content 係 json 的話，要處理一下
+        if 'content' in messages[-1] and messages[-1]['content'] is not None:
+            try:
+                clean_json = json.loads(messages[-1]['content'])
+                messages[-1]['content'] = json.dumps(clean_json)
+
+                # 如果係純 json 的 content, 應該就唔洗讀出黎
+                display_method = "show"
+            except json.JSONDecodeError as e:
+                # 如果唔係 json, 咁唔洗理
+                pass
+
         # pattern = config['prompt_header']
         # import pdb
         # pdb.set_trace()
@@ -236,7 +251,11 @@ def print_messages(recipient, messages, sender, config):
             messages[-1]['content'] = messages[-1]['content'].lstrip("\n\n")
 
         config['emit'](
-            'message', {"sender": sender.name, "message": messages[-1], "response_to": config['prompt']}, room=config['room'], prompt_header=config['prompt_header'])
+            'message', {"sender": sender.name, "message": messages[-1], "response_to": config['prompt'], "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
+
+        # if sender.name == 'user_proxy':
+        #     import pdb
+        #     pdb.set_trace()
 
     return False, None  # required to ensure the agent communication flow continues
 
