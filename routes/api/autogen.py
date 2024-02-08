@@ -170,16 +170,21 @@ def create_ask_expert_function(expert, agent_tools_config, config):
             function_map=function_map
         )
 
+        assistant_config = config.copy()
+        expert_config = config.copy()
+        assistant_config.update({'category': 'expert_assistant'})
+        expert_config.update({'category': 'expert'})
+
         assistant_for_expert.register_reply(
             [autogen.Agent, None],
             reply_func=print_messages,
-            config=config,
+            config=assistant_config,
         )
 
         expert_agent.register_reply(
             [autogen.Agent, None],
             reply_func=print_messages,
-            config=config,
+            config=expert_config,
         )
 
         expert_agent.initiate_chat(assistant_for_expert, message=message)
@@ -214,8 +219,8 @@ def print_messages(recipient, messages, sender, config):
     if messages[-1]['content'] == "":
         return False, None
 
-    # 如果係 development mode, 就全部都輸出, 否則只輸出 user_proxy 同 assistant_agent
-    if config['development'] == False and sender.name not in ['user_proxy', 'assistant_agent', 'employee_training_agent']:
+    # 如果係 development mode, 就全部都輸出, 否則只輸出 user_proxy 同 assistant category 的回覆
+    if config['development'] == False and config['category'] not in ['user_proxy', 'assistant']:
         return False, None
 
     print(sender)
@@ -332,16 +337,21 @@ def assistant_core(data, config):
         llm_config=agent_llm_config
     )
 
+    user_proxy_config = merged_config.copy()
+    assistant_config = merged_config.copy()
+    user_proxy_config.update({'category': 'user_proxy'})
+    assistant_config.update({'category': 'assistant'})
+
     user_proxy.register_reply(
         [autogen.Agent, None],
         reply_func=print_messages,
-        config=merged_config,
+        config=user_proxy_config,
     )
 
     assistant_agent.register_reply(
         [autogen.Agent, None],
         reply_func=print_messages,
-        config=merged_config,
+        config=assistant_config,
     )
 
     user_proxy.initiate_chat(assistant_agent, message=f"{prompt_header}\n\n{prompt}")
