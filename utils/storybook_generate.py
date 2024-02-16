@@ -16,8 +16,8 @@ load_dotenv()
 
 BOOK_TEXT_PROMPT = """
 Write an engaging, great 3-6 page children's picture book. Each page should have 2-3 sentences. There should be rhymes.
-We will be adding pictures of the environment/scenery for each page, so pick a pretty setting/place. Limit of 7 pages,
-do not exceed 4 sentences per page. Do not exceed 7 pages.
+We will be adding pictures of the environment/scenery for each page, so pick a pretty setting/place. Limit of 6 pages,
+do not exceed 4 sentences per page. Do not exceed 6 pages.
 
 Before the story begins, write a "Page 0: {title}" page. The title should be the name of the book, no more than four words.
 
