@@ -1,3 +1,4 @@
+# import eventlet
 from routes.api.autogen import assistant_core
 import json
 from database.services.AutogenAgents import AutogenAgentService
@@ -42,6 +43,8 @@ tracer.configure(
     port=8126,
 )
 
+# eventlet.monkey_patch()
+
 
 def createApp(config="database/settings.py"):
     app = Flask(__name__)
@@ -61,7 +64,7 @@ def createApp(config="database/settings.py"):
     app.register_blueprint(smart_extraction_schema)
     app.register_blueprint(autogen_api)
     CORS(app, resources={
-         r"/*": {"origins": ["*", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
+         r"/*": {"origins": ["*", "http://localhost:3000", "https://test-docai-chatbot-plus.vercel.app", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
     db.init_app(app)
     migrate = Migrate(app, db, compare_type=True)
     migrate.init_app(app, db)
@@ -73,7 +76,7 @@ app = createApp()
 # socketio = SocketIO(app, cors_allowed_origins="*",
 #                     logger=True, engineio_logger=True)
 
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins=['http://localhost:3000', "https://test-docai-chatbot-plus.vercel.app"])
 
 
 @app.before_first_request
@@ -118,8 +121,10 @@ def handle_message(data):
     # 只回傳給發送請求的客戶端
     # emit('message', json.loads(data), room=request.sid)
 
+    json_data = json.loads(data)
+
     # call 我的 function
-    assistant_core(json.loads(data), {
+    assistant_core(json_data, {
         "emit": emit,
         "room": request.sid,
         "request": request

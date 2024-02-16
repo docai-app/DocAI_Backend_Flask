@@ -1,10 +1,13 @@
 import os
 from langchain.prompts import PromptTemplate
-from langchain.chat_models import ChatOpenAI
-from langchain.llms import OpenAI
+# from langchain_community.llms import OpenAI
+from experimental.llms.openai import OpenAI
+
 from langchain.chains import LLMChain
 from langchain import SQLDatabase
-from langchain_experimental.sql import SQLDatabaseChain
+# from langchain_experimental.sql import SQLDatabaseChain
+from experimental.sql import SQLDatabaseChain
+# from langchain.chains.sql_database.base import SQLDatabaseChain
 from ext import db
 from dotenv import load_dotenv
 from datetime import date
@@ -27,13 +30,20 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
         view_support=True,
     )
 
-    records_example = pgdb.run(
-        """
+    if isinstance(viewsName, list):
+        include_table_names = viewsName
+    elif isinstance(viewsName, str):
+        include_table_names = [viewsName]
+
+    pgdb = SQLDatabase.from_uri(os.getenv("DATABASE_URL"), schema=tenant,
+                                include_tables=include_table_names, view_support=True)
+
+    records_example = pgdb.run("""
                                select * from \"{tenant}\".\"{viewsName}\"
                                limit 10
                                """.format(
-            tenant=tenant, viewsName=viewsName
-        )
+        tenant=tenant, viewsName=viewsName
+    )
     )
 
     print("records example")
@@ -44,7 +54,7 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
             Given an input question, first create a syntactically correct postgresql query to run,
             this query can only access the table named \"{tenant}\".\"{viewsName}\",
             \"{tenant}\".\"{viewsName}\" schema has many columns representing in hash {dataSchemaString} and an (uploaded_at: datetime) column,
-            all the data_type is datetime column should always query by TO_DATE([the_column_name], 'YYYY/MM/DD'),
+            all the data_type is datetime column should always query by TO_DATE([(the_column_name)::text], 'YYYY/MM/DD'),
             當需要查詢日期時, 先使用除 uploaded_at 外的其他日期, 除非 uploaded_at 是唯一一個日期類型
             then look at the results of the query and return the answer,
             Don't add the LIMIT amount on the SQLQuery result,
@@ -76,6 +86,8 @@ def generateSQLByViews(viewsName, tenant, query, dataSchema=None, returnSQL=True
     )
 
     print("DB Chain: ", db_chain)
+    # import pdb
+    # pdb.set_trace()
 
     sql = db_chain.run(QUERY)
 

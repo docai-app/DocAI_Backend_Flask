@@ -1,11 +1,12 @@
 import re
 from concurrent.futures import ThreadPoolExecutor
 
-# from openai import OpenAI
+from openai import OpenAI
 
 from dotenv import load_dotenv
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 from langchain.schema import HumanMessage
+
 import replicate
 import os, uuid
 import json
@@ -16,7 +17,7 @@ load_dotenv()
 BOOK_TEXT_PROMPT = """
 Write an engaging, great 3-6 page children's picture book. Each page should have 2-3 sentences. There should be rhymes.
 We will be adding pictures of the environment/scenery for each page, so pick a pretty setting/place. Limit of 7 pages,
-do not exceed 3 sentences per page. Do not exceed 7 pages.
+do not exceed 4 sentences per page. Do not exceed 7 pages.
 
 Before the story begins, write a "Page 0: {title}" page. The title should be the name of the book, no more than four words.
 
@@ -99,7 +100,7 @@ class BuildBook:  # The do-it-all class that builds the book (and creates stream
 
     def __init__(self, model_name, input_text, style):
         self.chat = ChatOpenAI(model_name=model_name)
-        # self.openai = OpenAI(model_name=model_name)
+        self.openai = OpenAI()
         self.input_text = input_text
         self.style = style
 
@@ -170,53 +171,77 @@ class BuildBook:  # The do-it-all class that builds the book (and creates stream
         new_list.pop(0)
         return new_list
 
-    # def generate_image_with_openai(self, i, prompt):
-    #     # client = OpenAI()
-    #     print(f"{prompt} is the prompt for page {i + 1}")
-    #     response = self.openai.images.generate(
-    #         model="dall-e-3",
-    #         prompt=prompt,
-    #         size="1792x1024",
-    #         quality="standard",
-    #         n=1,
-    #     )
-    #     image_url = response.data[0].url
-    #     print(f"Page {i + 1} image url: {image_url}")
-    #     return image_url
+    def generate_image_with_openai(self, i, prompt):
+        try:
+            client = OpenAI()
+            print(f"{prompt} is the prompt for page {i + 1}")
+            response = client.images.generate(
+                model="dall-e-3",
+                prompt=prompt,
+                size="1792x1024",
+                quality="standard",
+                n=1,
+            )
+            image_url = response.data[0].url
+            print(f"Page {i + 1} image url: {image_url}")
+            return image_url
+        except Exception as e:
+            print(e)
+            pass
 
     def create_images(self):
         if len(self.pages_list) != len(self.sd_prompts_list):
             raise ValueError("Pages and Prompts do not match")
 
-        # image_urls = []
+        print("Generating images...")
+
+        image_urls = []
         # for i, prompt in enumerate(self.sd_prompts_list):
         #     image_url = self.generate_image_with_openai(i, prompt)
         #     image_urls.append(image_url)
 
-        def generate_image(i, prompt):
-            print(f"{prompt} is the prompt for page {i + 1}")
-            output = replicate.run(
-                "stability-ai/stable-diffusion:db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf",
-                input={
-                    "prompt": "art," + prompt,
-                    "negative_prompt": "photorealistic, photograph, bad anatomy, blurry, gross,"
-                    "weird eyes, creepy, text, words, letters, realistic",
-                },
-            )
-            print("Page {i} image url: ".format(i=i + 1) + output[0])
-            return output[0]
+        # def generate_image(i, prompt):
+        #     print(f"{prompt} is the prompt for page {i + 1}")
+        #     output = replicate.run(
+        #         "stability-ai/stable-diffusion:db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf",
+        #         input={
+        #             "prompt": "art," + prompt,
+        #             "negative_prompt": "photorealistic, photograph, bad anatomy, blurry, gross,"
+        #             "weird eyes, creepy, text, words, letters, realistic",
+        #         },
+        #     )
+        #     print("Page {i} image url: ".format(i=i + 1) + output[0])
+        #     return output[0]
+
+        def generate_image_with_openai(i, prompt):
+            try:
+                client = OpenAI()
+                print(f"{prompt} is the prompt for page {i + 1}")
+                response = client.images.generate(
+                    model="dall-e-3",
+                    prompt=prompt,
+                    size="1792x1024",
+                    quality="standard",
+                    n=1,
+                )
+                image_url = response.data[0].url
+                print(f"Page {i + 1} image url: {image_url}")
+                return image_url
+            except Exception as e:
+                print(e)
+                pass
 
         with ThreadPoolExecutor(max_workers=10) as executor:
             image_urls = list(
                 executor.map(
-                    generate_image,
+                    # generate_image,
+                    generate_image_with_openai,
                     range(len(self.sd_prompts_list)),
                     self.sd_prompts_list,
                 )
             )
             print(image_urls)
 
-        print(image_urls)
         return image_urls
 
     def download_images(self):
