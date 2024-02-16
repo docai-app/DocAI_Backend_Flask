@@ -204,7 +204,7 @@ def create_ask_expert_function(expert, agent_tools_config, config):
         all_messages = [item for sublist in expert_agent.chat_messages.values() for item in sublist]
         filtered_messages = [item for item in all_messages if item['content'] not in ['', 'TERMINATE']]
 
-        return filtered_messages[-1]["content"].replace("\n\nTERMINATE", "")
+        return filtered_messages[-1]["content"].strip().replace("TERMINATE", "")
 
     return ask_expert_function
 
@@ -235,7 +235,9 @@ def print_messages(recipient, messages, sender, config):
                 messages[-1]['content'] = json.dumps(clean_json)
 
                 # 如果係純 json 的 content, 應該就唔洗讀出黎
-                display_method = "show"
+                if 'content' not in clean_json or json.loads(clean_json['content']):
+                    display_method = "show"
+
             except json.JSONDecodeError as e:
                 # 如果唔係 json, 咁唔洗理
                 pass
