@@ -218,9 +218,10 @@ class BuildBook:  # The do-it-all class that builds the book (and creates stream
                 client = OpenAI()
                 print(f"{prompt} is the prompt for page {i + 1}")
                 response = client.images.generate(
-                    model="dall-e-3",
+                    # model="dall-e-3",
+                    model="dall-e-2",
                     prompt=prompt,
-                    size="1024x1024",
+                    size="512x512",
                     quality="standard",
                     n=1,
                 )
