@@ -87,6 +87,7 @@ def generate_storybook():
         buildBook = BuildBook(
             os.getenv("OPENAI_GPT4_MODEL_NAME"), query, f"{STYLES[style]}"
         )
+        print(buildBook)
         pages = buildBook.list_of_tuples
         finishedPdf = build_pdf(
             pages, "result/storybook/storybook_" + str(bookId) + ".pdf"
