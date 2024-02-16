@@ -220,7 +220,7 @@ class BuildBook:  # The do-it-all class that builds the book (and creates stream
                 response = client.images.generate(
                     model="dall-e-3",
                     prompt=prompt,
-                    size="1792x1024",
+                    size="512x512",
                     quality="standard",
                     n=1,
                 )
