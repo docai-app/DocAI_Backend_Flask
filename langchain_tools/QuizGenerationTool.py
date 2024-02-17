@@ -19,6 +19,9 @@ from langchain.agents.openai_functions_agent.base import OpenAIFunctionsAgent
 from langchain.agents import AgentExecutor
 
 
+from .retrievers.RandomRetriever import RandomRetriever
+
+
 class QuizGenerationTool(BaseTool):
     name = "quiz_generation_tool"
     description = "這個工具會提供需要的文件資訊和內容，生成選擇題，用作測驗"
@@ -56,9 +59,14 @@ class QuizGenerationTool(BaseTool):
             embedding_function=DocumentService.embeddings,
         )
 
-        retriever = store.as_retriever(
-            search_kwargs={"filter": filter, "k": result_coult}
-        )
+        # embedding_docs = EmbeddingsQueryService.get_random_embedding_by_ids(document_ids)
+
+        # retriever = store.as_retriever(
+        #     # search_kwargs={"filter": filter, "k": result_coult}
+        # )
+        # retriever.add_documents(embedding_docs)
+
+        retriever = RandomRetriever(metadata={"document_ids": document_ids, "limit": 5})
 
         search_documents_tool = create_retriever_tool(
             retriever,
