@@ -167,7 +167,7 @@ class DocumentService:
                 "Let's think step by step! Today is {today}, weekday is {weekday}! Monday is 0 and Sunday is 6. The day is very important when the user is asking for the documents related to the day. Maybe they will ask you tomorrow and next week for an answer. "
                 "Only use the {language} language to answer the questions! "
                 "You have to use the {tone} tone to answer the questions! "
-                "Do your best to answer the questions. "
+                "Please do your best to provide {length} answers to the questions. "
                 "Feel free to use any tools available to look up. "
                 "Relevant information, only if neccessary. "
                 "If you cannot answer the question, just say I don't know or cannot find the answer. You cannot generate some fake content and anything which cannot find from the retrived data. "
@@ -175,7 +175,8 @@ class DocumentService:
                 language=metadata["language"] if "language" in metadata else "繁體中文",
                 tone=metadata["tone"] if "tone" in metadata else "專業",
                 today=date.today(),
-                weekday=date.today().weekday()
+                weekday=date.today().weekday(),
+                length=metadata["length"] if "length" in metadata else "normal",
             )
         )
 
