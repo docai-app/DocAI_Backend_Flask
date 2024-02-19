@@ -83,7 +83,7 @@ class QuizGenerationTool(BaseTool):
             content=(
                 "Feel free to use any tools available to look up. "
                 "The generated question must ask the key point of the each retrieved data. "
-                "Try your best to generate 10 questions!"
+                "Try your best to generate 5 questions!"
             )
         )
 
@@ -106,7 +106,7 @@ class QuizGenerationTool(BaseTool):
 
         agent_res = agent_executor(
             {
-                "input": '"请确保您的题目紧密相关于文件内容，并能够反映出文件的主要观点或知识点。题目应包含四个选项（A、B、C、D），其中只有一个选项是正确的，並且應該隨機分佈，不能是以上全對或以上全錯"。\n\nCould you please generate some summary questions related to the retrieved documents to help the readers understand the content easily? The output result is a JSON object string and the format must be like this: ```{"question": "[the question description]", "options": [{"A": ""}, {"B": ""}, {"C": ""}, {"D": ""}], "answer": "[the answer]", "response_type": "multiple_choice_question"}```'
+                "input": '"请确保您的题目紧密相关于文件内容，并能够反映出文件的主要观点或知识点。题目应包含四个选项（A、B、C、D），其中只有一个选项是正确的，並且應該隨機分佈，不能是以上全對或以上全錯"。\n\nCould you please generate some summary questions related to the retrieved documents to help the readers understand the content easily? The output result is a JSON object string and the format must be like this: ```{"questions": [{"question": "[the question description]", "options": [{"A": ""}, {"B": ""}, {"C": ""}, {"D": ""}], "answer": "[the answer]", "type": "multiple_choice_question"}], "response_type": "multiple_choice_question"}```'
             }
         )
 

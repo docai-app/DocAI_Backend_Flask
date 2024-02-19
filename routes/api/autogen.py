@@ -228,18 +228,26 @@ def print_messages(recipient, messages, sender, config):
     print(sender)
     if 'emit' in config:
 
+        # if sender.name == "ask_make_quiz_expert":
+        #     import pdb
+        #     pdb.set_trace()
+
         # 如果 content 係 json 的話，要處理一下
         if 'content' in messages[-1] and messages[-1]['content'] is not None:
             try:
+                keep_something = messages[-1]['content']
                 clean_json = json.loads(messages[-1]['content'])
+
                 messages[-1]['content'] = json.dumps(clean_json)
 
                 # 如果係純 json 的 content, 應該就唔洗讀出黎
-                if 'content' not in clean_json or json.loads(clean_json['content']):
+                if 'content' in clean_json and not isinstance(clean_json['content'], str):
                     display_method = "show"
 
             except json.JSONDecodeError as e:
                 # 如果唔係 json, 咁唔洗理
+                # import pdb
+                # pdb.set_trace()
                 pass
 
         # pattern = config['prompt_header']
