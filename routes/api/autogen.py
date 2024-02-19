@@ -59,19 +59,21 @@ def transform_tool_name(tool_name):
     return transformed_name
 
 
-def import_agent_tool(expert, agent_tool, config):
+def import_agent_tool(expert, agent_tool, tools_config, app_config):
 
     invoke_name = agent_tool['invoke_name']
     tool_name = agent_tool['name']  # 調用人使用的名稱, 非 class name
 
     # agent tool 分為需要初始化 同 不需要初始化兩種
     # 需要初始化的話，例如要從指定的 folder 中提取資料的 qa tool，就要從參數中讀取
-    if "initialize" in agent_tool['meta'] and tool_name in config:
+    if "initialize" in agent_tool['meta'] and tool_name in tools_config:
         # 需要初始化, 則 import class
         module = importlib.import_module(f"langchain_tools.{invoke_name}")
         class_ = getattr(module, invoke_name)
-        metadata = config[tool_name]['initialize']['metadata']
+        metadata = tools_config[tool_name]['initialize']['metadata']
         metadata['expert'] = expert
+        metadata['history'] = app_config['history']
+
         function = class_(metadata=metadata)
         return (transform_tool_name(agent_tool['invoke_name']), function)
 
@@ -131,7 +133,7 @@ def create_ask_expert_function(expert, agent_tools_config, config):
         }
 
         for agent_tool in expert['agent_tools']:
-            name, function = import_agent_tool(expert, agent_tool, agent_tools_config)
+            name, function = import_agent_tool(expert, agent_tool, agent_tools_config, config)
 
             # override 預設的 description
             tool_name = agent_tool['name']
@@ -274,16 +276,20 @@ def assistant_core(data, config):
     assistant_name = data['assistant']
     expert_names = data['experts']
     prompt = data['prompt']
-    history = data.get('history', "")
+    raw_history = data.get('history', "")
     agent_tools_config = data.get('agent_tools', {})
     development_mode = data.get('development', False)
 
     print("agent tools config")
     print(agent_tools_config)
 
+    history = ''
+    for h in raw_history:
+        history += f"{h['by']}: {h['content']}\n"
+
     # 將 history 拼入去 prompt
     if history != "":
-        prompt = f"{history}\n\n{prompt}"
+        prompt = f"history:```{history}```\n\nprompt```{prompt}```"
 
     agent = AutogenAgentService.get_assistant_agent_by_name(assistant_name)
     prompt_header = agent['prompt_header']
@@ -298,7 +304,8 @@ def assistant_core(data, config):
         "callback": None,
         "prompt_header": prompt_header,
         "prompt": prompt,
-        "development": development_mode
+        "development": development_mode,
+        "history": history
     }, **config}
 
     # 创建函数映射表
@@ -306,26 +313,10 @@ def assistant_core(data, config):
         "html": exec_html
     }
 
-    # function_map = {}
-
+    # 專家的 functions
     for expert in experts:
         function_key = f"ask_{expert['name_en']}"
         function_map[function_key] = create_ask_expert_function(expert, agent_tools_config, merged_config)
-
-    user_proxy = autogen.UserProxyAgent(
-        name="user_proxy",
-        human_input_mode="NEVER",
-        max_consecutive_auto_reply=3,
-        code_execution_config={
-            "work_dir": 'user_proxy',
-            "use_docker": True,
-            "last_n_messages": 1,
-        },
-        # is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
-        # is_termination_msg=lambda x: x.get("content", "").rstrip() == "",
-        system_message="Reply TERMINATE when the task is done.",
-        function_map=function_map
-    )
 
     # 助理的 llm_config 係要根據傳入的 experts 去調整的
     # 因為助理要知道有咩 experts 係可以調用的
@@ -352,6 +343,40 @@ def assistant_core(data, config):
             },
             "description": "run cell in html and return the execution result."
         }
+    )
+    # 專屬助手的 functions
+    for agent_tool in agent['agent_tools']:
+        name, function = import_agent_tool(agent, agent_tool, agent_tools_config, merged_config)
+
+        # override 預設的 description
+        tool_name = agent_tool['name']
+        if tool_name in agent_tools_config and 'description' in agent_tools_config[tool_name]:
+            customize_description = agent_tools_config[tool_name]['description']
+        else:
+            customize_description = agent_tool['description']
+
+        agent_llm_config['functions'].append({
+            "name": name,
+            "description": customize_description,
+            "parameters": agent_tool['meta']['parameters']
+        })
+
+        # 创建函数映射表
+        function_map[name] = function._run
+
+    user_proxy = autogen.UserProxyAgent(
+        name="user_proxy",
+        human_input_mode="NEVER",
+        max_consecutive_auto_reply=3,
+        code_execution_config={
+            "work_dir": 'user_proxy',
+            "use_docker": True,
+            "last_n_messages": 1,
+        },
+        # is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
+        # is_termination_msg=lambda x: x.get("content", "").rstrip() == "",
+        system_message="Reply TERMINATE when the task is done.",
+        function_map=function_map
     )
 
     system_message_header = "Today is {today}, weekday is {weekday}! Monday is 0 and Sunday is 6. ".format(today=date.today(),
