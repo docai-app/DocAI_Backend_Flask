@@ -83,17 +83,23 @@ def generate_storybook():
         requestData = request.get_json()
         query = requestData["query"]
         style = requestData["style"]
+        resultFilename = "result/storybook/storybook_" + str(bookId) + ".pdf"
         print(query, style)
         buildBook = BuildBook(
             os.getenv("OPENAI_GPT4_MODEL_NAME"), query, f"{STYLES[style]}"
         )
-        print(buildBook)
         pages = buildBook.list_of_tuples
-        finishedPdf = build_pdf(
-            pages, "result/storybook/storybook_" + str(bookId) + ".pdf"
-        )
+        build_pdf(pages, resultFilename)
 
         # return file_bytes
-        return send_file(finishedPdf, as_attachment=True, download_name="storybook.pdf")
+        with open(resultFilename, "rb") as f:
+            pdf_url = StorageService.upload2StorageDirectly(
+                f, "storybook_" + str(bookId) + ".pdf", content_type="application/pdf"
+            )
+
+        print("PDF URL: ", pdf_url)
+
+        # return send_file(finishedPdf, as_attachment=True, download_name="storybook.pdf")
+        return jsonify({"status": True, "file_url": pdf_url})
     except Exception as e:
         return jsonify({"status": False, "message": "Error: " + str(e)})
