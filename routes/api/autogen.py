@@ -230,16 +230,11 @@ def print_messages(recipient, messages, sender, config):
     print(sender)
     if 'emit' in config:
 
-        # if sender.name == "ask_make_quiz_expert":
-        #     import pdb
-        #     pdb.set_trace()
-
         # 如果 content 係 json 的話，要處理一下
         if 'content' in messages[-1] and messages[-1]['content'] is not None:
             try:
-                keep_something = messages[-1]['content']
+                # keep_something = messages[-1]['content']
                 clean_json = json.loads(messages[-1]['content'])
-
                 messages[-1]['content'] = json.dumps(clean_json)
 
                 # 如果係純 json 的 content, 應該就唔洗讀出黎
@@ -252,22 +247,13 @@ def print_messages(recipient, messages, sender, config):
                 # pdb.set_trace()
                 pass
 
-        # pattern = config['prompt_header']
-        # import pdb
-        # pdb.set_trace()
-        # msg = re.sub(pattern, "", messages[-1]['content'])
         if config['development'] == False and 'content' in messages[-1] and messages[-1]['content'] is not None:
-            # import pdb
-            # pdb.set_trace()
+
             messages[-1]['content'] = messages[-1]['content'].replace(config['prompt_header'], "")
             messages[-1]['content'] = messages[-1]['content'].lstrip("\n\n")
 
         config['emit'](
             'message', {"sender": sender.name, "message": messages[-1], "response_to": config['prompt'], "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
-
-        # if sender.name == 'user_proxy':
-        #     import pdb
-        #     pdb.set_trace()
 
     return False, None  # required to ensure the agent communication flow continues
 
