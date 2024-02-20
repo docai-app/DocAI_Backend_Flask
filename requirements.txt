@@ -40,4 +40,4 @@ reportlab==4.0.7
 openai==1.6.1 # 2024-01-03
 pyautogen==0.2.2 # 2024-01-08
 ipython # 2024-01-08
-eventlet
+gevent

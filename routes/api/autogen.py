@@ -196,7 +196,11 @@ def create_ask_expert_function(expert, agent_tools_config, config):
         # final message sent from the expert
         # expert_agent.send(
         #     "如果返回的是 html 代碼，則直接返回 html 的內容, 否則總結答案和解法方法，然後用一個簡單易懂的方式說明", assistant_for_expert)
+
+        # expert_agent.send("選擇5條不重覆的問題作為最終結果，確保輸出 json 格式", assistant_for_expert)
         # return the last message the expert received
+        if expert['conclude_conversation_message'] is not None and expert['conclude_conversation_message'] != "":
+            expert_agent.send(expert['conclude_conversation_message'], assistant_for_expert)
 
         print("expert saying")
         # print(expert_agent.last_message()["content"])
@@ -205,6 +209,10 @@ def create_ask_expert_function(expert, agent_tools_config, config):
 
         all_messages = [item for sublist in expert_agent.chat_messages.values() for item in sublist]
         filtered_messages = [item for item in all_messages if item['content'] not in ['', 'TERMINATE']]
+
+        # if filtered_messages[-1]['content'] is None:
+        #     import pdb
+        #     pdb.set_trace()
 
         return filtered_messages[-1]["content"].strip().replace("TERMINATE", "")
 
