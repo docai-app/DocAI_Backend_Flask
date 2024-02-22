@@ -257,11 +257,19 @@ def print_messages(recipient, messages, sender, config):
 
         if config['development'] == False and 'content' in messages[-1] and messages[-1]['content'] is not None:
 
+            # 使用正则表达式移除 history 部分
+            # 这里假设 history 和 prompt 部分都不包含 ``` 之外的内容
+            messages[-1]['content'] = re.sub(r'^history:```.*?```\n\n', '', messages[-1]['content'], flags=re.DOTALL)
             messages[-1]['content'] = messages[-1]['content'].replace(config['prompt_header'], "")
             messages[-1]['content'] = messages[-1]['content'].lstrip("\n\n")
+            messages[-1]["content"] = messages[-1]['content'].strip().replace("TERMINATE", "")
 
-        config['emit'](
-            'message', {"sender": sender.name, "message": messages[-1], "response_to": config['prompt'], "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
+        if messages[-1] == config['prompt']:
+            # 如果回覆同 response_to 係一樣的話，跳過佢
+            pass
+        else:
+            config['emit'](
+                'message', {"sender": sender.name, "message": messages[-1], "response_to": config['prompt'], "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
 
     return False, None  # required to ensure the agent communication flow continues
 
