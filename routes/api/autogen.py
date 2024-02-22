@@ -268,8 +268,9 @@ def print_messages(recipient, messages, sender, config):
             # 如果回覆同 response_to 係一樣的話，跳過佢
             pass
         else:
+            response_to = re.sub(r'^history:```.*?```\n\n', '', config['prompt'], flags=re.DOTALL)
             config['emit'](
-                'message', {"sender": sender.name, "message": messages[-1], "response_to": config['prompt'], "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
+                'message', {"sender": sender.name, "message": messages[-1], "response_to": response_to, "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
 
     return False, None  # required to ensure the agent communication flow continues
 
