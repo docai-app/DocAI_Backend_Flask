@@ -219,6 +219,13 @@ def create_ask_expert_function(expert, agent_tools_config, config):
     return ask_expert_function
 
 
+def extract_text_within_backticks(text):
+    # 使用 re.findall 查找所有```包围的文本
+    matches = re.findall(r'```(.*?)```', text)
+    # 如果找到了匹配的文本，返回第一个匹配项；否则，返回原始文本
+    return matches[0] if matches else text
+
+
 def print_messages(recipient, messages, sender, config):
 
     print(f"[{recipient}]: {messages[-1]}")
@@ -237,7 +244,6 @@ def print_messages(recipient, messages, sender, config):
     display_method = "voice"
     print(sender)
     if 'emit' in config:
-
         # 如果 content 係 json 的話，要處理一下
         if 'content' in messages[-1] and messages[-1]['content'] is not None:
             try:
@@ -257,18 +263,30 @@ def print_messages(recipient, messages, sender, config):
 
         if config['development'] == False and 'content' in messages[-1] and messages[-1]['content'] is not None:
 
+            original = messages[-1]['content']
+            # import pdb
+            # pdb.set_trace()
             # 使用正则表达式移除 history 部分
             # 这里假设 history 和 prompt 部分都不包含 ``` 之外的内容
-            messages[-1]['content'] = re.sub(r'^history:```.*?```\n\n', '', messages[-1]['content'], flags=re.DOTALL)
+            messages[-1]['content'] = re.sub(r'^history:```.*?```\n\nprompt:\n\n', '',
+                                             messages[-1]['content'], flags=re.DOTALL)
             messages[-1]['content'] = messages[-1]['content'].replace(config['prompt_header'], "")
             messages[-1]['content'] = messages[-1]['content'].lstrip("\n\n")
-            messages[-1]["content"] = messages[-1]['content'].strip().replace("TERMINATE", "")
+            messages[-1]['content'] = messages[-1]['content'].strip().replace("TERMINATE", "")
+            messages[-1]['content'] = extract_text_within_backticks(messages[-1]['content'])
 
-        if messages[-1] == config['prompt']:
+        response_to = re.sub(r'^history:```.*?```\n\nprompt:\n\n', '', config['prompt'], flags=re.DOTALL)
+        response_to = extract_text_within_backticks(response_to)
+
+        messages[-1]['content'] = messages[-1]['content'] or ''
+        response_to = response_to or ''
+
+        if messages[-1]['content'] == response_to:
+            # import pdb
+            # pdb.set_trace()
             # 如果回覆同 response_to 係一樣的話，跳過佢
             pass
         else:
-            response_to = re.sub(r'^history:```.*?```\n\n', '', config['prompt'], flags=re.DOTALL)
             config['emit'](
                 'message', {"sender": sender.name, "message": messages[-1], "response_to": response_to, "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
 
@@ -288,11 +306,11 @@ def assistant_core(data, config):
 
     history = ''
     for h in raw_history:
-        history += f"{h['by']}: {h['content']}\n"
+        history += f"{h['by']}: {h['content']['text']}\n"
 
     # 將 history 拼入去 prompt
     if history != "":
-        prompt = f"history:```{history}```\n\nprompt```{prompt}```"
+        prompt = f"history:```{history}```\n\nprompt:\n\n```{prompt}```"
 
     agent = AutogenAgentService.get_assistant_agent_by_name(assistant_name)
     prompt_header = agent['prompt_header']
