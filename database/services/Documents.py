@@ -2,6 +2,7 @@ from database.models.Documents import Documents
 from utils.model import row2dict, rows2dict, getDocumentsLabel2dict
 from ext import db
 from datetime import datetime
+# functions.py
 
 
 class DocumentsQueryService():
