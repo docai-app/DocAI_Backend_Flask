@@ -33,13 +33,14 @@ from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from ddtrace import tracer
 from dotenv import load_dotenv
+
 load_dotenv()
 
 
-os.environ['TZ'] = 'Asia/Taipei'
+os.environ["TZ"] = "Asia/Taipei"
 
 tracer.configure(
-    hostname='datadog-agent-dev',
+    hostname="datadog-agent-dev",
     port=8126,
 )
 
@@ -49,8 +50,8 @@ tracer.configure(
 def createApp(config="database/settings.py"):
     app = Flask(__name__)
     app.config.from_pyfile(config)
-    app.config['TIMEZONE'] = 'Asia/Taipei'
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+    app.config["TIMEZONE"] = "Asia/Taipei"
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
     app.register_blueprint(classification)
     app.register_blueprint(storage)
     app.register_blueprint(label)
@@ -63,8 +64,35 @@ def createApp(config="database/settings.py"):
     app.register_blueprint(generate)
     app.register_blueprint(smart_extraction_schema)
     app.register_blueprint(autogen_api)
-    CORS(app, resources={
-         r"/*": {"origins": ["*", "http://localhost:3000", "https://test-docai-chatbot-plus.vercel.app", "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/", "https://doc-ai-frontend.vercel.app/"]}})
+    CORS(
+        app,
+        resources={
+            r"/*": {
+                "origins": [
+                    "*",
+                    "http://localhost:3000",
+                    "https://test-docai-chatbot-plus.vercel.app",
+                    "https://doc-ai-frontend-oqag5r4lf-chonwai.vercel.app/",
+                    "https://doc-ai-frontend.vercel.app/",
+                    "https://chatbot-demo.docai.net",
+                    "http://chatbot-demo.docai.net",
+                    "https://chatbot.docai.net",
+                    "http://chatbot.docai.net",
+                    "https://prod-docai-chatbot.vercel.app",
+                    "http://prod-docai-chatbot.vercel.app",
+                    "https://dev-docai-chatbot.vercel.app",
+                    "http://dev-docai-chatbot.vercel.app",
+                    "https://docai-chatbot-next.vercel.app",
+                    "http://docai-chatbot-next.vercel.app",
+                    "https://chatbot-dev.docai.net",
+                    "http://chatbot-dev.docai.net",
+                    "https://dev-docai-chatbot-plus.vercel.app",
+                    "http://dev-docai-chatbot-plus.vercel.app/",
+                    "https://test-docai-chatbot-plus.vercel.app",
+                ]
+            }
+        },
+    )
     db.init_app(app)
     migrate = Migrate(app, db, compare_type=True)
     migrate.init_app(app, db)
@@ -76,9 +104,14 @@ app = createApp()
 # socketio = SocketIO(app, cors_allowed_origins="*",
 #                     logger=True, engineio_logger=True)
 
-
-socketio = SocketIO(app, ping_timeout=600, ping_interval=300, cors_allowed_origins=[
-                    'http://localhost:3000', "https://test-docai-chatbot-plus.vercel.app"])
+socketio = SocketIO(
+    app,
+    ping_timeout=600, ping_interval=300,
+    cors_allowed_origins=[
+        "http://localhost:3000",
+        "https://test-docai-chatbot-plus.vercel.app",
+    ],
+)
 
 
 @app.before_first_request
@@ -86,28 +119,30 @@ def init_rollbar():
     """init rollbar module"""
     rollbar.init(
         # access token
-        os.getenv('ROLLBAR_ACCESS_TOKEN'),
+        os.getenv("ROLLBAR_ACCESS_TOKEN"),
         # environment name
-        'production',
+        "production",
         # server root directory, makes tracebacks prettier
         root=os.path.dirname(os.path.realpath(__file__)),
         # flask already sets up logging
-        allow_logging_basic_config=False)
+        allow_logging_basic_config=False,
+    )
 
     # send exceptions from `app` to rollbar, using flask's signal system.
     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
 
 
-@app.route('/')
+@app.route("/")
 def hello():
     print("in hello")
     return "Hello World!"
 
 
-@app.route('/test')
+@app.route("/test")
 def test():
     agent = AutogenAgentService.get_assistant_agent_by_name("升學助手")
     return agent
+
 
 # @app.route("/http-call")
 # def http_call():
@@ -124,7 +159,7 @@ def handle_heartbeat(message):
 
 @socketio.on('send_message')
 def handle_message(data):
-    print('Message received:', data)
+    print("Message received:", data)
     # emit('message', data, broadcast=True)
     # 只回傳給發送請求的客戶端
     # emit('message', json.loads(data), room=request.sid)
@@ -132,13 +167,9 @@ def handle_message(data):
     json_data = json.loads(data)
 
     # call 我的 function
-    assistant_core(json_data, {
-        "emit": emit,
-        "room": request.sid,
-        "request": request
-    })
+    assistant_core(json_data, {"emit": emit, "room": request.sid, "request": request})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # app.run(debug=True, host='0.0.0.0', port=8888)
-    socketio.run(app, debug=True, host='0.0.0.0', port=8888)
+    socketio.run(app, debug=True, host="0.0.0.0", port=8888)
