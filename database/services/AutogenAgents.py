@@ -11,7 +11,7 @@ class AutogenAgentService:
 
         query = """
             SELECT 
-                aa.id, aa.name, aa.name_en, aa.system_message, aa.helper_agent_system_message, aa.description, aa.llm_config, aa.meta,
+                aa.id, aa.name, aa.name_en, aa.system_message, aa.helper_agent_system_message, aa.conclude_conversation_message, aa.description, aa.llm_config, aa.meta,
                 json_agg(agent_tools.*) as agent_tools
             FROM assistant_agents as aa
             LEFT OUTER JOIN agent_use_tools ON agent_use_tools.assistant_agent_id = aa.id
@@ -41,7 +41,7 @@ class AutogenAgentService:
 
         query = """
             SELECT 
-                aa.id, aa.name, aa.name_en, aa.system_message, aa.helper_agent_system_message, aa.description, aa.llm_config, aa.meta, aa.prompt_header,
+                aa.id, aa.name, aa.name_en, aa.system_message, aa.helper_agent_system_message, aa.conclude_conversation_message, aa.description, aa.llm_config, aa.meta, aa.prompt_header,
                 json_agg(agent_tools.*) as agent_tools
             FROM assistant_agents as aa
             LEFT OUTER JOIN agent_use_tools ON agent_use_tools.assistant_agent_id = aa.id

@@ -24,3 +24,4 @@ Dockerfile
 result
 OAI_CONFIG_LIST
 docai_data_analysis
+models/transformers

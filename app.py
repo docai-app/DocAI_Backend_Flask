@@ -106,6 +106,7 @@ app = createApp()
 
 socketio = SocketIO(
     app,
+    ping_timeout=600, ping_interval=300,
     cors_allowed_origins=[
         "http://localhost:3000",
         "https://test-docai-chatbot-plus.vercel.app",
@@ -150,7 +151,13 @@ def test():
 #     return jsonify(data)
 
 
-@socketio.on("send_message")
+@socketio.on('heartbeat')
+def handle_heartbeat(message):
+    # 可选：向客户端发送响应，确认心跳已接收
+    emit('heartbeat_ack', {'data': 'Heartbeat received'})
+
+
+@socketio.on('send_message')
 def handle_message(data):
     print("Message received:", data)
     # emit('message', data, broadcast=True)

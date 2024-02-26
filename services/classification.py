@@ -11,8 +11,10 @@ import warnings
 from sklearn.exceptions import DataConversionWarning
 warnings.filterwarnings(action='ignore', category=DataConversionWarning)
 
-
-embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')
+model_path = "models/transformers"
+embedder = SentenceTransformer(model_path)
+# embedder = SentenceTransformer('distiluse-base-multilingual-cased-v2')
+# embedder.save(model_path)
 
 PATH = os.getenv("VOLUMN_PATH")
 
