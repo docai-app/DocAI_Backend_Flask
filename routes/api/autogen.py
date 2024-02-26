@@ -285,10 +285,20 @@ def print_messages(recipient, messages, sender, config):
             # import pdb
             # pdb.set_trace()
             # 如果回覆同 response_to 係一樣的話，跳過佢
-            pass
-        else:
-            config['emit'](
-                'message', {"sender": sender.name, "message": messages[-1], "response_to": response_to, "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
+            return False, None
+
+        if messages[-1]['content'] == '' or messages[-1]['content'].isspace():
+            return False, None
+
+        # 同助手講的野唔洗顯示
+        if sender.name == 'user_proxy' and config['category'] in ['assistant']:
+            return False, None
+
+        # import pdb
+        # pdb.set_trace()
+
+        config['emit'](
+            'message', {"sender": sender.name, "message": messages[-1], "response_to": response_to, "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
 
     return False, None  # required to ensure the agent communication flow continues
 
