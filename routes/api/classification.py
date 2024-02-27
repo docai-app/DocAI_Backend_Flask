@@ -7,51 +7,64 @@ from services.ocr import OCRService
 from services.database import DatabaseService
 
 
-classification = Blueprint('classification', __name__)
+classification = Blueprint("classification", __name__)
 
 
-@classification.route('/classification/prepare', methods=['GET'])
+@classification.route("/classification/prepare", methods=["GET"])
 def prepare():
     res = ClassificationService.prepare()
-    return jsonify({'prediction': res})
+    return jsonify({"prediction": res})
 
 
-@classification.route('/classification/initial', methods=['POST'])
+@classification.route("/classification/initial", methods=["POST"])
 def initial():
     files = request.json
-    res = ClassificationService.initial(files['document'])
-    return jsonify({'prediction': res})
+    res = ClassificationService.initial(files["document"])
+    return jsonify({"prediction": res})
 
 
-@classification.route('/classification/predict', methods=['GET'])
+@classification.route("/classification/predict", methods=["GET"])
 def predict():
-    print("Model name: ", request.args.get('model'))
-    content = request.args.get('content')
-    model = request.args.get('model') or 'public'
+    print("Model name: ", request.args.get("model"))
+    content = request.args.get("content")
+    model = request.args.get("model") or "public"
     res = ClassificationService.predict(content, model)
-    return jsonify({'label_id': res})
+    return jsonify({"label_id": res})
 
 
-@classification.route('/classification/confirm', methods=['POST'])
+@classification.route("/classification/confirm", methods=["POST"])
 def confirm():
     try:
         requestData = request.get_json()
-        content = requestData['content']
-        label = requestData['label']
-        model = requestData['model'] or 'public'
+        content = requestData["content"]
+        label = requestData["label"]
+        model = requestData["model"] or "public"
         print(content, label, model)
         print(type(label))
         res = ClassificationService.confirm(content, label, model)
-        return jsonify({'status': res, 'message': 'Document confirmed'})
+        return jsonify({"status": res, "message": "Document confirmed"})
     except Exception as e:
-        return jsonify({'status': False, 'message': str(e)})
+        return jsonify({"status": False, "message": str(e)})
 
 
-@classification.route('/documents/labels/<id>', methods=['GET'])
+@classification.route("/classification/retrain", methods=["POST"])
+def train():
+    try:
+        requestData = request.get_json()
+        model = requestData["model"] or "public"
+        viewName = requestData["viewName"]
+        print(model, viewName)
+        res = ClassificationService.retrain(model, viewName)
+        return jsonify({"status": res, "message": "Training completed"})
+    except Exception as e:
+        return jsonify({"status": False, "message": str(e)})
+
+
+@classification.route("/documents/labels/<id>", methods=["GET"])
 def documentsByLabelID(id):
     try:
         res = DocumentsQueryService.getDocumentByLabelID(id)
-        return jsonify({'status': True, 'documents': res})
+        return jsonify({"status": True, "documents": res})
     except Exception as e:
         print(e)
-        return jsonify({'status': False, 'message': 'Error: ' + str(e)})
+        return jsonify({"status": False, "message": "Error: " + str(e)})
