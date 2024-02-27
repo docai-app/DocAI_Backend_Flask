@@ -100,6 +100,6 @@ def generate_storybook():
         print("PDF URL: ", pdf_url)
 
         # return send_file(finishedPdf, as_attachment=True, download_name="storybook.pdf")
-        return jsonify({"status": True, "file_url": pdf_url})
+        return jsonify({"status": True, "success": True, "file_url": pdf_url})
     except Exception as e:
-        return jsonify({"status": False, "message": "Error: " + str(e)})
+        return jsonify({"status": False, "success": False, "message": "Error: " + str(e)})
