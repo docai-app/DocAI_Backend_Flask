@@ -114,6 +114,10 @@ socketio = SocketIO(
     cors_allowed_origins=[
         "http://localhost:3000",
         "https://test-docai-chatbot-plus.vercel.app",
+        "https://chyb-dev.docai.net",
+        "https://chyb.docai.net",
+        "http://chyb-dev.docai.net",
+        "http://chyb.docai.net"
     ],
 )
 
