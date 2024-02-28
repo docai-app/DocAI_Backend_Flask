@@ -89,6 +89,10 @@ def createApp(config="database/settings.py"):
                     "https://dev-docai-chatbot-plus.vercel.app",
                     "http://dev-docai-chatbot-plus.vercel.app/",
                     "https://test-docai-chatbot-plus.vercel.app",
+                    "https://chyb-dev.docai.net",
+                    "https://chyb.docai.net",
+                    "http://chyb-dev.docai.net",
+                    "http://chyb.docai.net"
                 ]
             }
         },

@@ -10,6 +10,9 @@ import autogen
 import importlib
 from datetime import date
 import json
+import os
+
+from utils.simple_api_requester import SimpleAPIRequester
 
 autogen_api = Blueprint('autogen', __name__)
 
@@ -226,6 +229,23 @@ def extract_text_within_backticks(text):
     return matches[0] if matches else text
 
 
+def save_message(X_API_KEY, chatbot_id, message, sender):
+    # url = f"{os.getenv('RAILS_ENDPOINT')}/api/v1/general_users/assistant/autogen/message"
+    url = "http://192.168.50.69:3001/api/v1/chatbots/general_users/assistant/autogen/message.json"
+    body = {
+        'chatbot_id': chatbot_id,
+        'message': message,
+        'sender': sender.name
+    }
+    headers = {
+        'Content-type': 'application/json; charset=UTF-8',
+        'X-API-KEY': X_API_KEY
+    }
+    requester = SimpleAPIRequester(url, method='POST', body=body, headers=headers)
+    result = requester.send_request()
+    print(result)
+
+
 def print_messages(recipient, messages, sender, config):
 
     print(f"[{recipient}]: {messages[-1]}")
@@ -300,6 +320,9 @@ def print_messages(recipient, messages, sender, config):
         config['emit'](
             'message', {"sender": sender.name, "message": messages[-1], "response_to": response_to, "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
 
+        # save message
+        save_message(config['X_API_KEY'], config['chatbot_id'], messages[-1], sender)
+
     return False, None  # required to ensure the agent communication flow continues
 
 
@@ -310,6 +333,8 @@ def assistant_core(data, config):
     raw_history = data.get('history', "")
     agent_tools_config = data.get('agent_tools', {})
     development_mode = data.get('development', False)
+    X_API_KEY = data['X-API-KEY']
+    chatbot_id = data['chatbot_id']
 
     print("agent tools config")
     print(agent_tools_config)
@@ -336,7 +361,9 @@ def assistant_core(data, config):
         "prompt_header": prompt_header,
         "prompt": prompt,
         "development": development_mode,
-        "history": history
+        "history": history,
+        "X_API_KEY": X_API_KEY,
+        "chatbot_id": chatbot_id
     }, **config}
 
     # 创建函数映射表
