@@ -76,23 +76,23 @@ def createApp(config="database/settings.py"):
                     "https://doc-ai-frontend.vercel.app/",
                     "https://chatbot-demo.docai.net",
                     "http://chatbot-demo.docai.net",
-                    "https://chatbot.docai.net",
-                    "http://chatbot.docai.net",
                     "https://prod-docai-chatbot.vercel.app",
                     "http://prod-docai-chatbot.vercel.app",
                     "https://dev-docai-chatbot.vercel.app",
                     "http://dev-docai-chatbot.vercel.app",
                     "https://docai-chatbot-next.vercel.app",
                     "http://docai-chatbot-next.vercel.app",
-                    "https://chatbot-dev.docai.net",
-                    "http://chatbot-dev.docai.net",
                     "https://dev-docai-chatbot-plus.vercel.app",
                     "http://dev-docai-chatbot-plus.vercel.app/",
                     "https://test-docai-chatbot-plus.vercel.app",
                     "https://chyb-dev.docai.net",
                     "https://chyb.docai.net",
                     "http://chyb-dev.docai.net",
-                    "http://chyb.docai.net"
+                    "http://chyb.docai.net",
+                    "http://chatbot-dev.docai.net",
+                    "https://chatbot-dev.docai.net",
+                    "http://chatbot.docai.net",
+                    "https://chatbot.docai.net"
                 ]
             }
         },
@@ -117,7 +117,11 @@ socketio = SocketIO(
         "https://chyb-dev.docai.net",
         "https://chyb.docai.net",
         "http://chyb-dev.docai.net",
-        "http://chyb.docai.net"
+        "http://chyb.docai.net",
+        "http://chatbot-dev.docai.net",
+        "https://chatbot-dev.docai.net",
+        "http://chatbot.docai.net",
+        "https://chatbot.docai.net"
     ],
 )
 
