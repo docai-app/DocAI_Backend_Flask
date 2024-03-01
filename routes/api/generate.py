@@ -13,7 +13,7 @@ generate = Blueprint("generate", __name__)
 
 STYLES = {
     "Impressionism": "Monet, impressionist art style, loose brushstrokes, vibrant colors, painted, painted light",
-    "Ghibli": "Ghibli art style, Studio Ghibli, Hayao Miyazaki, anime, colorful, animated, Japanese culture",
+    "Anime": "In the style of Japanese Futuristic Anime Illustrations, child's fairy tale style, anime, illustrations, colorful, animated, UHD, master piece",
     "Japanese Ukiyo-e": "Ukiyo-e art style, Hokusai, woodblock prints, flat areas of color, outlines, nature, Japanese culture",
     "Folk Art": "Folk art style, naive art, simple shapes, bright colors, childlike, intuitive, traditional",
     "Expressionism": "Expressionist art style, Edvard Munch, distorted forms, dramatic colors, emotional impact, subjective",
