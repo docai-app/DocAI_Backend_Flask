@@ -230,8 +230,8 @@ def extract_text_within_backticks(text):
 
 
 def save_message(X_API_KEY, chatbot_id, message, sender):
-    # url = f"{os.getenv('RAILS_ENDPOINT')}/api/v1/general_users/assistant/autogen/message"
-    url = "http://192.168.50.69:3001/api/v1/chatbots/general_users/assistant/autogen/message.json"
+    url = f"{os.getenv('RAILS_ENDPOINT')}/api/v1/general_users/assistant/autogen/message"
+    # url = "http://192.168.50.69:3001/api/v1/chatbots/general_users/assistant/autogen/message.json"
     body = {
         'chatbot_id': chatbot_id,
         'message': message,
@@ -243,7 +243,7 @@ def save_message(X_API_KEY, chatbot_id, message, sender):
     }
     requester = SimpleAPIRequester(url, method='POST', body=body, headers=headers)
     result = requester.send_request()
-    print(result)
+    return result['message']['id']
 
 
 def print_messages(recipient, messages, sender, config):
@@ -314,14 +314,11 @@ def print_messages(recipient, messages, sender, config):
         if sender.name == 'user_proxy' and config['category'] in ['assistant']:
             return False, None
 
-        # import pdb
-        # pdb.set_trace()
+        # save message
+        message_id = save_message(config['X_API_KEY'], config['chatbot_id'], messages[-1], sender)
 
         config['emit'](
-            'message', {"sender": sender.name, "message": messages[-1], "response_to": response_to, "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
-
-        # save message
-        save_message(config['X_API_KEY'], config['chatbot_id'], messages[-1], sender)
+            'message', {"sender": sender.name, "message_id": message_id, "message": messages[-1], "response_to": response_to, "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
 
     return False, None  # required to ensure the agent communication flow continues
 
