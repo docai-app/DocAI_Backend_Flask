@@ -317,10 +317,10 @@ def print_messages(recipient, messages, sender, config):
             return False, None
 
         # save message
-        # message_id = save_message(config['X_API_KEY'], config['chatbot_id'], messages[-1], sender)
+        message_id = save_message(config['X_API_KEY'], config['chatbot_id'], messages[-1], sender)
 
         config['emit'](
-            'message', {"sender": sender.name, "message": messages[-1], "response_to": response_to, "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
+            'message', {"sender": sender.name, "message_id": message_id, "message": messages[-1], "response_to": response_to, "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
 
     return False, None  # required to ensure the agent communication flow continues
 
@@ -403,23 +403,24 @@ def assistant_core(data, config):
     )
     # 專屬助手的 functions
     for agent_tool in agent['agent_tools']:
-        name, function = import_agent_tool(agent, agent_tool, agent_tools_config, merged_config)
+        if agent_tool is not None:
+            name, function = import_agent_tool(agent, agent_tool, agent_tools_config, merged_config)
 
-        # override 預設的 description
-        tool_name = agent_tool['name']
-        if tool_name in agent_tools_config and 'description' in agent_tools_config[tool_name]:
-            customize_description = agent_tools_config[tool_name]['description']
-        else:
-            customize_description = agent_tool['description']
+            # override 預設的 description
+            tool_name = agent_tool['name']
+            if tool_name in agent_tools_config and 'description' in agent_tools_config[tool_name]:
+                customize_description = agent_tools_config[tool_name]['description']
+            else:
+                customize_description = agent_tool['description']
 
-        agent_llm_config['functions'].append({
-            "name": name,
-            "description": customize_description,
-            "parameters": agent_tool['meta']['parameters']
-        })
+            agent_llm_config['functions'].append({
+                "name": name,
+                "description": customize_description,
+                "parameters": agent_tool['meta']['parameters']
+            })
 
-        # 创建函数映射表
-        function_map[name] = function._run
+            # 创建函数映射表
+            function_map[name] = function._run
 
     user_proxy = autogen.UserProxyAgent(
         name="user_proxy",
