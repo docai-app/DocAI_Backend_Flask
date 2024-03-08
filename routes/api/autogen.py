@@ -17,22 +17,7 @@ from utils.simple_api_requester import SimpleAPIRequester
 autogen_api = Blueprint('autogen', __name__)
 
 
-# def exec_python(cell):
-#     ipython = get_ipython()
-#     result = ipython.run_cell(cell)
-#     log = str(result.result)
-#     if result.error_before_exec is not None:
-#         log += f"\n{result.error_before_exec}"
-#     if result.error_in_exec is not None:
-#         log += f"\n{result.error_in_exec}"
-#     return log
-
-
 def exec_python(cell: str):
-    # if "cell" in args:
-    #     cell_content = args["cell"]
-    # else:
-    #     cell_content = args
 
     cell_content = cell
 
@@ -107,7 +92,9 @@ def sql_result_2dict(cursor, result):
 
 def create_ask_expert_function(expert, agent_tools_config, config):
 
-    config_list = autogen.config_list_from_json("OAI_CONFIG_LIST")
+    config_list = autogen.config_list_from_json("OAI_CONFIG_LIST", filter_dict={
+        "model": ["gpt-4-1106-preview"]
+    })
 
     def ask_expert_function(message):
         # 实现专家回答问题的逻辑
@@ -173,7 +160,12 @@ def create_ask_expert_function(expert, agent_tools_config, config):
             # human_input_mode="ALWAYS",
             human_input_mode="NEVER",
             code_execution_config={"work_dir": f"{expert['name_en']}"},
-            function_map=function_map
+            function_map=function_map,
+            llm_config={
+                "seed": 42,
+                "temperature": 0,
+                "config_list": config_list,
+            }
         )
 
         assistant_config = config.copy()
@@ -229,9 +221,9 @@ def extract_text_within_backticks(text):
     return matches[0] if matches else text
 
 
-def save_message(X_API_KEY, chatbot_id, message, sender):
+def save_message(X_API_KEY, AuthToken, chatbot_id, message, sender):
     url = f"{os.getenv('RAILS_ENDPOINT')}/api/v1/chatbots/general_users/assistant/autogen/message"
-    # url = "http://192.168.50.69:3001/api/v1/chatbots/general_users/assistant/autogen/message.json"
+    # url = "http://192.168.1.102:3001/api/v1/chatbots/general_users/assistant/autogen/message.json"
     body = {
         'chatbot_id': chatbot_id,
         'message': message,
@@ -239,7 +231,8 @@ def save_message(X_API_KEY, chatbot_id, message, sender):
     }
     headers = {
         'Content-type': 'application/json; charset=UTF-8',
-        'X-API-KEY': X_API_KEY
+        'X-API-KEY': X_API_KEY,
+        'Authorization': AuthToken,
     }
     requester = SimpleAPIRequester(url, method='POST', body=body, headers=headers)
     result = requester.send_request()
@@ -316,8 +309,10 @@ def print_messages(recipient, messages, sender, config):
         if sender.name == 'user_proxy' and config['category'] in ['assistant']:
             return False, None
 
+        # import pdb
+        # pdb.set_trace()
         # save message
-        message_id = save_message(config['X_API_KEY'], config['chatbot_id'], messages[-1], sender)
+        message_id = save_message(config['X_API_KEY'], config['AuthToken'], config['chatbot_id'], messages[-1], sender)
 
         config['emit'](
             'message', {"sender": sender.name, "message_id": message_id, "message": messages[-1], "response_to": response_to, "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
@@ -333,7 +328,9 @@ def assistant_core(data, config):
     agent_tools_config = data.get('agent_tools', {})
     development_mode = data.get('development', False)
     X_API_KEY = data['X-API-KEY']
+    AuthToken = data['AuthToken']
     chatbot_id = data['chatbot_id']
+    chatbot_meta = data['chatbot_meta']
 
     print("agent tools config")
     print(agent_tools_config)
@@ -347,7 +344,9 @@ def assistant_core(data, config):
         prompt = f"history:```{history}```\n\nprompt:\n\n```{prompt}```"
 
     agent = AutogenAgentService.get_assistant_agent_by_name(assistant_name)
-    prompt_header = agent['prompt_header']
+
+    prompt_header = f"必須使用{chatbot_meta['language']}來回覆, 你只懂{chatbot_meta['language']}, 你不懂其他任何語言"
+    prompt_header = f"{prompt_header}\n{agent['prompt_header']}"
 
     if len(expert_names) > 0:
         experts = AutogenAgentService.get_experts_by_names(expert_names)
@@ -362,6 +361,7 @@ def assistant_core(data, config):
         "development": development_mode,
         "history": history,
         "X_API_KEY": X_API_KEY,
+        "AuthToken": AuthToken,
         "chatbot_id": chatbot_id
     }, **config}
 

@@ -75,10 +75,6 @@ class QuizGenerationTool(BaseTool):
         )
         tools = [search_documents_tool]
 
-        # print("sys message: ")
-        # print(system_message)
-        # print(system_message_from_expert)
-
         system_message = SystemMessage(
             content=(
                 "Feel free to use any tools available to look up. "
@@ -87,16 +83,9 @@ class QuizGenerationTool(BaseTool):
             )
         )
 
-        # system_message = SystemMessage(
-        #     content=system_message_from_expert
-        # )
-
         prompt = OpenAIFunctionsAgent.create_prompt(
             system_message=system_message,
         )
-
-        # import pdb
-        # pdb.set_trace()
 
         agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
 
