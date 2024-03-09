@@ -219,6 +219,7 @@ class DocumentService:
         result_coult = 8
         llm = ChatOpenAI(model_name=os.getenv("OPENAI_MODEL_NAME"), temperature=0.2)
 
+
         if "document_id" in metadata:
             filter["document_id"] = {"in": [str(i) for i in metadata["document_id"]]}
 
@@ -246,9 +247,10 @@ class DocumentService:
         system_message = SystemMessage(
             content=(
                 "Generate results using the language of retrieval data. "
+                "Only use the " + metadata["language"] + " language generate 10 questions! "
                 "Feel free to use any tools available to look up. "
                 "The generated 10 questions must ask the key point of the each retrieved data. "
-                'The output result is a JSON object string and the format must be like this: ```{"assistant_questions": ["question_1", "question_2", "question_3"]}``` '
+                'The output result is a JSON object string and the format must be like this: ```json {"assistant_questions": ["question_1", "question_2", "question_3"]}``` '
                 "Try your best to generate 10 questions! "
             )
         )
@@ -270,12 +272,8 @@ class DocumentService:
         )
 
         print("Agent Res: ", agent_res["output"])
-        
-        print("Format: ", cleansingContentFromGpt(agent_res["output"]))
 
         data = cleansingContentFromGpt(agent_res["output"])
-        
-        print(data)
 
         return data
 
