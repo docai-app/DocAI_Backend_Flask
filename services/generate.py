@@ -116,7 +116,7 @@ generateSimpleStatisticsPrompt = PromptTemplate(
 class GenerateService:
     @staticmethod
     def generateChart(query, content):
-        chain1 = LLMChain(llm=llm_gpt4_turbo, prompt=summaryFormDataPrompt)
+        chain1 = LLMChain(llm=llm, prompt=summaryFormDataPrompt)
         summarizedData = chain1.run(query=query, content=content)
         print(summarizedData)
         print("----------------------")
@@ -184,7 +184,7 @@ class GenerateService:
 
             print(extractedData)
 
-            chain = LLMChain(llm=llm_gpt4_turbo,
+            chain = LLMChain(llm=llm,
                              prompt=generateSimpleStatisticsPrompt)
             report = chain.run(query=query, data=extractedData)
             print(report)
