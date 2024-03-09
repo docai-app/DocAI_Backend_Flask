@@ -181,8 +181,8 @@ class GenerateService:
             extractedData["dataSchema"] = list(rows.keys())
 
             for row in rows:
-                extractedData["data"].append(dict(row))
                 print(row)
+                extractedData["data"].append(dict(row))
 
             print(extractedData)
 
