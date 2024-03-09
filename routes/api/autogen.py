@@ -10,26 +10,14 @@ import autogen
 import importlib
 from datetime import date
 import json
+import os
+
+from utils.simple_api_requester import SimpleAPIRequester
 
 autogen_api = Blueprint('autogen', __name__)
 
 
-# def exec_python(cell):
-#     ipython = get_ipython()
-#     result = ipython.run_cell(cell)
-#     log = str(result.result)
-#     if result.error_before_exec is not None:
-#         log += f"\n{result.error_before_exec}"
-#     if result.error_in_exec is not None:
-#         log += f"\n{result.error_in_exec}"
-#     return log
-
-
 def exec_python(cell: str):
-    # if "cell" in args:
-    #     cell_content = args["cell"]
-    # else:
-    #     cell_content = args
 
     cell_content = cell
 
@@ -104,7 +92,9 @@ def sql_result_2dict(cursor, result):
 
 def create_ask_expert_function(expert, agent_tools_config, config):
 
-    config_list = autogen.config_list_from_json("OAI_CONFIG_LIST")
+    config_list = autogen.config_list_from_json("OAI_CONFIG_LIST", filter_dict={
+        "model": ["gpt-4-1106-preview"]
+    })
 
     def ask_expert_function(message):
         # 实现专家回答问题的逻辑
@@ -170,7 +160,12 @@ def create_ask_expert_function(expert, agent_tools_config, config):
             # human_input_mode="ALWAYS",
             human_input_mode="NEVER",
             code_execution_config={"work_dir": f"{expert['name_en']}"},
-            function_map=function_map
+            function_map=function_map,
+            llm_config={
+                "seed": 42,
+                "temperature": 0,
+                "config_list": config_list,
+            }
         )
 
         assistant_config = config.copy()
@@ -224,6 +219,26 @@ def extract_text_within_backticks(text):
     matches = re.findall(r'```(.*?)```', text)
     # 如果找到了匹配的文本，返回第一个匹配项；否则，返回原始文本
     return matches[0] if matches else text
+
+
+def save_message(X_API_KEY, AuthToken, chatbot_id, message, sender):
+    url = f"{os.getenv('RAILS_ENDPOINT')}/api/v1/chatbots/general_users/assistant/autogen/message"
+    # url = "http://192.168.1.102:3001/api/v1/chatbots/general_users/assistant/autogen/message.json"
+    body = {
+        'chatbot_id': chatbot_id,
+        'message': message,
+        'sender': sender.name
+    }
+    headers = {
+        'Content-type': 'application/json; charset=UTF-8',
+        'X-API-KEY': X_API_KEY,
+        'Authorization': AuthToken,
+    }
+    requester = SimpleAPIRequester(url, method='POST', body=body, headers=headers)
+    result = requester.send_request()
+    # import pdb
+    # pdb.set_trace()
+    return result['message']['id']
 
 
 def print_messages(recipient, messages, sender, config):
@@ -296,9 +311,11 @@ def print_messages(recipient, messages, sender, config):
 
         # import pdb
         # pdb.set_trace()
+        # save message
+        message_id = save_message(config['X_API_KEY'], config['AuthToken'], config['chatbot_id'], messages[-1], sender)
 
         config['emit'](
-            'message', {"sender": sender.name, "message": messages[-1], "response_to": response_to, "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
+            'message', {"sender": sender.name, "message_id": message_id, "message": messages[-1], "response_to": response_to, "display_method": display_method}, room=config['room'], prompt_header=config['prompt_header'])
 
     return False, None  # required to ensure the agent communication flow continues
 
@@ -310,6 +327,10 @@ def assistant_core(data, config):
     raw_history = data.get('history', "")
     agent_tools_config = data.get('agent_tools', {})
     development_mode = data.get('development', False)
+    X_API_KEY = data['X-API-KEY']
+    AuthToken = data['AuthToken']
+    chatbot_id = data['chatbot_id']
+    chatbot_meta = data['chatbot_meta']
 
     print("agent tools config")
     print(agent_tools_config)
@@ -323,7 +344,9 @@ def assistant_core(data, config):
         prompt = f"history:```{history}```\n\nprompt:\n\n```{prompt}```"
 
     agent = AutogenAgentService.get_assistant_agent_by_name(assistant_name)
-    prompt_header = agent['prompt_header']
+
+    prompt_header = f"必須使用{chatbot_meta['language']}來回覆, 你只懂{chatbot_meta['language']}, 你不懂其他任何語言"
+    prompt_header = f"{prompt_header}\n{agent['prompt_header']}"
 
     if len(expert_names) > 0:
         experts = AutogenAgentService.get_experts_by_names(expert_names)
@@ -336,7 +359,10 @@ def assistant_core(data, config):
         "prompt_header": prompt_header,
         "prompt": prompt,
         "development": development_mode,
-        "history": history
+        "history": history,
+        "X_API_KEY": X_API_KEY,
+        "AuthToken": AuthToken,
+        "chatbot_id": chatbot_id
     }, **config}
 
     # 创建函数映射表
@@ -377,23 +403,24 @@ def assistant_core(data, config):
     )
     # 專屬助手的 functions
     for agent_tool in agent['agent_tools']:
-        name, function = import_agent_tool(agent, agent_tool, agent_tools_config, merged_config)
+        if agent_tool is not None:
+            name, function = import_agent_tool(agent, agent_tool, agent_tools_config, merged_config)
 
-        # override 預設的 description
-        tool_name = agent_tool['name']
-        if tool_name in agent_tools_config and 'description' in agent_tools_config[tool_name]:
-            customize_description = agent_tools_config[tool_name]['description']
-        else:
-            customize_description = agent_tool['description']
+            # override 預設的 description
+            tool_name = agent_tool['name']
+            if tool_name in agent_tools_config and 'description' in agent_tools_config[tool_name]:
+                customize_description = agent_tools_config[tool_name]['description']
+            else:
+                customize_description = agent_tool['description']
 
-        agent_llm_config['functions'].append({
-            "name": name,
-            "description": customize_description,
-            "parameters": agent_tool['meta']['parameters']
-        })
+            agent_llm_config['functions'].append({
+                "name": name,
+                "description": customize_description,
+                "parameters": agent_tool['meta']['parameters']
+            })
 
-        # 创建函数映射表
-        function_map[name] = function._run
+            # 创建函数映射表
+            function_map[name] = function._run
 
     user_proxy = autogen.UserProxyAgent(
         name="user_proxy",
