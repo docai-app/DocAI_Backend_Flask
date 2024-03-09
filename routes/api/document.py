@@ -93,6 +93,7 @@ def suggestion():
         schema = requestData['schema']
         metadata = requestData['metadata'] or {}
         answer = DocumentService.suggestionDocumentQA(schema, metadata)
+        print("answer: ", answer)
         return jsonify({'status': True, 'suggestion': answer})
     except Exception as e:
         return jsonify({'status': False, 'message': str(e)})

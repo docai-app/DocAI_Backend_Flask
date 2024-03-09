@@ -31,7 +31,7 @@ from langchain.schema.prompt_template import format_document
 from langchain.schema.runnable import RunnableParallel, RunnablePassthrough
 from langchain.chains.combine_documents import collapse_docs, split_list_of_docs
 from langchain.docstore.document import Document
-from utils.utils import getExtension
+from utils.utils import getExtension, cleansingContentFromGpt
 import os
 import json
 from datetime import date
@@ -248,7 +248,7 @@ class DocumentService:
                 "Generate results using the language of retrieval data. "
                 "Feel free to use any tools available to look up. "
                 "The generated 10 questions must ask the key point of the each retrieved data. "
-                'The output result is a JSON object string and the format must be like this: ```json {"assistant_questions": ["question_1", "question_2", "question_3"]}``` '
+                'The output result is a JSON object string and the format must be like this: ```{"assistant_questions": ["question_1", "question_2", "question_3"]}``` '
                 "Try your best to generate 10 questions! "
             )
         )
@@ -270,10 +270,14 @@ class DocumentService:
         )
 
         print("Agent Res: ", agent_res["output"])
+        
+        print("Format: ", cleansingContentFromGpt(agent_res["output"]))
 
-        data = agent_res["output"].split("\n")[0]
+        data = cleansingContentFromGpt(agent_res["output"])
+        
+        print(data)
 
-        return json.loads(data)
+        return data
 
     # @staticmethod
     # def generateQuestionsFromChunks(chunks):
