@@ -179,10 +179,12 @@ class GenerateService:
             rows = db.session.execute(text(sql))
 
             extractedData["dataSchema"] = list(rows.keys())
+            
+            print(rows)
 
             for row in rows:
                 print(row)
-                extractedData["data"].append(dict(row))
+                extractedData["data"].append(row)
 
             print(extractedData)
 
