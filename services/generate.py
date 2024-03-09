@@ -1,12 +1,14 @@
 import os
 from langchain.prompts import PromptTemplate
 from langchain_community.chat_models import ChatOpenAI
+
 # from langchain_community.llms import OpenAI
 from langchain.chains import LLMChain
 from langchain import SQLDatabase
 from ext import db
 from utils.generate import generateSQLByViews
 from dotenv import load_dotenv
+from sqlalchemy.sql import text
 
 load_dotenv()
 
@@ -140,7 +142,7 @@ class GenerateService:
 
             print("SQL: ", sql)
 
-            rows = db.session.execute(sql)
+            rows = db.session.execute(text(sql))
 
             extractedData["dataSchema"] = list(rows.keys())
 
@@ -174,7 +176,7 @@ class GenerateService:
 
             print("SQL: ", sql)
 
-            rows = db.session.execute(sql)
+            rows = db.session.execute(text(sql))
 
             extractedData["dataSchema"] = list(rows.keys())
 
@@ -184,8 +186,7 @@ class GenerateService:
 
             print(extractedData)
 
-            chain = LLMChain(llm=llm,
-                             prompt=generateSimpleStatisticsPrompt)
+            chain = LLMChain(llm=llm, prompt=generateSimpleStatisticsPrompt)
             report = chain.run(query=query, data=extractedData)
             print(report)
             print("----------------------")
