@@ -179,7 +179,7 @@ class GenerateService:
             rows = db.session.execute(text(sql))
 
             extractedData["dataSchema"] = list(rows.keys())
-            
+
             print(rows)
 
             for row in rows:
