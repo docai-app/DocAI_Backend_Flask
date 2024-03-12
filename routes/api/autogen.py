@@ -92,9 +92,14 @@ def sql_result_2dict(cursor, result):
 
 def create_ask_expert_function(expert, agent_tools_config, config):
 
-    config_list = autogen.config_list_from_json("OAI_CONFIG_LIST", filter_dict={
-        "model": ["gpt-4-1106-preview"]
-    })
+    config_list = autogen.config_list_from_json(
+        "OAI_CONFIG_LIST",
+        filter_dict={
+            "model": {
+                "gpt-4-1106-preview",
+            }
+        },
+    )
 
     def ask_expert_function(message):
         # 实现专家回答问题的逻辑
@@ -164,7 +169,7 @@ def create_ask_expert_function(expert, agent_tools_config, config):
             llm_config={
                 "seed": 42,
                 "temperature": 0,
-                "config_list": config_list,
+                # "config_list": config_list,
             }
         )
 
@@ -222,8 +227,9 @@ def extract_text_within_backticks(text):
 
 
 def save_message(X_API_KEY, AuthToken, chatbot_id, message, sender):
-    url = f"{os.getenv('RAILS_ENDPOINT')}/api/v1/chatbots/general_users/assistant/autogen/message"
-    # url = "http://192.168.1.102:3001/api/v1/chatbots/general_users/assistant/autogen/message.json"
+    # url = f"{os.getenv('RAILS_ENDPOINT')}/api/v1/chatbots/general_users/assistant/autogen/message"
+    # url = "http://192.168.1.101:3001/api/v1/chatbots/general_users/assistant/autogen/message.json"
+    url = "http://192.168.50.69:3001/api/v1/chatbots/general_users/assistant/autogen/message.json"
     body = {
         'chatbot_id': chatbot_id,
         'message': message,
