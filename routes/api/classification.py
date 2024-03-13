@@ -13,14 +13,14 @@ classification = Blueprint("classification", __name__)
 @classification.route("/classification/prepare", methods=["GET"])
 def prepare():
     res = ClassificationService.prepare()
-    return jsonify({"prediction": res})
+    return jsonify({"status": "success", "prediction": res})
 
 
 @classification.route("/classification/initial", methods=["POST"])
 def initial():
     files = request.json
     res = ClassificationService.initial(files["document"])
-    return jsonify({"prediction": res})
+    return jsonify({"status": "success", "prediction": res})
 
 
 @classification.route("/classification/predict", methods=["GET"])
@@ -29,7 +29,7 @@ def predict():
     content = request.args.get("content")
     model = request.args.get("model") or "public"
     res = ClassificationService.predict(content, model)
-    return jsonify({"label_id": res})
+    return jsonify({"status": "success", "label_id": res})
 
 
 @classification.route("/classification/confirm", methods=["POST"])

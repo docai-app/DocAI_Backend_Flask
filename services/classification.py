@@ -55,7 +55,7 @@ class ClassificationService:
             "wb",
         ) as file:
             pickle.dump(learner, file)
-        return "Success"
+        return "success"
 
     @staticmethod
     def predict(content="", model="public"):
@@ -147,14 +147,14 @@ class ClassificationService:
             print("Results: ", results)
 
             with open(
-                "{PATH}/model/{model}_{viewName}.pkl".format(
+                "{PATH}/model/model_{model}_{viewName}.pkl".format(
                     model=model, PATH=PATH, viewName=viewName
                 ),
                 "wb",
             ) as file:
                 pickle.dump(learner, file)
 
-            return "Success"
+            return "success"
 
         except Exception as e:
             print(e)
