@@ -155,7 +155,6 @@ class ClassificationService:
                 pickle.dump(learner, file)
 
             return "success"
-
         except Exception as e:
             print(e)
             pass
